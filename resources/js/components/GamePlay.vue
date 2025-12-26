@@ -468,9 +468,9 @@ export default {
             this.loading = true;
 
             try {
-                // Increment player score
+                // Complete the task (increments score AND removes tags)
                 const response = await fetch(
-                    `/api/players/${this.currentPlayerId}/score`,
+                    `/api/players/${this.currentPlayerId}/complete-task`,
                     {
                         method: "POST",
                         headers: {
@@ -479,20 +479,31 @@ export default {
                                 'meta[name="csrf-token"]',
                             ).content,
                         },
-                        body: JSON.stringify({ points: 1 }),
+                        body: JSON.stringify({
+                            task_id: this.currentTask.id,
+                            points: 1,
+                        }),
                     },
                 );
 
                 const data = await response.json();
                 if (data.success) {
-                    // Update local player score
+                    // Update local player data (score and tags)
                     const player = this.players.find(
                         (p) => p.id === this.currentPlayerId,
                     );
-                    if (player) {
-                        player.score = data.data.score;
+                    if (player && data.data.player) {
+                        player.score = data.data.player.score;
+                        player.tags = data.data.player.tags;
                     }
                     this.completedCount++;
+
+                    // Log if tags were removed
+                    if (data.data.removed_tags_count > 0) {
+                        console.log(
+                            `Removed ${data.data.removed_tags_count} tag(s) from player`,
+                        );
+                    }
                 }
 
                 // Move to next player

@@ -131,4 +131,8 @@ Route::prefix("players")->group(function () {
 
     // Player actions
     Route::post("{player}/score", [PlayerController::class, "incrementScore"]);
+    Route::post("{player}/complete-task", [
+        PlayerController::class,
+        "completeTask",
+    ]);
 });

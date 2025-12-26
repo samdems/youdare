@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Tag;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -303,5 +304,57 @@ class PlayerController extends Controller
             "message" => "Score updated successfully",
             "data" => $player,
         ]);
+    }
+
+    /**
+     * Mark a task as completed by the player.
+     * This will increment score and remove any tags specified in the task's tags_to_remove field.
+     */
+    public function completeTask(Request $request, Player $player)
+    {
+        $validator = Validator::make($request->all(), [
+            "task_id" => "required|exists:tasks,id",
+            "points" => "nullable|integer|min:1",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "errors" => $validator->errors(),
+                ],
+                422,
+            );
+        }
+
+        $task = Task::findOrFail($request->task_id);
+        $points = $request->points ?? 1;
+
+        // Remove tags from player if task specifies any
+        $removedTagIds = $task->removeTagsFromPlayer($player);
+
+        // Increment score
+        $player->incrementScore($points);
+        $player->refresh();
+        $player->load("tags");
+
+        $response = [
+            "success" => true,
+            "message" => "Task completed successfully",
+            "data" => [
+                "player" => $player,
+                "task" => $task,
+                "removed_tags_count" => count($removedTagIds),
+            ],
+        ];
+
+        if (count($removedTagIds) > 0) {
+            $removedTags = Tag::whereIn("id", $removedTagIds)->get();
+            $response["data"]["removed_tags"] = $removedTags;
+            $response["message"] .=
+                " and removed " . count($removedTagIds) . " tag(s)";
+        }
+
+        return response()->json($response);
     }
 }

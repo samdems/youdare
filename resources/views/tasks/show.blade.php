@@ -64,6 +64,29 @@
                 </div>
             @endif
 
+            <!-- Tags to Remove on Completion -->
+            @if($task->tags_to_remove && count($task->tags_to_remove) > 0)
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold mb-3">Tags Removed on Completion:</h2>
+                    <div class="alert alert-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <div class="font-semibold mb-2">When this task is completed, these tags will be removed from the player:</div>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($task->getRemovableTags() as $tag)
+                                    <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-error gap-2 hover:opacity-75 transition-opacity">
+                                        <span>🗑️</span>
+                                        <span>{{ $tag->name }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Task Details -->
             <div class="stats stats-vertical lg:stats-horizontal shadow mb-8 w-full">
                 <div class="stat">

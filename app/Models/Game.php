@@ -91,19 +91,78 @@ class Game extends Model
 
     /**
      * Get tasks that match the game's tags and max spice rating.
+     * This includes tasks that match current game/player tags OR tasks that can remove tags from players.
      */
     public function getAvailableTasks()
     {
         $tagIds = $this->getAllActiveTags();
 
-        return Task::published()
-            ->where("spice_rating", "<=", $this->max_spice_rating)
-            ->when(count($tagIds) > 0, function ($query) use ($tagIds) {
-                $query->whereHas("tags", function ($q) use ($tagIds) {
-                    $q->whereIn("tags.id", $tagIds);
-                });
-            })
-            ->get();
+        // Get all tags that are currently on any player (these can be removed by tasks)
+        $playerTagIds = $this->players()
+            ->with("tags")
+            ->get()
+            ->pluck("tags")
+            ->flatten()
+            ->pluck("id")
+            ->unique()
+            ->toArray();
+
+        $query = Task::published()->where(
+            "spice_rating",
+            "<=",
+            $this->max_spice_rating,
+        );
+
+        // If we have tags, filter tasks
+        if (count($tagIds) > 0 || count($playerTagIds) > 0) {
+            $query->where(function ($q) use ($tagIds, $playerTagIds) {
+                // Include tasks that match active tags
+                if (count($tagIds) > 0) {
+                    $q->whereHas("tags", function ($tagQuery) use ($tagIds) {
+                        $tagQuery->whereIn("tags.id", $tagIds);
+                    });
+                }
+
+                // Also include tasks that can remove tags from players
+                // Get all tasks and filter in PHP since JSON querying varies by database
+                if (count($playerTagIds) > 0) {
+                    // This will be further filtered after retrieval
+                    $q->orWhereNotNull("tags_to_remove");
+                }
+            });
+        }
+
+        $tasks = $query->get();
+
+        // Filter tasks that can remove player tags (done in PHP for database compatibility)
+        if (count($playerTagIds) > 0) {
+            $tasks = $tasks->filter(function ($task) use (
+                $tagIds,
+                $playerTagIds,
+            ) {
+                // Keep task if it matches active tags
+                if (
+                    count($tagIds) > 0 &&
+                    $task->tags->pluck("id")->intersect($tagIds)->count() > 0
+                ) {
+                    return true;
+                }
+
+                // Keep task if it can remove any player tag
+                if (
+                    !empty($task->tags_to_remove) &&
+                    is_array($task->tags_to_remove)
+                ) {
+                    return count(
+                        array_intersect($task->tags_to_remove, $playerTagIds),
+                    ) > 0;
+                }
+
+                return false;
+            });
+        }
+
+        return $tasks;
     }
 
     /**

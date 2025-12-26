@@ -109,6 +109,8 @@ class TaskController extends Controller
             "draft" => "boolean",
             "tags" => "array",
             "tags.*" => "exists:tags,id",
+            "tags_to_remove" => "array",
+            "tags_to_remove.*" => "exists:tags,id",
         ]);
 
         $validated["draft"] = $request->boolean("draft");
@@ -160,6 +162,8 @@ class TaskController extends Controller
             "draft" => "sometimes|boolean",
             "tags" => "sometimes|array",
             "tags.*" => "exists:tags,id",
+            "tags_to_remove" => "sometimes|array",
+            "tags_to_remove.*" => "exists:tags,id",
         ]);
 
         if ($request->has("draft")) {

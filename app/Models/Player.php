@@ -76,18 +76,70 @@ class Player extends Model
 
     /**
      * Get tasks available for this player based on game and player tags.
+     * This includes tasks that match current tags OR tasks that can remove tags from this player.
      */
     public function getAvailableTasks()
     {
         $tagIds = $this->getAllAvailableTags();
 
-        return Task::published()
-            ->when(count($tagIds) > 0, function ($query) use ($tagIds) {
-                $query->whereHas("tags", function ($q) use ($tagIds) {
-                    $q->whereIn("tags.id", $tagIds);
-                });
-            })
-            ->get();
+        // Get tags currently on this player (these can be removed by tasks)
+        $playerTagIds = $this->tags()->pluck("tags.id")->toArray();
+
+        $query = Task::published()->where(
+            "spice_rating",
+            "<=",
+            $this->game->max_spice_rating,
+        );
+
+        // If we have tags, filter tasks
+        if (count($tagIds) > 0 || count($playerTagIds) > 0) {
+            $query->where(function ($q) use ($tagIds, $playerTagIds) {
+                // Include tasks that match active tags
+                if (count($tagIds) > 0) {
+                    $q->whereHas("tags", function ($tagQuery) use ($tagIds) {
+                        $tagQuery->whereIn("tags.id", $tagIds);
+                    });
+                }
+
+                // Also include tasks that can remove tags from this player
+                if (count($playerTagIds) > 0) {
+                    // This will be further filtered after retrieval
+                    $q->orWhereNotNull("tags_to_remove");
+                }
+            });
+        }
+
+        $tasks = $query->get();
+
+        // Filter tasks that can remove player tags (done in PHP for database compatibility)
+        if (count($playerTagIds) > 0) {
+            $tasks = $tasks->filter(function ($task) use (
+                $tagIds,
+                $playerTagIds,
+            ) {
+                // Keep task if it matches active tags
+                if (
+                    count($tagIds) > 0 &&
+                    $task->tags->pluck("id")->intersect($tagIds)->count() > 0
+                ) {
+                    return true;
+                }
+
+                // Keep task if it can remove any tag from this player
+                if (
+                    !empty($task->tags_to_remove) &&
+                    is_array($task->tags_to_remove)
+                ) {
+                    return count(
+                        array_intersect($task->tags_to_remove, $playerTagIds),
+                    ) > 0;
+                }
+
+                return false;
+            });
+        }
+
+        return $tasks;
     }
 
     /**
@@ -95,21 +147,13 @@ class Player extends Model
      */
     public function getRandomTask($type = null)
     {
-        $tagIds = $this->getAllAvailableTags();
-
-        $query = Task::published()->with("tags");
+        $availableTasks = $this->getAvailableTasks();
 
         if ($type) {
-            $query->where("type", $type);
+            $availableTasks = $availableTasks->where("type", $type);
         }
 
-        if (count($tagIds) > 0) {
-            $query->whereHas("tags", function ($q) use ($tagIds) {
-                $q->whereIn("tags.id", $tagIds);
-            });
-        }
-
-        return $query->inRandomOrder()->first();
+        return $availableTasks->shuffle()->first();
     }
 
     /**

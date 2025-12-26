@@ -18,6 +18,7 @@ class Task extends Model
         "type",
         "spice_rating",
         "description",
+        "tags_to_remove",
         "draft",
         "user_id",
     ];
@@ -30,6 +31,7 @@ class Task extends Model
     protected $casts = [
         "draft" => "boolean",
         "spice_rating" => "integer",
+        "tags_to_remove" => "array",
     ];
 
     /**
@@ -218,5 +220,42 @@ class Task extends Model
             });
         }
         return $query;
+    }
+
+    /**
+     * Remove tags from a player when this task is completed.
+     *
+     * @param  Player  $player
+     * @return array Array of removed tag IDs
+     */
+    public function removeTagsFromPlayer(Player $player)
+    {
+        if (empty($this->tags_to_remove) || !is_array($this->tags_to_remove)) {
+            return [];
+        }
+
+        $removedTags = [];
+        foreach ($this->tags_to_remove as $tagId) {
+            if ($player->tags()->where("tag_id", $tagId)->exists()) {
+                $player->tags()->detach($tagId);
+                $removedTags[] = $tagId;
+            }
+        }
+
+        return $removedTags;
+    }
+
+    /**
+     * Get the tags that will be removed when this task is completed.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getRemovableTags()
+    {
+        if (empty($this->tags_to_remove) || !is_array($this->tags_to_remove)) {
+            return collect([]);
+        }
+
+        return Tag::whereIn("id", $this->tags_to_remove)->get();
     }
 }
