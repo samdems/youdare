@@ -95,9 +95,12 @@ class Player extends Model
         // If we have tags, filter tasks
         if (count($tagIds) > 0 || count($playerTagIds) > 0) {
             $query->where(function ($q) use ($tagIds, $playerTagIds) {
+                // Include tasks with no tags (always available)
+                $q->whereDoesntHave("tags");
+
                 // Include tasks that match active tags
                 if (count($tagIds) > 0) {
-                    $q->whereHas("tags", function ($tagQuery) use ($tagIds) {
+                    $q->orWhereHas("tags", function ($tagQuery) use ($tagIds) {
                         $tagQuery->whereIn("tags.id", $tagIds);
                     });
                 }
@@ -117,6 +120,11 @@ class Player extends Model
                     $tagIds,
                     $playerTagIds,
                 ) {
+                    // Keep task if it has no tags (always available)
+                    if ($task->tags->isEmpty()) {
+                        return true;
+                    }
+
                     // Keep task if it matches active tags
                     if (
                         count($tagIds) > 0 &&
