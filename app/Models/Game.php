@@ -92,6 +92,7 @@ class Game extends Model
     /**
      * Get tasks that match the game's tags and max spice rating.
      * This includes tasks that match current game/player tags OR tasks that can remove tags from players.
+     * Note: This method does not filter by cant_have_tags. Use getAvailableTasksForPlayer() for player-specific filtering.
      */
     public function getAvailableTasks()
     {
@@ -163,6 +164,19 @@ class Game extends Model
         }
 
         return $tasks;
+    }
+
+    /**
+     * Get tasks available for a specific player in this game.
+     * Filters out tasks where the player has any of the cant_have_tags.
+     *
+     * @param  Player  $player
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAvailableTasksForPlayer(Player $player)
+    {
+        // Use the player's own method which handles cant_have_tags filtering
+        return $player->getAvailableTasks();
     }
 
     /**

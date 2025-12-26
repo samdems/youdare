@@ -77,6 +77,7 @@ class Player extends Model
     /**
      * Get tasks available for this player based on game and player tags.
      * This includes tasks that match current tags OR tasks that can remove tags from this player.
+     * Excludes tasks where the player has any of the cant_have_tags.
      */
     public function getAvailableTasks()
     {
@@ -138,6 +139,11 @@ class Player extends Model
                 return false;
             });
         }
+
+        // Filter out tasks where the player has any of the cant_have_tags
+        $tasks = $tasks->filter(function ($task) {
+            return $task->isAvailableForPlayer($this);
+        });
 
         return $tasks;
     }

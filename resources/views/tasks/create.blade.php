@@ -255,6 +255,61 @@
                     @enderror
                 </div>
 
+                <!-- Can't Have Tags Selection -->
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Can't Have Tags (Negative Filter)</span>
+                    </label>
+                    <p class="text-sm opacity-70 mb-3">
+                        Select tags that players must <strong>NOT</strong> have for this task to appear. This is the opposite of regular tags - if a player has any of these tags, they won't see this task.
+                    </p>
+
+                    @if($tags->count() > 0)
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            @foreach($tags as $tag)
+                                <label class="cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        name="cant_have_tags[]"
+                                        value="{{ $tag->id }}"
+                                        class="hidden peer"
+                                        {{ (is_array(old('cant_have_tags')) && in_array($tag->id, old('cant_have_tags'))) ? 'checked' : '' }}
+                                    >
+                                    <div class="card border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning/10 hover:border-warning/50 transition-all">
+                                        <div class="card-body p-3 flex-row items-center gap-3">
+                                            <span class="text-2xl">🚫</span>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                @if($tag->description)
+                                                    <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                @endif
+                                            </div>
+                                            <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="alert alert-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>No tags available.</span>
+                        </div>
+                    @endif
+
+                    @error('cant_have_tags')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
                 <!-- Draft Status -->
                 <div class="form-control mb-8">
                     <label class="label cursor-pointer justify-start gap-4">

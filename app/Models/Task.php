@@ -19,6 +19,7 @@ class Task extends Model
         "spice_rating",
         "description",
         "tags_to_remove",
+        "cant_have_tags",
         "draft",
         "user_id",
     ];
@@ -32,6 +33,7 @@ class Task extends Model
         "draft" => "boolean",
         "spice_rating" => "integer",
         "tags_to_remove" => "array",
+        "cant_have_tags" => "array",
     ];
 
     /**
@@ -257,5 +259,44 @@ class Task extends Model
         }
 
         return Tag::whereIn("id", $this->tags_to_remove)->get();
+    }
+
+    /**
+     * Get the tags that players can't have for this task to be available.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getCantHaveTags()
+    {
+        if (empty($this->cant_have_tags) || !is_array($this->cant_have_tags)) {
+            return collect([]);
+        }
+
+        return Tag::whereIn("id", $this->cant_have_tags)->get();
+    }
+
+    /**
+     * Check if this task is available for a player based on cant_have_tags.
+     * Returns true if the player does NOT have any of the can't have tags.
+     *
+     * @param  Player  $player
+     * @return bool
+     */
+    public function isAvailableForPlayer(Player $player)
+    {
+        // If no cant_have_tags specified, task is available
+        if (empty($this->cant_have_tags) || !is_array($this->cant_have_tags)) {
+            return true;
+        }
+
+        // Get the player's tag IDs
+        $playerTagIds = $player->tags()->pluck("tags.id")->toArray();
+
+        // Check if player has any of the cant_have_tags
+        $hasRestrictedTag =
+            count(array_intersect($this->cant_have_tags, $playerTagIds)) > 0;
+
+        // Task is available if player does NOT have any restricted tags
+        return !$hasRestrictedTag;
     }
 }

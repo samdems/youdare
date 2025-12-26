@@ -87,6 +87,29 @@
                 </div>
             @endif
 
+            <!-- Can't Have Tags -->
+            @if($task->cant_have_tags && count($task->cant_have_tags) > 0)
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold mb-3">Can't Have Tags (Negative Filter):</h2>
+                    <div class="alert alert-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                        <div>
+                            <div class="font-semibold mb-2">This task will NOT appear for players who have any of these tags:</div>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($task->getCantHaveTags() as $tag)
+                                    <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-warning gap-2 hover:opacity-75 transition-opacity">
+                                        <span>🚫</span>
+                                        <span>{{ $tag->name }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Task Details -->
             <div class="stats stats-vertical lg:stats-horizontal shadow mb-8 w-full">
                 <div class="stat">

@@ -9,6 +9,7 @@ A modern Truth or Dare game built with Laravel and Vue.js, featuring an advanced
 - 🔥 **Spice Ratings**: Tasks rated from 1-5 for intensity levels
 - 📱 **RESTful API**: Full-featured API for mobile and web clients
 - 🔒 **Content Filtering**: Users only see tasks matching their tags
+- 🚫 **Can't Have Tags**: Hide tasks from players with specific tags
 - 🎯 **Random Task Selection**: Get random tasks based on preferences
 - 📊 **Draft System**: Create and manage draft tasks before publishing
 - 🔐 **Authentication System**: User registration, login, and protected routes
@@ -36,6 +37,7 @@ See [AUTHENTICATION.md](AUTHENTICATION.md) for complete documentation.
 The tagging system allows you to create personalized experiences for different user groups:
 
 - **Tag-Based Filtering**: Tasks are only visible to users who have matching tags
+- **Can't Have Tags**: NEW! Hide tasks from players with specific tags (opposite of regular tags)
 - **User Preferences**: Users select tags that match their interests
 - **Content Categorization**: Organize tasks by categories like "Family Friendly", "Adults Only", "Party Mode"
 - **Flexible Matching**: Users see tasks if they have at least one matching tag
@@ -52,6 +54,22 @@ Example:
 - User has tags: `[Family Friendly, Funny]`
 - Task has tags: `[Funny, Party Mode]`
 - Result: ✅ User sees this task (both have "Funny")
+
+### Can't Have Tags (Negative Filtering)
+
+The "can't have tags" feature provides even more control by hiding tasks from players with specific tags:
+
+- **Exclusive Content**: Show tasks only to players who DON'T have certain tags
+- **Progressive Gameplay**: Hide advanced tasks until players complete prerequisites
+- **Content Restrictions**: Prevent tasks from appearing based on player attributes
+
+Example:
+- Task has cant_have_tags: `[Beginner]`
+- Player A has tags: `[Beginner, Funny]`
+- Player B has tags: `[Expert, Funny]`
+- Result: ❌ Player A can't see this task | ✅ Player B can see this task
+
+**Quick Start:** See [CANT_HAVE_TAGS_QUICKSTART.md](CANT_HAVE_TAGS_QUICKSTART.md) for examples
 
 ## Quick Start
 
@@ -100,7 +118,10 @@ php example_tag_usage.php
 ### Quick Links
 - 📖 **[Quick Start Guide](TAGS_QUICKSTART.md)** - Get started in 5 minutes
 - 📚 **[Full Documentation](TAGGING_SYSTEM.md)** - Complete API reference and examples
+- 🚫 **[Can't Have Tags Guide](CANT_HAVE_TAGS_QUICKSTART.md)** - Negative filtering feature
+- 📄 **[Can't Have Tags Documentation](CANT_HAVE_TAGS.md)** - Complete can't have tags reference
 - 🔬 **[Test Suite](test_tag_filtering.php)** - 28 automated tests
+- 🔬 **[Can't Have Tags Tests](test_cant_have_tags.php)** - Can't have tags validation
 - 💡 **[Usage Examples](example_tag_usage.php)** - Code examples
 
 ### Default Tags
