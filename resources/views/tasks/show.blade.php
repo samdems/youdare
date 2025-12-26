@@ -87,6 +87,29 @@
                 </div>
             @endif
 
+            <!-- Tags to Add on Completion -->
+            @if($task->tags_to_add && count($task->tags_to_add) > 0)
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold mb-3">Tags Added on Completion:</h2>
+                    <div class="alert alert-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <div class="font-semibold mb-2">When this task is completed, these tags will be added to the player:</div>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($task->getAddableTags() as $tag)
+                                    <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-success gap-2 hover:opacity-75 transition-opacity">
+                                        <span>✨</span>
+                                        <span>{{ $tag->name }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Can't Have Tags -->
             @if($task->cant_have_tags && count($task->cant_have_tags) > 0)
                 <div class="mb-6">

@@ -20,6 +20,7 @@ class Task extends Model
         "description",
         "tags_to_remove",
         "cant_have_tags",
+        "tags_to_add",
         "draft",
         "user_id",
     ];
@@ -34,6 +35,7 @@ class Task extends Model
         "spice_rating" => "integer",
         "tags_to_remove" => "array",
         "cant_have_tags" => "array",
+        "tags_to_add" => "array",
     ];
 
     /**
@@ -298,5 +300,43 @@ class Task extends Model
 
         // Task is available if player does NOT have any restricted tags
         return !$hasRestrictedTag;
+    }
+
+    /**
+     * Get the tags that will be added when this task is completed.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAddableTags()
+    {
+        if (empty($this->tags_to_add) || !is_array($this->tags_to_add)) {
+            return collect([]);
+        }
+
+        return Tag::whereIn("id", $this->tags_to_add)->get();
+    }
+
+    /**
+     * Add tags to a player when this task is completed.
+     *
+     * @param  Player  $player
+     * @return array Array of added tag IDs
+     */
+    public function addTagsToPlayer(Player $player)
+    {
+        if (empty($this->tags_to_add) || !is_array($this->tags_to_add)) {
+            return [];
+        }
+
+        $addedTags = [];
+        foreach ($this->tags_to_add as $tagId) {
+            // Only add if player doesn't already have the tag
+            if (!$player->tags()->where("tag_id", $tagId)->exists()) {
+                $player->tags()->attach($tagId);
+                $addedTags[] = $tagId;
+            }
+        }
+
+        return $addedTags;
     }
 }
