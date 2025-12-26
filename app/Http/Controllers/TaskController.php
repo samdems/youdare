@@ -15,20 +15,20 @@ class TaskController extends Controller
         $query = Task::query();
 
         // Filter by type if provided
-        if ($request->has("type")) {
+        if ($request->filled("type")) {
             $query->where("type", $request->get("type"));
         }
 
         // Filter by draft status
-        if ($request->has("draft")) {
+        if ($request->filled("draft")) {
             $query->where("draft", $request->boolean("draft"));
         }
 
         // Filter by spice rating
-        if ($request->has("min_spice")) {
+        if ($request->filled("min_spice")) {
             $query->where("spice_rating", ">=", $request->get("min_spice"));
         }
-        if ($request->has("max_spice")) {
+        if ($request->filled("max_spice")) {
             $query->where("spice_rating", "<=", $request->get("max_spice"));
         }
 
@@ -160,12 +160,12 @@ class TaskController extends Controller
         $query = Task::query()->where("draft", false);
 
         // Filter by type if provided
-        if ($request->has("type")) {
+        if ($request->filled("type")) {
             $query->where("type", $request->get("type"));
         }
 
         // Filter by max spice rating
-        if ($request->has("max_spice")) {
+        if ($request->filled("max_spice")) {
             $query->where("spice_rating", "<=", $request->get("max_spice"));
         }
 
