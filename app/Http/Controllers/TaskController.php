@@ -1,0 +1,175 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Task;
+use Illuminate\Http\Request;
+
+class TaskController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $query = Task::query();
+
+        // Filter by type if provided
+        if ($request->has("type")) {
+            $query->where("type", $request->get("type"));
+        }
+
+        // Filter by draft status
+        if ($request->has("draft")) {
+            $query->where("draft", $request->boolean("draft"));
+        }
+
+        // Filter by spice rating
+        if ($request->has("min_spice")) {
+            $query->where("spice_rating", ">=", $request->get("min_spice"));
+        }
+        if ($request->has("max_spice")) {
+            $query->where("spice_rating", "<=", $request->get("max_spice"));
+        }
+
+        // Order by creation date by default
+        $tasks = $query->orderBy("created_at", "desc")->paginate(15);
+
+        return view("tasks.index", compact("tasks"));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view("tasks.create");
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            "type" => "required|in:truth,dare",
+            "spice_rating" => "required|integer|min:1|max:5",
+            "description" => "required|string|min:10|max:500",
+            "draft" => "boolean",
+            "tags" => "array",
+            "tags.*" => "exists:tags,id",
+        ]);
+
+        $validated["draft"] = $request->boolean("draft");
+
+        $task = Task::create($validated);
+
+        // Attach tags if provided
+        if ($request->has("tags")) {
+            $task->tags()->attach($request->get("tags"));
+        }
+
+        return redirect()
+            ->route("tasks.show", $task)
+            ->with("success", "Task created successfully!");
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Task $task)
+    {
+        return view("tasks.show", compact("task"));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Task $task)
+    {
+        return view("tasks.edit", compact("task"));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            "type" => "required|in:truth,dare",
+            "spice_rating" => "required|integer|min:1|max:5",
+            "description" => "required|string|min:10|max:500",
+            "draft" => "boolean",
+            "tags" => "array",
+            "tags.*" => "exists:tags,id",
+        ]);
+
+        $validated["draft"] = $request->boolean("draft");
+
+        $task->update($validated);
+
+        // Sync tags if provided
+        if ($request->has("tags")) {
+            $task->tags()->sync($request->get("tags"));
+        }
+
+        return redirect()
+            ->route("tasks.show", $task)
+            ->with("success", "Task updated successfully!");
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Task $task)
+    {
+        $task->delete();
+
+        return redirect()
+            ->route("tasks.index")
+            ->with("success", "Task deleted successfully!");
+    }
+
+    /**
+     * Get a random task based on filters.
+     */
+    public function random(Request $request)
+    {
+        $query = Task::query()->where("draft", false);
+
+        // Filter by type if provided
+        if ($request->has("type")) {
+            $query->where("type", $request->get("type"));
+        }
+
+        // Filter by max spice rating
+        if ($request->has("max_spice")) {
+            $query->where("spice_rating", "<=", $request->get("max_spice"));
+        }
+
+        $task = $query->inRandomOrder()->first();
+
+        if (!$task) {
+            return redirect()
+                ->route("tasks.index")
+                ->with("error", "No tasks found matching your criteria.");
+        }
+
+        return view("tasks.show", compact("task"));
+    }
+
+    /**
+     * Toggle the draft status of a task.
+     */
+    public function toggleDraft(Task $task)
+    {
+        $task->draft = !$task->draft;
+        $task->save();
+
+        $status = $task->draft ? "draft" : "published";
+
+        return redirect()
+            ->back()
+            ->with("success", "Task marked as {$status}!");
+    }
+}
