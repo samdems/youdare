@@ -10,6 +10,7 @@ A modern Truth or Dare game built with Laravel and Vue.js, featuring an advanced
 - 📱 **RESTful API**: Full-featured API for mobile and web clients
 - 🔒 **Content Filtering**: Users only see tasks matching their tags
 - 🚫 **Can't Have Tags**: Hide tasks from players with specific tags
+- ✨ **Tags to Add**: Automatically add tags to players when they complete tasks
 - 🎯 **Random Task Selection**: Get random tasks based on preferences
 - 📊 **Draft System**: Create and manage draft tasks before publishing
 - 🔐 **Authentication System**: User registration, login, and protected routes
@@ -37,7 +38,8 @@ See [AUTHENTICATION.md](AUTHENTICATION.md) for complete documentation.
 The tagging system allows you to create personalized experiences for different user groups:
 
 - **Tag-Based Filtering**: Tasks are only visible to users who have matching tags
-- **Can't Have Tags**: NEW! Hide tasks from players with specific tags (opposite of regular tags)
+- **Can't Have Tags**: Hide tasks from players with specific tags (opposite of regular tags)
+- **Tags to Add**: NEW! Automatically add tags to players when they complete tasks - perfect for achievements and progression!
 - **User Preferences**: Users select tags that match their interests
 - **Content Categorization**: Organize tasks by categories like "Family Friendly", "Adults Only", "Party Mode"
 - **Flexible Matching**: Users see tasks if they have at least one matching tag
@@ -70,6 +72,26 @@ Example:
 - Result: ❌ Player A can't see this task | ✅ Player B can see this task
 
 **Quick Start:** See [CANT_HAVE_TAGS_QUICKSTART.md](CANT_HAVE_TAGS_QUICKSTART.md) for examples
+
+### Tags to Add (Rewards & Progression)
+
+The "tags to add" feature automatically adds tags to players when they complete tasks:
+
+- **Achievement System**: Award badges when players complete challenges
+- **Progression System**: Promote players through ranks (Newbie → Veteran → Legend)
+- **Unlockable Content**: Grant access to new content tiers
+- **Milestone Tracking**: Mark player accomplishments
+
+Example:
+- Task: "Complete your first challenge"
+- tags_to_add: `[Veteran]`
+- Result: ✨ Player receives the "Veteran" tag upon completion
+
+Combine with tags_to_remove for smooth progression:
+- tags_to_remove: `[Beginner]` (remove old status)
+- tags_to_add: `[Veteran]` (add new status)
+
+**Quick Start:** See [TAGS_TO_ADD_QUICKSTART.md](TAGS_TO_ADD_QUICKSTART.md) for examples
 
 ## Quick Start
 
@@ -120,8 +142,10 @@ php example_tag_usage.php
 - 📚 **[Full Documentation](TAGGING_SYSTEM.md)** - Complete API reference and examples
 - 🚫 **[Can't Have Tags Guide](CANT_HAVE_TAGS_QUICKSTART.md)** - Negative filtering feature
 - 📄 **[Can't Have Tags Documentation](CANT_HAVE_TAGS.md)** - Complete can't have tags reference
+- ✨ **[Tags to Add Guide](TAGS_TO_ADD_QUICKSTART.md)** - Reward and progression system
 - 🔬 **[Test Suite](test_tag_filtering.php)** - 28 automated tests
 - 🔬 **[Can't Have Tags Tests](test_cant_have_tags.php)** - Can't have tags validation
+- 🔬 **[Tags to Add Tests](test_tags_to_add.php)** - Tags to add validation
 - 💡 **[Usage Examples](example_tag_usage.php)** - Code examples
 
 ### Default Tags

@@ -1,47 +1,47 @@
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . "/vendor/autoload.php";
 
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Tag;
 use App\Models\Task;
 
-$app = require_once __DIR__ . '/bootstrap/app.php';
+$app = require_once __DIR__ . "/bootstrap/app.php";
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 echo "=== Tags to Add Functionality Test ===\n\n";
 
 // Clean up any existing test data
 echo "Cleaning up test data...\n";
-Task::where('description', 'LIKE', 'TEST-ADD:%')->delete();
-Tag::where('slug', 'LIKE', 'test-add-%')->delete();
-Game::where('name', 'Test Tags to Add Game')->delete();
+Task::where("description", "LIKE", "TEST-ADD:%")->delete();
+Tag::where("slug", "LIKE", "test-add-%")->delete();
+Game::where("name", "Test Tags to Add Game")->delete();
 
 // Create test tags
 echo "Creating test tags...\n";
 $newbieTag = Tag::create([
-    'name' => 'Test Add Newbie',
-    'slug' => 'test-add-newbie',
-    'description' => 'New player status'
+    "name" => "Test Add Newbie",
+    "slug" => "test-add-newbie",
+    "description" => "New player status",
 ]);
 
 $veteranTag = Tag::create([
-    'name' => 'Test Add Veteran',
-    'slug' => 'test-add-veteran',
-    'description' => 'Experienced player status'
+    "name" => "Test Add Veteran",
+    "slug" => "test-add-veteran",
+    "description" => "Experienced player status",
 ]);
 
 $achieverTag = Tag::create([
-    'name' => 'Test Add Achiever',
-    'slug' => 'test-add-achiever',
-    'description' => 'Achievement unlocked'
+    "name" => "Test Add Achiever",
+    "slug" => "test-add-achiever",
+    "description" => "Achievement unlocked",
 ]);
 
 $braveTag = Tag::create([
-    'name' => 'Test Add Brave',
-    'slug' => 'test-add-brave',
-    'description' => 'Completed brave challenges'
+    "name" => "Test Add Brave",
+    "slug" => "test-add-brave",
+    "description" => "Completed brave challenges",
 ]);
 
 echo "Created tags: {$newbieTag->name} (ID: {$newbieTag->id}), ";
@@ -52,22 +52,29 @@ echo "{$braveTag->name} (ID: {$braveTag->id})\n\n";
 // Create test game
 echo "Creating test game...\n";
 $game = Game::create([
-    'name' => 'Test Tags to Add Game',
-    'code' => 'TESTADD',
-    'status' => 'active',
-    'max_spice_rating' => 5
+    "name" => "Test Tags to Add Game",
+    "code" => "TESTADD",
+    "status" => "active",
+    "max_spice_rating" => 5,
 ]);
 
 // Add game tags
-$game->tags()->attach([$newbieTag->id, $veteranTag->id, $achieverTag->id, $braveTag->id]);
+$game
+    ->tags()
+    ->attach([
+        $newbieTag->id,
+        $veteranTag->id,
+        $achieverTag->id,
+        $braveTag->id,
+    ]);
 
 // Create test player
 echo "Creating test player...\n";
 $player = Player::create([
-    'game_id' => $game->id,
-    'name' => 'Test Player',
-    'order' => 1,
-    'is_active' => true
+    "game_id" => $game->id,
+    "name" => "Test Player",
+    "order" => 1,
+    "is_active" => true,
 ]);
 $player->tags()->attach($newbieTag->id);
 
@@ -78,45 +85,45 @@ echo "Creating test tasks...\n";
 
 // Task 1: Adds veteran tag, removes newbie tag
 $task1 = Task::create([
-    'type' => 'dare',
-    'description' => 'TEST-ADD: Complete your first challenge',
-    'spice_rating' => 1,
-    'draft' => false,
-    'tags_to_remove' => [$newbieTag->id],
-    'tags_to_add' => [$veteranTag->id]
+    "type" => "dare",
+    "description" => "TEST-ADD: Complete your first challenge",
+    "spice_rating" => 1,
+    "draft" => false,
+    "tags_to_remove" => [$newbieTag->id],
+    "tags_to_add" => [$veteranTag->id],
 ]);
 $task1->tags()->attach($newbieTag->id);
 echo "Task 1: Removes newbie, adds veteran\n";
 
 // Task 2: Adds achiever tag
 $task2 = Task::create([
-    'type' => 'dare',
-    'description' => 'TEST-ADD: Unlock achievement',
-    'spice_rating' => 2,
-    'draft' => false,
-    'tags_to_add' => [$achieverTag->id]
+    "type" => "dare",
+    "description" => "TEST-ADD: Unlock achievement",
+    "spice_rating" => 2,
+    "draft" => false,
+    "tags_to_add" => [$achieverTag->id],
 ]);
 $task2->tags()->attach($newbieTag->id);
 echo "Task 2: Adds achiever tag\n";
 
 // Task 3: Adds brave tag
 $task3 = Task::create([
-    'type' => 'dare',
-    'description' => 'TEST-ADD: Show your bravery',
-    'spice_rating' => 3,
-    'draft' => false,
-    'tags_to_add' => [$braveTag->id]
+    "type" => "dare",
+    "description" => "TEST-ADD: Show your bravery",
+    "spice_rating" => 3,
+    "draft" => false,
+    "tags_to_add" => [$braveTag->id],
 ]);
 $task3->tags()->attach($newbieTag->id);
 echo "Task 3: Adds brave tag\n";
 
 // Task 4: Adds multiple tags
 $task4 = Task::create([
-    'type' => 'dare',
-    'description' => 'TEST-ADD: Epic challenge with multiple rewards',
-    'spice_rating' => 4,
-    'draft' => false,
-    'tags_to_add' => [$achieverTag->id, $braveTag->id]
+    "type" => "dare",
+    "description" => "TEST-ADD: Epic challenge with multiple rewards",
+    "spice_rating" => 4,
+    "draft" => false,
+    "tags_to_add" => [$achieverTag->id, $braveTag->id],
 ]);
 $task4->tags()->attach($veteranTag->id);
 echo "Task 4: Adds multiple tags (achiever + brave)\n\n";
@@ -140,49 +147,49 @@ foreach ($addableTags as $tag) {
 echo "\n\n=== Testing addTagsToPlayer Method ===\n\n";
 
 echo "Player tags before completion:\n";
-$playerTags = $player->tags()->pluck('name', 'id')->toArray();
-foreach ($playerTags as $id => $name) {
-    echo "  - {$name} (ID: {$id})\n";
+$playerTags = $player->tags()->get();
+foreach ($playerTags as $tag) {
+    echo "  - {$tag->name} (ID: {$tag->id})\n";
 }
-echo "Total tags: " . count($playerTags) . "\n\n";
+echo "Total tags: " . $playerTags->count() . "\n\n";
 
 // Complete Task 1 (removes newbie, adds veteran)
 echo "Completing Task 1 (removes newbie, adds veteran)...\n";
 $removedTags = $task1->removeTagsFromPlayer($player);
 $addedTags = $task1->addTagsToPlayer($player);
-echo "  Removed tags: " . implode(', ', $removedTags) . "\n";
-echo "  Added tags: " . implode(', ', $addedTags) . "\n\n";
+echo "  Removed tags: " . implode(", ", $removedTags) . "\n";
+echo "  Added tags: " . implode(", ", $addedTags) . "\n\n";
 
 echo "Player tags after Task 1:\n";
-$playerTags = $player->tags()->pluck('name', 'id')->toArray();
-foreach ($playerTags as $id => $name) {
-    echo "  - {$name} (ID: {$id})\n";
+$playerTags = $player->tags()->get();
+foreach ($playerTags as $tag) {
+    echo "  - {$tag->name} (ID: {$tag->id})\n";
 }
-echo "Total tags: " . count($playerTags) . "\n\n";
+echo "Total tags: " . $playerTags->count() . "\n\n";
 
 // Complete Task 2 (adds achiever)
 echo "Completing Task 2 (adds achiever)...\n";
 $addedTags = $task2->addTagsToPlayer($player);
-echo "  Added tags: " . implode(', ', $addedTags) . "\n\n";
+echo "  Added tags: " . implode(", ", $addedTags) . "\n\n";
 
 echo "Player tags after Task 2:\n";
-$playerTags = $player->tags()->pluck('name', 'id')->toArray();
-foreach ($playerTags as $id => $name) {
-    echo "  - {$name} (ID: {$id})\n";
+$playerTags = $player->tags()->get();
+foreach ($playerTags as $tag) {
+    echo "  - {$tag->name} (ID: {$tag->id})\n";
 }
-echo "Total tags: " . count($playerTags) . "\n\n";
+echo "Total tags: " . $playerTags->count() . "\n\n";
 
 // Complete Task 3 (adds brave)
 echo "Completing Task 3 (adds brave)...\n";
 $addedTags = $task3->addTagsToPlayer($player);
-echo "  Added tags: " . implode(', ', $addedTags) . "\n\n";
+echo "  Added tags: " . implode(", ", $addedTags) . "\n\n";
 
 echo "Player tags after Task 3:\n";
-$playerTags = $player->tags()->pluck('name', 'id')->toArray();
-foreach ($playerTags as $id => $name) {
-    echo "  - {$name} (ID: {$id})\n";
+$playerTags = $player->tags()->get();
+foreach ($playerTags as $tag) {
+    echo "  - {$tag->name} (ID: {$tag->id})\n";
 }
-echo "Total tags: " . count($playerTags) . "\n\n";
+echo "Total tags: " . $playerTags->count() . "\n\n";
 
 // Test duplicate prevention
 echo "=== Testing Duplicate Prevention ===\n\n";
@@ -194,7 +201,9 @@ if (count($addedTags) === 0) {
     echo "✗ FAILED: Duplicate tag was added\n";
 }
 
-echo "\nPlayer still has " . $player->tags()->count() . " tags (should be 3)\n\n";
+echo "\nPlayer still has " .
+    $player->tags()->count() .
+    " tags (should be 3)\n\n";
 
 // Validation tests
 echo "=== Validation Tests ===\n\n";
@@ -210,7 +219,7 @@ if (in_array($veteranTag->id, $task1->tags_to_add)) {
 }
 
 // Test 2: Player should have veteran tag after Task 1
-if ($player->tags()->where('tag_id', $veteranTag->id)->exists()) {
+if ($player->tags()->where("tag_id", $veteranTag->id)->exists()) {
     echo "✓ Test 2 PASSED: Player has veteran tag\n";
 } else {
     echo "✗ Test 2 FAILED: Player doesn't have veteran tag\n";
@@ -218,7 +227,7 @@ if ($player->tags()->where('tag_id', $veteranTag->id)->exists()) {
 }
 
 // Test 3: Player should NOT have newbie tag after Task 1
-if (!$player->tags()->where('tag_id', $newbieTag->id)->exists()) {
+if (!$player->tags()->where("tag_id", $newbieTag->id)->exists()) {
     echo "✓ Test 3 PASSED: Player doesn't have newbie tag\n";
 } else {
     echo "✗ Test 3 FAILED: Player still has newbie tag\n";
@@ -226,7 +235,7 @@ if (!$player->tags()->where('tag_id', $newbieTag->id)->exists()) {
 }
 
 // Test 4: Player should have achiever tag after Task 2
-if ($player->tags()->where('tag_id', $achieverTag->id)->exists()) {
+if ($player->tags()->where("tag_id", $achieverTag->id)->exists()) {
     echo "✓ Test 4 PASSED: Player has achiever tag\n";
 } else {
     echo "✗ Test 4 FAILED: Player doesn't have achiever tag\n";
@@ -234,7 +243,7 @@ if ($player->tags()->where('tag_id', $achieverTag->id)->exists()) {
 }
 
 // Test 5: Player should have brave tag after Task 3
-if ($player->tags()->where('tag_id', $braveTag->id)->exists()) {
+if ($player->tags()->where("tag_id", $braveTag->id)->exists()) {
     echo "✓ Test 5 PASSED: Player has brave tag\n";
 } else {
     echo "✗ Test 5 FAILED: Player doesn't have brave tag\n";
@@ -264,10 +273,10 @@ echo "\n=== Testing Complete Progression Scenario ===\n\n";
 
 // Create new player for progression test
 $newPlayer = Player::create([
-    'game_id' => $game->id,
-    'name' => 'Progression Test Player',
-    'order' => 2,
-    'is_active' => true
+    "game_id" => $game->id,
+    "name" => "Progression Test Player",
+    "order" => 2,
+    "is_active" => true,
 ]);
 $newPlayer->tags()->attach($newbieTag->id);
 
@@ -277,15 +286,21 @@ echo "Starting tags: " . $newPlayer->tags()->count() . "\n\n";
 echo "Step 1: Complete beginner task\n";
 $task1->removeTagsFromPlayer($newPlayer);
 $task1->addTagsToPlayer($newPlayer);
-echo "  Tags after: " . $newPlayer->tags()->pluck('name')->implode(', ') . "\n\n";
+echo "  Tags after: " .
+    $newPlayer->tags()->pluck("name")->implode(", ") .
+    "\n\n";
 
 echo "Step 2: Unlock achievement\n";
 $task2->addTagsToPlayer($newPlayer);
-echo "  Tags after: " . $newPlayer->tags()->pluck('name')->implode(', ') . "\n\n";
+echo "  Tags after: " .
+    $newPlayer->tags()->pluck("name")->implode(", ") .
+    "\n\n";
 
 echo "Step 3: Show bravery\n";
 $task3->addTagsToPlayer($newPlayer);
-echo "  Tags after: " . $newPlayer->tags()->pluck('name')->implode(', ') . "\n\n";
+echo "  Tags after: " .
+    $newPlayer->tags()->pluck("name")->implode(", ") .
+    "\n\n";
 
 $finalTagCount = $newPlayer->tags()->count();
 if ($finalTagCount === 3) {

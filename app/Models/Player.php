@@ -108,36 +108,43 @@ class Player extends Model
                     $q->orWhereNotNull("tags_to_remove");
                 }
             });
-        }
 
-        $tasks = $query->get();
+            $tasks = $query->get();
 
-        // Filter tasks that can remove player tags (done in PHP for database compatibility)
-        if (count($playerTagIds) > 0) {
-            $tasks = $tasks->filter(function ($task) use (
-                $tagIds,
-                $playerTagIds,
-            ) {
-                // Keep task if it matches active tags
-                if (
-                    count($tagIds) > 0 &&
-                    $task->tags->pluck("id")->intersect($tagIds)->count() > 0
+            // Filter tasks that can remove player tags (done in PHP for database compatibility)
+            if (count($playerTagIds) > 0) {
+                $tasks = $tasks->filter(function ($task) use (
+                    $tagIds,
+                    $playerTagIds,
                 ) {
-                    return true;
-                }
+                    // Keep task if it matches active tags
+                    if (
+                        count($tagIds) > 0 &&
+                        $task->tags->pluck("id")->intersect($tagIds)->count() >
+                            0
+                    ) {
+                        return true;
+                    }
 
-                // Keep task if it can remove any tag from this player
-                if (
-                    !empty($task->tags_to_remove) &&
-                    is_array($task->tags_to_remove)
-                ) {
-                    return count(
-                        array_intersect($task->tags_to_remove, $playerTagIds),
-                    ) > 0;
-                }
+                    // Keep task if it can remove any tag from this player
+                    if (
+                        !empty($task->tags_to_remove) &&
+                        is_array($task->tags_to_remove)
+                    ) {
+                        return count(
+                            array_intersect(
+                                $task->tags_to_remove,
+                                $playerTagIds,
+                            ),
+                        ) > 0;
+                    }
 
-                return false;
-            });
+                    return false;
+                });
+            }
+        } else {
+            // No tags at all - return all tasks within spice rating
+            $tasks = $query->get();
         }
 
         // Filter out tasks where the player has any of the cant_have_tags
