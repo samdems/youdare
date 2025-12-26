@@ -120,8 +120,12 @@ class Player extends Model
                     $tagIds,
                     $playerTagIds,
                 ) {
-                    // Keep task if it has no tags (always available)
-                    if ($task->tags->isEmpty()) {
+                    // Keep task if it has no tags AND no tags_to_remove (always available)
+                    // Tasks with tags_to_remove should only be available to players with those tags
+                    if (
+                        $task->tags->isEmpty() &&
+                        empty($task->tags_to_remove)
+                    ) {
                         return true;
                     }
 
@@ -151,7 +155,8 @@ class Player extends Model
                 });
             }
         } else {
-            // No tags at all - return all tasks within spice rating
+            // No tags at all - only return tasks with no tags
+            $query->whereDoesntHave("tags");
             $tasks = $query->get();
         }
 
