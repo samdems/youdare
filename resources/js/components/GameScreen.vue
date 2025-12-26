@@ -485,6 +485,98 @@
                             </p>
                         </div>
 
+                        <!-- Tags Display -->
+                        <div
+                            v-if="
+                                currentTask.tags ||
+                                currentTask.addable_tags ||
+                                currentTask.removable_tags ||
+                                currentTask.cant_have_tags_details
+                            "
+                            class="mb-6 space-y-3"
+                        >
+                            <!-- Required Tags -->
+                            <div
+                                v-if="
+                                    currentTask.tags &&
+                                    currentTask.tags.length > 0
+                                "
+                                class="flex flex-wrap gap-2 items-center"
+                            >
+                                <span class="text-sm font-semibold opacity-70"
+                                    >🏷️ Required Tags:</span
+                                >
+                                <span
+                                    v-for="tag in currentTask.tags"
+                                    :key="'req-' + tag.id"
+                                    class="badge badge-primary badge-sm"
+                                >
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+
+                            <!-- Tags to Add -->
+                            <div
+                                v-if="
+                                    currentTask.addable_tags &&
+                                    currentTask.addable_tags.length > 0
+                                "
+                                class="flex flex-wrap gap-2 items-center"
+                            >
+                                <span class="text-sm font-semibold opacity-70"
+                                    >➕ Adds Tags:</span
+                                >
+                                <span
+                                    v-for="tag in currentTask.addable_tags"
+                                    :key="'add-' + tag.id"
+                                    class="badge badge-success badge-sm"
+                                >
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+
+                            <!-- Tags to Remove -->
+                            <div
+                                v-if="
+                                    currentTask.removable_tags &&
+                                    currentTask.removable_tags.length > 0
+                                "
+                                class="flex flex-wrap gap-2 items-center"
+                            >
+                                <span class="text-sm font-semibold opacity-70"
+                                    >➖ Removes Tags:</span
+                                >
+                                <span
+                                    v-for="tag in currentTask.removable_tags"
+                                    :key="'rem-' + tag.id"
+                                    class="badge badge-warning badge-sm"
+                                >
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+
+                            <!-- Can't Have Tags -->
+                            <div
+                                v-if="
+                                    currentTask.cant_have_tags_details &&
+                                    currentTask.cant_have_tags_details.length >
+                                        0
+                                "
+                                class="flex flex-wrap gap-2 items-center"
+                            >
+                                <span class="text-sm font-semibold opacity-70"
+                                    >🚫 Can't Have Tags:</span
+                                >
+                                <span
+                                    v-for="tag in currentTask.cant_have_tags_details"
+                                    :key="'cant-' + tag.id"
+                                    class="badge badge-error badge-sm"
+                                >
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+                        </div>
+
                         <!-- Action Buttons -->
                         <div class="flex gap-3 justify-center flex-wrap">
                             <button

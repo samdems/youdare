@@ -248,9 +248,30 @@ class TaskController extends Controller
             );
         }
 
+        // Load the task with tags and add tag details
+        $task->load("tags");
+        $taskData = $task->append("spice_level")->toArray();
+
+        // Add tag details for tags_to_add, tags_to_remove, and cant_have_tags
+        $taskData["addable_tags"] = $task
+            ->getAddableTags()
+            ->map(function ($tag) {
+                return ["id" => $tag->id, "name" => $tag->name];
+            });
+        $taskData["removable_tags"] = $task
+            ->getRemovableTags()
+            ->map(function ($tag) {
+                return ["id" => $tag->id, "name" => $tag->name];
+            });
+        $taskData["cant_have_tags_details"] = $task
+            ->getCantHaveTags()
+            ->map(function ($tag) {
+                return ["id" => $tag->id, "name" => $tag->name];
+            });
+
         return response()->json([
             "status" => "success",
-            "data" => $task->load("tags")->append("spice_level"),
+            "data" => $taskData,
         ]);
     }
 
