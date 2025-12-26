@@ -308,7 +308,7 @@ class PlayerController extends Controller
 
     /**
      * Mark a task as completed by the player.
-     * This will increment score and remove any tags specified in the task's tags_to_remove field.
+     * This will increment score, remove tags specified in tags_to_remove, and add tags specified in tags_to_add.
      */
     public function completeTask(Request $request, Player $player)
     {
@@ -333,6 +333,9 @@ class PlayerController extends Controller
         // Remove tags from player if task specifies any
         $removedTagIds = $task->removeTagsFromPlayer($player);
 
+        // Add tags to player if task specifies any
+        $addedTagIds = $task->addTagsToPlayer($player);
+
         // Increment score
         $player->incrementScore($points);
         $player->refresh();
@@ -345,6 +348,7 @@ class PlayerController extends Controller
                 "player" => $player,
                 "task" => $task,
                 "removed_tags_count" => count($removedTagIds),
+                "added_tags_count" => count($addedTagIds),
             ],
         ];
 
@@ -353,6 +357,13 @@ class PlayerController extends Controller
             $response["data"]["removed_tags"] = $removedTags;
             $response["message"] .=
                 " and removed " . count($removedTagIds) . " tag(s)";
+        }
+
+        if (count($addedTagIds) > 0) {
+            $addedTags = Tag::whereIn("id", $addedTagIds)->get();
+            $response["data"]["added_tags"] = $addedTags;
+            $response["message"] .=
+                " and added " . count($addedTagIds) . " tag(s)";
         }
 
         return response()->json($response);

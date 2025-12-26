@@ -155,9 +155,14 @@ class Player extends Model
                 });
             }
         } else {
-            // No tags at all - only return tasks with no tags
+            // No tags at all - only return tasks with no tags and no tags_to_remove
             $query->whereDoesntHave("tags");
             $tasks = $query->get();
+
+            // Filter out tasks with tags_to_remove since player has no tags to remove
+            $tasks = $tasks->filter(function ($task) {
+                return empty($task->tags_to_remove);
+            });
         }
 
         // Filter out tasks where the player has any of the cant_have_tags
