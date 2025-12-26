@@ -291,12 +291,15 @@ class Task extends Model
             return true;
         }
 
-        // Get the player's tag IDs
+        // Get the player's tag IDs as integers
         $playerTagIds = $player->tags()->pluck("tags.id")->toArray();
+
+        // Convert cant_have_tags to integers (they may be stored as strings)
+        $cantHaveTagIds = array_map("intval", $this->cant_have_tags);
 
         // Check if player has any of the cant_have_tags
         $hasRestrictedTag =
-            count(array_intersect($this->cant_have_tags, $playerTagIds)) > 0;
+            count(array_intersect($cantHaveTagIds, $playerTagIds)) > 0;
 
         // Task is available if player does NOT have any restricted tags
         return !$hasRestrictedTag;
