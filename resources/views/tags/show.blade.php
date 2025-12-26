@@ -52,6 +52,12 @@
                 @auth
                     @if(Auth::user()->isAdmin())
                         <div class="flex flex-col gap-2">
+                            <a href="{{ route('tags.create') }}" class="btn btn-sm bg-white/20 hover:bg-white/30 text-white border-white/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                </svg>
+                                New Tag
+                            </a>
                             <a href="{{ route('tags.edit', $tag) }}" class="btn btn-sm bg-white/20 hover:bg-white/30 text-white border-white/30">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />

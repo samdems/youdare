@@ -52,6 +52,16 @@ class TagController extends Controller
 
         $tag = Tag::create($validated);
 
+        // Check if user wants to create another
+        if ($request->input("action") === "save_and_new") {
+            return redirect()
+                ->route("tags.create")
+                ->with(
+                    "success",
+                    "Tag created successfully! Create another one.",
+                );
+        }
+
         return redirect()
             ->route("tags.show", $tag)
             ->with("success", "Tag created successfully!");

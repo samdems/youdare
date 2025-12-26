@@ -69,6 +69,16 @@ class TaskController extends Controller
             $task->tags()->attach($request->get("tags"));
         }
 
+        // Check if user wants to create another
+        if ($request->input("action") === "save_and_new") {
+            return redirect()
+                ->route("tasks.create")
+                ->with(
+                    "success",
+                    "Task created successfully! Create another one.",
+                );
+        }
+
         return redirect()
             ->route("tasks.show", $task)
             ->with("success", "Task created successfully!");
