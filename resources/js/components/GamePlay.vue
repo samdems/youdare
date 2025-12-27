@@ -76,7 +76,9 @@
                     <!-- Task Description -->
                     <div class="text-center py-12">
                         <p class="text-3xl font-bold leading-relaxed">
-                            {{ currentTask.description }}
+                            {{
+                                processTaskDescription(currentTask.description)
+                            }}
                         </p>
                     </div>
 
@@ -267,6 +269,10 @@ export default {
         sortedPlayersByScore() {
             return [...this.players].sort((a, b) => b.score - a.score);
         },
+        processedTaskDescription() {
+            if (!this.currentTask || !this.currentTask.description) return "";
+            return this.processTaskDescription(this.currentTask.description);
+        },
     },
     mounted() {
         this.loadPlayers();
@@ -418,6 +424,107 @@ export default {
 
         getPlayerAvatar(order) {
             return this.playerAvatars[order % this.playerAvatars.length];
+        },
+
+        processTaskDescription(description) {
+            if (!description || !this.currentPlayer) return description;
+
+            let processed = description;
+
+            // Replace {{same_gender}} - random player with same gender
+            if (processed.includes("{{same_gender}}")) {
+                const sameGenderPlayers = this.players.filter(
+                    (p) =>
+                        p.id !== this.currentPlayer.id &&
+                        p.gender === this.currentPlayer.gender,
+                );
+                const randomPlayer =
+                    sameGenderPlayers.length > 0
+                        ? sameGenderPlayers[
+                              Math.floor(
+                                  Math.random() * sameGenderPlayers.length,
+                              )
+                          ]
+                        : null;
+                processed = processed.replace(
+                    /\{\{same_gender\}\}/g,
+                    randomPlayer ? randomPlayer.name : "someone",
+                );
+            }
+
+            // Replace {{other_gender}} - random player with different gender
+            if (processed.includes("{{other_gender}}")) {
+                const otherGenderPlayers = this.players.filter(
+                    (p) =>
+                        p.id !== this.currentPlayer.id &&
+                        p.gender !== this.currentPlayer.gender,
+                );
+                const randomPlayer =
+                    otherGenderPlayers.length > 0
+                        ? otherGenderPlayers[
+                              Math.floor(
+                                  Math.random() * otherGenderPlayers.length,
+                              )
+                          ]
+                        : null;
+                processed = processed.replace(
+                    /\{\{other_gender\}\}/g,
+                    randomPlayer ? randomPlayer.name : "someone",
+                );
+            }
+
+            // Replace {{any_gender}} - any random player
+            if (processed.includes("{{any_gender}}")) {
+                const otherPlayers = this.players.filter(
+                    (p) => p.id !== this.currentPlayer.id,
+                );
+                const randomPlayer =
+                    otherPlayers.length > 0
+                        ? otherPlayers[
+                              Math.floor(Math.random() * otherPlayers.length)
+                          ]
+                        : null;
+                processed = processed.replace(
+                    /\{\{any_gender\}\}/g,
+                    randomPlayer ? randomPlayer.name : "someone",
+                );
+            }
+
+            // Replace {{someone}} - any random player (alias for any_gender)
+            if (processed.includes("{{someone}}")) {
+                const otherPlayers = this.players.filter(
+                    (p) => p.id !== this.currentPlayer.id,
+                );
+                const randomPlayer =
+                    otherPlayers.length > 0
+                        ? otherPlayers[
+                              Math.floor(Math.random() * otherPlayers.length)
+                          ]
+                        : null;
+                processed = processed.replace(
+                    /\{\{someone\}\}/g,
+                    randomPlayer ? randomPlayer.name : "someone",
+                );
+            }
+
+            // Replace {{number_of_players}}
+            if (processed.includes("{{number_of_players}}")) {
+                processed = processed.replace(
+                    /\{\{number_of_players\}\}/g,
+                    this.players.length,
+                );
+            }
+
+            // Replace {{number_of_players/X}} - divided and rounded
+            const divisionRegex = /\{\{number_of_players\/(\d+)\}\}/g;
+            processed = processed.replace(divisionRegex, (match, divisor) => {
+                const result = Math.round(
+                    this.players.length / parseInt(divisor),
+                );
+                return result;
+            });
+
+            return processed;
         },
     },
 };
