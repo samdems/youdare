@@ -95,6 +95,39 @@
             </div>
         </div>
 
+        <!-- Active Player Tags Section -->
+        <div
+            v-if="currentPlayer"
+            class="card bg-primary text-primary-content shadow-lg mb-6"
+        >
+            <div class="card-body p-4">
+                <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+                    <span class="text-2xl">{{
+                        getPlayerAvatar(currentPlayer.order)
+                    }}</span>
+                    <span>{{ currentPlayer.name }}'s Tags</span>
+                    <span v-if="currentPlayer.gender" class="text-base">
+                        {{ currentPlayer.gender === "male" ? "👨" : "👩" }}
+                    </span>
+                </h3>
+                <div
+                    v-if="currentPlayer.tags && currentPlayer.tags.length > 0"
+                    class="flex flex-wrap gap-2"
+                >
+                    <div
+                        v-for="tag in currentPlayer.tags"
+                        :key="tag.id"
+                        class="badge badge-lg badge-neutral gap-2"
+                    >
+                        <span>{{ tag.name }}</span>
+                    </div>
+                </div>
+                <div v-else class="text-sm opacity-70">
+                    No tags assigned yet
+                </div>
+            </div>
+        </div>
+
         <!-- Current Task Card -->
         <div v-if="currentTask" class="card bg-base-100 shadow-xl mb-6">
             <div class="card-body">
