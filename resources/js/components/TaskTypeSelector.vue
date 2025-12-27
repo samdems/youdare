@@ -1,66 +1,65 @@
 <template>
-    <div class="task-type-selector max-w-4xl mx-auto p-4">
-        <!-- Player Turn Announcement -->
-        <player-turn-header :player="player" :player-avatars="playerAvatars" />
+    <div class="task-type-selector max-w-3xl mx-auto p-6">
+        <!-- Current Player Highlight -->
+        <div class="text-center mb-8">
+            <div class="text-7xl mb-3">
+                {{ getPlayerAvatar(player.order) }}
+            </div>
+            <h2 class="text-3xl font-bold mb-1">{{ player.name }}'s Turn</h2>
+            <p class="text-base-content/60">Choose your challenge</p>
+        </div>
 
-        <!-- Players Scoreboard -->
-        <div class="card bg-base-200 shadow-lg mb-8">
+        <!-- Choice Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <!-- Truth Button -->
+            <button
+                @click="selectType('truth')"
+                class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-info hover:bg-info-focus border-none text-info-content"
+            >
+                <span class="text-5xl">💬</span>
+                <span class="text-xl font-bold">Truth</span>
+            </button>
+
+            <!-- Dare Button -->
+            <button
+                @click="selectType('dare')"
+                class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-secondary hover:bg-secondary-focus border-none text-secondary-content"
+            >
+                <span class="text-5xl">🎯</span>
+                <span class="text-xl font-bold">Dare</span>
+            </button>
+
+            <!-- Random Button -->
+            <button
+                @click="selectType('both')"
+                class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-accent hover:bg-accent-focus border-none text-accent-content"
+            >
+                <span class="text-5xl">🎲</span>
+                <span class="text-xl font-bold">Random</span>
+            </button>
+        </div>
+
+        <!-- Scoreboard -->
+        <div class="card bg-base-200 shadow-lg mb-6">
             <div class="card-body p-4">
-                <div class="flex flex-wrap items-center justify-center gap-4">
+                <div class="flex items-center justify-center gap-4 flex-wrap">
                     <div
                         v-for="p in players"
                         :key="p.id"
                         :class="[
-                            'flex flex-col items-center p-3 rounded-lg transition-all min-w-[100px]',
+                            'flex items-center gap-2 px-3 py-2 rounded-lg transition-all',
                             p.id === player.id
-                                ? 'bg-primary text-primary-content scale-110 shadow-lg'
+                                ? 'bg-primary text-primary-content font-bold'
                                 : 'opacity-60',
                         ]"
                     >
-                        <div class="text-3xl mb-1">
+                        <span class="text-2xl">
                             {{ getPlayerAvatar(p.order) }}
-                        </div>
-                        <div class="font-bold text-center text-sm">
-                            {{ p.name }}
-                            <span v-if="p.gender" class="text-xs">
-                                {{ p.gender === "male" ? "👨" : "👩" }}
-                            </span>
-                        </div>
-                        <div class="text-xs opacity-70">{{ p.score }} pts</div>
-                        <!-- Player Tags -->
-                        <div
-                            v-if="p.tags && p.tags.length > 0"
-                            class="flex flex-wrap gap-1 justify-center mt-1 max-w-[120px]"
-                        >
-                            <div
-                                v-for="tag in p.tags.slice(0, 3)"
-                                :key="tag.id"
-                                class="badge badge-xs"
-                                :class="
-                                    p.id === player.id
-                                        ? 'badge-neutral'
-                                        : 'badge-ghost'
-                                "
-                                :title="tag.name"
-                            >
-                                {{ tag.name }}
-                            </div>
-                            <div
-                                v-if="p.tags.length > 3"
-                                class="badge badge-xs"
-                                :class="
-                                    p.id === player.id
-                                        ? 'badge-neutral'
-                                        : 'badge-ghost'
-                                "
-                                :title="
-                                    p.tags
-                                        .slice(3)
-                                        .map((t) => t.name)
-                                        .join(', ')
-                                "
-                            >
-                                +{{ p.tags.length - 3 }}
+                        </span>
+                        <div class="text-sm">
+                            <div>{{ p.name }}</div>
+                            <div class="text-xs opacity-70">
+                                {{ p.score }} pts
                             </div>
                         </div>
                     </div>
@@ -68,65 +67,31 @@
             </div>
         </div>
 
-        <!-- Choice Buttons -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Random Button -->
-            <button
-                @click="selectType('both')"
-                class="btn btn-lg h-auto py-8 flex-col gap-3 hover:scale-105 transition-transform"
-            >
-                <span class="text-6xl">🎲</span>
-                <span class="text-2xl font-bold">Random</span>
-                <span class="text-sm opacity-70">Feeling lucky?</span>
-            </button>
-
-            <!-- Truth Button -->
-            <button
-                @click="selectType('truth')"
-                class="btn btn-info btn-lg h-auto py-8 flex-col gap-3 hover:scale-105 transition-transform"
-            >
-                <span class="text-6xl">💬</span>
-                <span class="text-2xl font-bold">Truth</span>
-                <span class="text-sm opacity-70">Answer honestly</span>
-            </button>
-
-            <!-- Dare Button -->
-            <button
-                @click="selectType('dare')"
-                class="btn btn-secondary btn-lg h-auto py-8 flex-col gap-3 hover:scale-105 transition-transform"
-            >
-                <span class="text-6xl">🎯</span>
-                <span class="text-2xl font-bold">Dare</span>
-                <span class="text-sm opacity-70">Take the challenge</span>
-            </button>
-        </div>
-
-        <!-- Game Stats -->
-        <div class="stats shadow w-full">
-            <div class="stat">
-                <div class="stat-title">Round</div>
-                <div class="stat-value text-primary">{{ round }}</div>
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2">
+            <div class="stat bg-base-200 rounded-lg p-3 text-center">
+                <div class="stat-title text-xs">Round</div>
+                <div class="stat-value text-2xl text-primary">{{ round }}</div>
             </div>
-            <div class="stat">
-                <div class="stat-title">Completed</div>
-                <div class="stat-value text-success">{{ completed }}</div>
+            <div class="stat bg-base-200 rounded-lg p-3 text-center">
+                <div class="stat-title text-xs">Completed</div>
+                <div class="stat-value text-2xl text-success">
+                    {{ completed }}
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-title">Skipped</div>
-                <div class="stat-value text-warning">{{ skipped }}</div>
+            <div class="stat bg-base-200 rounded-lg p-3 text-center">
+                <div class="stat-title text-xs">Skipped</div>
+                <div class="stat-value text-2xl text-warning">
+                    {{ skipped }}
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import PlayerTurnHeader from "./PlayerTurnHeader.vue";
-
 export default {
     name: "TaskTypeSelector",
-    components: {
-        PlayerTurnHeader,
-    },
     props: {
         player: {
             type: Object,
@@ -188,5 +153,8 @@ export default {
 <style scoped>
 .task-type-selector {
     min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 </style>

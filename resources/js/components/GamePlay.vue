@@ -1,6 +1,6 @@
 <template>
-    <div class="game-play max-w-4xl mx-auto p-4">
-        <!-- Task Type Selector Screen (shown between rounds) -->
+    <div class="game-play max-w-4xl mx-auto p-6">
+        <!-- Task Type Selector Screen -->
         <task-type-selector
             v-if="showingTypeSelector"
             :player="currentPlayer"
@@ -12,116 +12,70 @@
             @type-selected="onTypeSelected"
         />
 
-        <!-- Game Screen (shown during active task) -->
+        <!-- Game Screen -->
         <template v-else>
-            <!-- Player Turn Header -->
-            <player-turn-header
-                v-if="currentPlayer"
-                :player="currentPlayer"
-                :player-avatars="playerAvatars"
-            />
+            <!-- Current Player Badge -->
+            <div class="text-center mb-6">
+                <div
+                    class="inline-flex items-center gap-3 bg-primary text-primary-content px-6 py-3 rounded-full shadow-lg"
+                >
+                    <span class="text-3xl">{{
+                        getPlayerAvatar(currentPlayer.order)
+                    }}</span>
+                    <span class="font-bold text-lg">{{
+                        currentPlayer.name
+                    }}</span>
+                </div>
+            </div>
 
-            <!-- Players Scoreboard -->
-            <div class="card bg-base-200 shadow-lg mb-6">
-                <div class="card-body p-4">
-                    <div
-                        class="flex flex-wrap items-center justify-center gap-4"
-                    >
-                        <div
-                            v-for="player in players"
-                            :key="player.id"
-                            :class="[
-                                'flex flex-col items-center p-3 rounded-lg transition-all min-w-[100px]',
-                                currentPlayerId === player.id
-                                    ? 'bg-primary text-primary-content scale-110 shadow-lg'
-                                    : 'opacity-60',
-                            ]"
-                        >
-                            <div class="text-3xl mb-1">
-                                {{ getPlayerAvatar(player.order) }}
-                            </div>
-                            <div class="font-bold text-center text-sm">
-                                {{ player.name }}
-                                <span v-if="player.gender" class="text-xs">
-                                    {{ player.gender === "male" ? "👨" : "👩" }}
-                                </span>
-                            </div>
-                            <div class="text-xs opacity-70">
-                                {{ player.score }} pts
-                            </div>
-                            <!-- Player Tags -->
-                            <div
-                                v-if="player.tags && player.tags.length > 0"
-                                class="flex flex-wrap gap-1 justify-center mt-1 max-w-[120px]"
-                            >
-                                <div
-                                    v-for="tag in player.tags.slice(0, 3)"
-                                    :key="tag.id"
-                                    class="badge badge-xs"
-                                    :class="
-                                        currentPlayerId === player.id
-                                            ? 'badge-neutral'
-                                            : 'badge-ghost'
-                                    "
-                                    :title="tag.name"
-                                >
-                                    {{ tag.name }}
-                                </div>
-                                <div
-                                    v-if="player.tags.length > 3"
-                                    class="badge badge-xs"
-                                    :class="
-                                        currentPlayerId === player.id
-                                            ? 'badge-neutral'
-                                            : 'badge-ghost'
-                                    "
-                                    :title="
-                                        player.tags
-                                            .slice(3)
-                                            .map((t) => t.name)
-                                            .join(', ')
-                                    "
-                                >
-                                    +{{ player.tags.length - 3 }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Scoreboard -->
+            <div class="flex items-center justify-center gap-3 mb-6 flex-wrap">
+                <div
+                    v-for="player in players"
+                    :key="player.id"
+                    :class="[
+                        'flex items-center gap-2 px-4 py-2 rounded-full transition-all',
+                        currentPlayerId === player.id
+                            ? 'bg-primary text-primary-content scale-110 shadow-lg'
+                            : 'bg-base-200 opacity-60',
+                    ]"
+                >
+                    <span class="text-xl">{{
+                        getPlayerAvatar(player.order)
+                    }}</span>
+                    <span class="font-semibold text-sm">{{ player.name }}</span>
+                    <span class="badge badge-sm">{{ player.score }}</span>
                 </div>
             </div>
 
             <!-- Current Task Card -->
-            <div v-if="currentTask" class="card bg-base-100 shadow-xl mb-6">
-                <div class="card-body">
-                    <!-- Task Type Badge -->
-                    <div class="flex justify-between items-start mb-4">
+            <div v-if="currentTask" class="card bg-base-100 shadow-2xl mb-6">
+                <div class="card-body p-8">
+                    <!-- Task Type & Spice -->
+                    <div class="flex justify-between items-center mb-6">
                         <div
                             :class="[
-                                'badge badge-lg gap-2 px-4 py-3',
+                                'badge badge-lg gap-2 px-4 py-4',
                                 currentTask.type === 'truth'
                                     ? 'badge-info'
                                     : 'badge-secondary',
                             ]"
                         >
-                            <span class="text-2xl">{{
+                            <span class="text-3xl">{{
                                 currentTask.type === "truth" ? "💬" : "🎯"
                             }}</span>
-                            <span class="text-lg font-bold">{{
-                                currentTask.type.toUpperCase()
+                            <span class="text-lg font-bold uppercase">{{
+                                currentTask.type
                             }}</span>
                         </div>
-                        <div class="flex gap-2">
-                            <div class="badge badge-warning badge-lg">
-                                {{ "🌶️".repeat(currentTask.spice_rating) }}
-                            </div>
+                        <div class="text-2xl">
+                            {{ "🌶️".repeat(currentTask.spice_rating) }}
                         </div>
                     </div>
 
                     <!-- Task Description -->
-                    <div class="text-center py-8">
-                        <p
-                            class="text-2xl md:text-3xl font-semibold leading-relaxed"
-                        >
+                    <div class="text-center py-12">
+                        <p class="text-3xl font-bold leading-relaxed">
                             {{ currentTask.description }}
                         </p>
                     </div>
@@ -129,22 +83,22 @@
                     <!-- Task Tags -->
                     <div
                         v-if="currentTask.tags && currentTask.tags.length > 0"
-                        class="flex flex-wrap gap-2 justify-center mb-4"
+                        class="flex flex-wrap gap-2 justify-center mb-6"
                     >
-                        <div
+                        <span
                             v-for="tag in currentTask.tags"
                             :key="tag.id"
-                            class="badge badge-outline"
+                            class="badge badge-ghost badge-sm"
                         >
-                            <span>{{ tag.name }}</span>
-                        </div>
+                            {{ tag.name }}
+                        </span>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="card-actions justify-center gap-4 mt-6">
+                    <div class="flex gap-3 justify-center">
                         <button
                             @click="completeTask"
-                            class="btn btn-success btn-lg gap-2 px-8"
+                            class="btn btn-success btn-lg gap-2 flex-1 max-w-[200px]"
                             :disabled="loading"
                         >
                             <svg
@@ -159,11 +113,11 @@
                                     clip-rule="evenodd"
                                 />
                             </svg>
-                            Completed!
+                            Done
                         </button>
                         <button
                             @click="skipTask"
-                            class="btn btn-outline btn-lg gap-2 px-8"
+                            class="btn btn-outline btn-lg gap-2 flex-1 max-w-[200px]"
                             :disabled="loading"
                         >
                             <svg
@@ -191,9 +145,9 @@
 
             <!-- Loading State -->
             <div v-else-if="loading" class="card bg-base-100 shadow-xl">
-                <div class="card-body items-center justify-center py-16">
+                <div class="card-body items-center justify-center py-20">
                     <span class="loading loading-spinner loading-lg"></span>
-                    <p class="mt-4 text-lg">Getting next task...</p>
+                    <p class="mt-4 text-lg opacity-70">Loading next task...</p>
                 </div>
             </div>
 
@@ -202,11 +156,11 @@
                 v-else-if="!currentTask && !loading"
                 class="card bg-base-100 shadow-xl"
             >
-                <div class="card-body items-center justify-center py-16">
-                    <div class="text-6xl mb-4">😕</div>
-                    <p class="text-xl font-semibold mb-2">No tasks available</p>
-                    <p class="text-sm opacity-70 mb-4">
-                        Try adjusting your tags or spice level
+                <div class="card-body items-center justify-center py-20">
+                    <div class="text-7xl mb-4">😕</div>
+                    <p class="text-2xl font-bold mb-2">No tasks available</p>
+                    <p class="text-sm opacity-70 mb-6">
+                        Try adjusting your game settings
                     </p>
                     <button @click="getNextTask" class="btn btn-primary">
                         Try Again
@@ -214,23 +168,23 @@
                 </div>
             </div>
 
-            <!-- Game Stats -->
-            <div class="stats shadow w-full mb-6">
-                <div class="stat">
-                    <div class="stat-title">Round</div>
-                    <div class="stat-value text-primary">
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="stat bg-base-200 rounded-lg p-4 text-center">
+                    <div class="stat-title text-xs">Round</div>
+                    <div class="stat-value text-2xl text-primary">
                         {{ completedCount + skippedCount + 1 }}
                     </div>
                 </div>
-                <div class="stat">
-                    <div class="stat-title">Completed</div>
-                    <div class="stat-value text-success">
+                <div class="stat bg-base-200 rounded-lg p-4 text-center">
+                    <div class="stat-title text-xs">Completed</div>
+                    <div class="stat-value text-2xl text-success">
                         {{ completedCount }}
                     </div>
                 </div>
-                <div class="stat">
-                    <div class="stat-title">Skipped</div>
-                    <div class="stat-value text-warning">
+                <div class="stat bg-base-200 rounded-lg p-4 text-center">
+                    <div class="stat-title text-xs">Skipped</div>
+                    <div class="stat-value text-2xl text-warning">
                         {{ skippedCount }}
                     </div>
                 </div>
@@ -238,7 +192,7 @@
         </template>
 
         <!-- Error Alert -->
-        <div v-if="error" class="alert alert-error shadow-lg">
+        <div v-if="error" class="alert alert-error shadow-lg mt-6">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="stroke-current shrink-0 h-6 w-6"
@@ -259,13 +213,11 @@
 
 <script>
 import TaskTypeSelector from "./TaskTypeSelector.vue";
-import PlayerTurnHeader from "./PlayerTurnHeader.vue";
 
 export default {
     name: "GamePlay",
     components: {
         TaskTypeSelector,
-        PlayerTurnHeader,
     },
     props: {
         game: {
@@ -278,13 +230,12 @@ export default {
             players: [],
             currentPlayerId: null,
             currentTask: null,
-            loading: false,
-            error: null,
             completedCount: 0,
             skippedCount: 0,
-            taskType: "both",
-
+            loading: false,
+            error: null,
             showingTypeSelector: false,
+            selectedTaskType: null,
             playerAvatars: [
                 "😀",
                 "😎",
@@ -322,72 +273,73 @@ export default {
     },
     methods: {
         async loadPlayers() {
+            this.loading = true;
             try {
-                const response = await fetch(
-                    `/api/games/${this.game.id}/players`,
-                );
+                const response = await fetch(`/api/games/${this.game.id}`);
                 const data = await response.json();
+
                 if (data.success) {
-                    this.players = data.data;
-                    console.log("Loaded players:", this.players);
-                    console.log(
-                        "Player tags:",
-                        this.players.map((p) => ({
-                            name: p.name,
-                            tags: p.tags,
-                        })),
-                    );
-                    if (this.players.length > 0) {
-                        this.currentPlayerId = this.players[0].id;
-                        // Show type selector for first player
-                        this.showingTypeSelector = true;
+                    this.players = data.data.players || [];
+                    this.currentPlayerId = data.data.current_player_id;
+                    this.completedCount = data.data.completed_count || 0;
+                    this.skippedCount = data.data.skipped_count || 0;
+
+                    if (this.players.length === 0) {
+                        this.error = "No players found";
+                        return;
                     }
+
+                    this.showTypeSelector();
+                } else {
+                    this.error = data.message || "Failed to load game";
                 }
             } catch (err) {
                 console.error("Error loading players:", err);
-                this.error = "Failed to load players";
+                this.error = "Failed to load game data";
+            } finally {
+                this.loading = false;
             }
         },
 
         async getNextTask() {
-            if (!this.currentPlayer) return;
-
             this.loading = true;
             this.error = null;
-            this.currentTask = null;
 
             try {
-                const typeParam =
-                    this.taskType !== "both" ? `?type=${this.taskType}` : "";
-                const response = await fetch(
-                    `/api/players/${this.currentPlayerId}/tasks/random${typeParam}`,
-                );
+                const url = `/api/games/${this.game.id}/next-task`;
+                const params = new URLSearchParams({
+                    player_id: this.currentPlayerId,
+                });
+
+                if (this.selectedTaskType && this.selectedTaskType !== "both") {
+                    params.append("type", this.selectedTaskType);
+                }
+
+                const response = await fetch(`${url}?${params}`);
                 const data = await response.json();
 
-                if (data.success) {
+                if (data.success && data.data) {
                     this.currentTask = data.data;
-                    console.log("Current task:", this.currentTask);
-                    console.log("Task tags:", this.currentTask.tags);
                 } else {
                     this.error = data.message || "No tasks available";
                 }
             } catch (err) {
-                console.error("Error fetching task:", err);
-                this.error = "Failed to load task";
+                console.error("Error getting next task:", err);
+                this.error = "Failed to get next task";
             } finally {
                 this.loading = false;
             }
         },
 
         async completeTask() {
-            if (!this.currentTask || !this.currentPlayer) return;
+            if (!this.currentTask) return;
 
             this.loading = true;
+            this.error = null;
 
             try {
-                // Complete the task (increments score AND removes tags)
                 const response = await fetch(
-                    `/api/players/${this.currentPlayerId}/complete-task`,
+                    `/api/games/${this.game.id}/complete-task`,
                     {
                         method: "POST",
                         headers: {
@@ -398,37 +350,38 @@ export default {
                         },
                         body: JSON.stringify({
                             task_id: this.currentTask.id,
-                            points: 1,
+                            player_id: this.currentPlayerId,
                         }),
                     },
                 );
 
                 const data = await response.json();
+
                 if (data.success) {
-                    // Update local player data (score and tags)
+                    this.completedCount++;
                     const player = this.players.find(
                         (p) => p.id === this.currentPlayerId,
                     );
-                    if (player && data.data.player) {
-                        player.score = data.data.player.score;
-                        player.tags = data.data.player.tags;
+                    if (player) {
+                        player.score = (player.score || 0) + 1;
                     }
-                    this.completedCount++;
 
-                    // Log if tags were removed
-                    if (data.data.removed_tags_count > 0) {
-                        console.log(
-                            `Removed ${data.data.removed_tags_count} tag(s) from player`,
-                        );
+                    if (data.data && data.data.game_over) {
+                        this.$emit("game-ended", {
+                            players: this.sortedPlayersByScore,
+                            completed: this.completedCount,
+                            skipped: this.skippedCount,
+                        });
+                    } else {
+                        this.nextPlayer();
                     }
+                } else {
+                    this.error = data.message || "Failed to complete task";
                 }
-
-                // Move to next player and show type selector
-                this.nextPlayer();
-                this.showTypeSelector();
             } catch (err) {
                 console.error("Error completing task:", err);
                 this.error = "Failed to complete task";
+            } finally {
                 this.loading = false;
             }
         },
@@ -436,7 +389,6 @@ export default {
         skipTask() {
             this.skippedCount++;
             this.nextPlayer();
-            this.showTypeSelector();
         },
 
         nextPlayer() {
@@ -445,22 +397,23 @@ export default {
             );
             const nextIndex = (currentIndex + 1) % this.players.length;
             this.currentPlayerId = this.players[nextIndex].id;
+            this.showTypeSelector();
         },
 
         showTypeSelector() {
             this.currentTask = null;
             this.showingTypeSelector = true;
+            this.selectedTaskType = null;
         },
 
         onTypeSelected(type) {
-            this.taskType = type;
+            this.selectedTaskType = type;
             this.showingTypeSelector = false;
             this.getNextTask();
         },
 
         setTaskType(type) {
-            this.taskType = type;
-            this.getNextTask();
+            this.selectedTaskType = type;
         },
 
         getPlayerAvatar(order) {
