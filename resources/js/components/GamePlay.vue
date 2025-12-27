@@ -299,6 +299,21 @@ export default {
                     }
 
                     this.showTypeSelector();
+
+                    // Debug: Output players and their tags
+                    console.log("=== PLAYERS AND TAGS ===");
+                    console.table(
+                        this.players.map((player) => ({
+                            ID: player.id,
+                            Name: player.name,
+                            Gender: player.gender,
+                            Score: player.score,
+                            "Tag Count": player.tags ? player.tags.length : 0,
+                            Tags: player.tags
+                                ? player.tags.map((t) => t.name).join(", ")
+                                : "none",
+                        })),
+                    );
                 } else {
                     this.error = "Game data not available";
                 }
