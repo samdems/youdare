@@ -1,7 +1,7 @@
 <template>
     <div class="task-type-selector max-w-3xl mx-auto p-6">
         <!-- Current Player Highlight -->
-        <div class="text-center mb-8">
+        <div v-if="player" class="text-center mb-8">
             <div class="text-7xl mb-3">
                 {{ getPlayerAvatar(player.order) }}
             </div>
@@ -48,7 +48,7 @@
                         :key="p.id"
                         :class="[
                             'flex items-center gap-2 px-3 py-2 rounded-lg transition-all',
-                            p.id === player.id
+                            player && p.id === player.id
                                 ? 'bg-primary text-primary-content font-bold'
                                 : 'opacity-60',
                         ]"

@@ -15,7 +15,7 @@
         <!-- Game Screen -->
         <template v-else>
             <!-- Current Player Badge -->
-            <div class="text-center mb-6">
+            <div v-if="currentPlayer" class="text-center mb-6">
                 <div
                     class="inline-flex items-center gap-3 bg-primary text-primary-content px-6 py-3 rounded-full shadow-lg"
                 >
@@ -29,7 +29,10 @@
             </div>
 
             <!-- Scoreboard -->
-            <div class="flex items-center justify-center gap-3 mb-6 flex-wrap">
+            <div
+                v-if="players.length > 0"
+                class="flex items-center justify-center gap-3 mb-6 flex-wrap"
+            >
                 <div
                     v-for="player in players"
                     :key="player.id"
@@ -281,14 +284,14 @@ export default {
         async loadPlayers() {
             this.loading = true;
             try {
-                const response = await fetch(`/api/games/${this.game.id}`);
-                const data = await response.json();
-
-                if (data.success) {
-                    this.players = data.data.players || [];
-                    this.currentPlayerId = data.data.current_player_id;
-                    this.completedCount = data.data.completed_count || 0;
-                    this.skippedCount = data.data.skipped_count || 0;
+                // The game object already has all the data we need from GameSetup
+                if (this.game && this.game.players) {
+                    this.players = this.game.players;
+                    this.currentPlayerId =
+                        this.game.current_player_id ||
+                        (this.players.length > 0 ? this.players[0].id : null);
+                    this.completedCount = this.game.completed_count || 0;
+                    this.skippedCount = this.game.skipped_count || 0;
 
                     if (this.players.length === 0) {
                         this.error = "No players found";
@@ -297,7 +300,7 @@ export default {
 
                     this.showTypeSelector();
                 } else {
-                    this.error = data.message || "Failed to load game";
+                    this.error = "Game data not available";
                 }
             } catch (err) {
                 console.error("Error loading players:", err);

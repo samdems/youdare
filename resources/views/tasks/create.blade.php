@@ -71,12 +71,24 @@
                     <label class="label">
                         <span class="label-text font-semibold">Description <span class="text-error">*</span></span>
                     </label>
+                    <div class="bg-base-200 border border-base-300 rounded-lg p-4 mb-3">
+                        <div class="text-sm text-base-content">
+                            <div class="font-semibold mb-2">Template Variables Available:</div>
+                            <div class="space-y-1">
+                                <div><code class="bg-base-300 px-1 rounded">@{{same_gender}}</code> - Random player with same gender</div>
+                                <div><code class="bg-base-300 px-1 rounded">@{{other_gender}}</code> - Random player with different gender</div>
+                                <div><code class="bg-base-300 px-1 rounded">@{{any_gender}}</code> or <code class="bg-base-300 px-1 rounded">@{{someone}}</code> - Any random player</div>
+                                <div><code class="bg-base-300 px-1 rounded">@{{number_of_players}}</code> - Total number of players</div>
+                                <div><code class="bg-base-300 px-1 rounded">@{{number_of_players/2}}</code> - Number of players divided by 2 (rounded)</div>
+                            </div>
+                        </div>
+                    </div>
                     <textarea
                         name="description"
                         id="description"
                         rows="5"
                         class="textarea textarea-bordered textarea-lg @error('description') textarea-error @enderror"
-                        placeholder="Enter the task description (10-500 characters)"
+                        placeholder="e.g., Give @{{someone}} a compliment or Do @{{number_of_players/2}} pushups"
                         required
                         minlength="10"
                         maxlength="500"
