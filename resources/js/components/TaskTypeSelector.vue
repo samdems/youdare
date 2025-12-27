@@ -3,46 +3,76 @@
         <!-- Player Turn Announcement -->
         <div class="text-center mb-8 animate-fade-in">
             <h1 class="text-5xl font-bold mb-4">
-                <span class="text-6xl">{{ getPlayerAvatar(player.order) }}</span>
+                <span class="text-6xl">{{
+                    getPlayerAvatar(player.order)
+                }}</span>
                 <br />
                 {{ player.name }}'s Turn!
             </h1>
-            <p class="text-lg opacity-70">
-                Choose your challenge
-            </p>
+            <p class="text-lg opacity-70">Choose your challenge</p>
         </div>
 
-        <!-- Player Info Card -->
-        <div class="card bg-primary text-primary-content shadow-xl mb-8">
-            <div class="card-body">
-                <div class="flex items-center justify-center gap-4 mb-4">
-                    <div class="text-5xl">{{ getPlayerAvatar(player.order) }}</div>
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold">{{ player.name }}</h3>
-                        <div class="flex items-center justify-center gap-2 mt-1">
-                            <span v-if="player.gender" class="text-2xl">
-                                {{ player.gender === "male" ? "👨" : "👩" }}
+        <!-- Players Scoreboard -->
+        <div class="card bg-base-200 shadow-lg mb-8">
+            <div class="card-body p-4">
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div
+                        v-for="p in players"
+                        :key="p.id"
+                        :class="[
+                            'flex flex-col items-center p-3 rounded-lg transition-all min-w-[100px]',
+                            p.id === player.id
+                                ? 'bg-primary text-primary-content scale-110 shadow-lg'
+                                : 'opacity-60',
+                        ]"
+                    >
+                        <div class="text-3xl mb-1">
+                            {{ getPlayerAvatar(p.order) }}
+                        </div>
+                        <div class="font-bold text-center text-sm">
+                            {{ p.name }}
+                            <span v-if="p.gender" class="text-xs">
+                                {{ p.gender === "male" ? "👨" : "👩" }}
                             </span>
-                            <span class="text-lg opacity-90">{{ player.score }} points</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Player Tags -->
-                <div v-if="player.tags && player.tags.length > 0" class="mt-4">
-                    <h4 class="text-sm font-semibold opacity-70 mb-2 text-center">Your Tags:</h4>
-                    <div class="flex flex-wrap gap-2 justify-center">
+                        <div class="text-xs opacity-70">{{ p.score }} pts</div>
+                        <!-- Player Tags -->
                         <div
-                            v-for="tag in player.tags"
-                            :key="tag.id"
-                            class="badge badge-lg badge-neutral gap-2"
+                            v-if="p.tags && p.tags.length > 0"
+                            class="flex flex-wrap gap-1 justify-center mt-1 max-w-[120px]"
                         >
-                            <span>{{ tag.name }}</span>
+                            <div
+                                v-for="tag in p.tags.slice(0, 3)"
+                                :key="tag.id"
+                                class="badge badge-xs"
+                                :class="
+                                    p.id === player.id
+                                        ? 'badge-neutral'
+                                        : 'badge-ghost'
+                                "
+                                :title="tag.name"
+                            >
+                                {{ tag.name }}
+                            </div>
+                            <div
+                                v-if="p.tags.length > 3"
+                                class="badge badge-xs"
+                                :class="
+                                    p.id === player.id
+                                        ? 'badge-neutral'
+                                        : 'badge-ghost'
+                                "
+                                :title="
+                                    p.tags
+                                        .slice(3)
+                                        .map((t) => t.name)
+                                        .join(', ')
+                                "
+                            >
+                                +{{ p.tags.length - 3 }}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div v-else class="text-center text-sm opacity-70 mt-2">
-                    No tags assigned yet
                 </div>
             </div>
         </div>
@@ -100,10 +130,14 @@
 
 <script>
 export default {
-    name: 'TaskTypeSelector',
+    name: "TaskTypeSelector",
     props: {
         player: {
             type: Object,
+            required: true,
+        },
+        players: {
+            type: Array,
             required: true,
         },
         round: {
@@ -121,15 +155,32 @@ export default {
         playerAvatars: {
             type: Array,
             default: () => [
-                "😀", "😎", "🥳", "🤓", "🤠", "🥸", "😺", "🦊",
-                "🐶", "🐼", "🦁", "🐯", "🐸", "🐙", "🦄", "🐲",
-                "🌟", "⚡", "🔥", "💎"
+                "😀",
+                "😎",
+                "🥳",
+                "🤓",
+                "🤠",
+                "🥸",
+                "😺",
+                "🦊",
+                "🐶",
+                "🐼",
+                "🦁",
+                "🐯",
+                "🐸",
+                "🐙",
+                "🦄",
+                "🐲",
+                "🌟",
+                "⚡",
+                "🔥",
+                "💎",
             ],
         },
     },
     methods: {
         selectType(type) {
-            this.$emit('type-selected', type);
+            this.$emit("type-selected", type);
         },
         getPlayerAvatar(order) {
             return this.playerAvatars[order % this.playerAvatars.length];

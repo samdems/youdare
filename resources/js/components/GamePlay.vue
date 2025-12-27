@@ -4,6 +4,7 @@
         <task-type-selector
             v-if="showingTypeSelector"
             :player="currentPlayer"
+            :players="players"
             :round="completedCount + skippedCount + 1"
             :completed="completedCount"
             :skipped="skippedCount"
