@@ -311,44 +311,43 @@ export default {
         },
 
         async getNextTask() {
+            if (!this.currentPlayer) return;
+
             this.loading = true;
             this.error = null;
+            this.currentTask = null;
 
             try {
-                const url = `/api/games/${this.game.id}/next-task`;
-                const params = new URLSearchParams({
-                    player_id: this.currentPlayerId,
-                });
-
-                if (this.selectedTaskType && this.selectedTaskType !== "both") {
-                    params.append("type", this.selectedTaskType);
-                }
-
-                const response = await fetch(`${url}?${params}`);
+                const typeParam =
+                    this.selectedTaskType && this.selectedTaskType !== "both"
+                        ? `?type=${this.selectedTaskType}`
+                        : "";
+                const response = await fetch(
+                    `/api/players/${this.currentPlayerId}/tasks/random${typeParam}`,
+                );
                 const data = await response.json();
 
-                if (data.success && data.data) {
+                if (data.success) {
                     this.currentTask = data.data;
                 } else {
                     this.error = data.message || "No tasks available";
                 }
             } catch (err) {
-                console.error("Error getting next task:", err);
-                this.error = "Failed to get next task";
+                console.error("Error fetching task:", err);
+                this.error = "Failed to load task";
             } finally {
                 this.loading = false;
             }
         },
 
         async completeTask() {
-            if (!this.currentTask) return;
+            if (!this.currentTask || !this.currentPlayer) return;
 
             this.loading = true;
-            this.error = null;
 
             try {
                 const response = await fetch(
-                    `/api/games/${this.game.id}/complete-task`,
+                    `/api/players/${this.currentPlayerId}/complete-task`,
                     {
                         method: "POST",
                         headers: {
@@ -359,38 +358,27 @@ export default {
                         },
                         body: JSON.stringify({
                             task_id: this.currentTask.id,
-                            player_id: this.currentPlayerId,
+                            points: 1,
                         }),
                     },
                 );
 
                 const data = await response.json();
-
                 if (data.success) {
-                    this.completedCount++;
                     const player = this.players.find(
                         (p) => p.id === this.currentPlayerId,
                     );
-                    if (player) {
-                        player.score = (player.score || 0) + 1;
+                    if (player && data.data.player) {
+                        player.score = data.data.player.score;
+                        player.tags = data.data.player.tags;
                     }
+                    this.completedCount++;
 
-                    if (data.data && data.data.game_over) {
-                        this.$emit("game-ended", {
-                            players: this.sortedPlayersByScore,
-                            completed: this.completedCount,
-                            skipped: this.skippedCount,
-                        });
-                    } else {
-                        this.nextPlayer();
-                    }
-                } else {
-                    this.error = data.message || "Failed to complete task";
+                    this.nextPlayer();
                 }
             } catch (err) {
                 console.error("Error completing task:", err);
                 this.error = "Failed to complete task";
-            } finally {
                 this.loading = false;
             }
         },
