@@ -1,16 +1,7 @@
 <template>
     <div class="task-type-selector max-w-4xl mx-auto p-4">
         <!-- Player Turn Announcement -->
-        <div class="text-center mb-8 animate-fade-in">
-            <h1 class="text-5xl font-bold mb-4">
-                <span class="text-6xl">{{
-                    getPlayerAvatar(player.order)
-                }}</span>
-                <br />
-                {{ player.name }}'s Turn!
-            </h1>
-            <p class="text-lg opacity-70">Choose your challenge</p>
-        </div>
+        <player-turn-header :player="player" :player-avatars="playerAvatars" />
 
         <!-- Players Scoreboard -->
         <div class="card bg-base-200 shadow-lg mb-8">
@@ -129,8 +120,13 @@
 </template>
 
 <script>
+import PlayerTurnHeader from "./PlayerTurnHeader.vue";
+
 export default {
     name: "TaskTypeSelector",
+    components: {
+        PlayerTurnHeader,
+    },
     props: {
         player: {
             type: Object,
@@ -192,20 +188,5 @@ export default {
 <style scoped>
 .task-type-selector {
     min-height: 70vh;
-}
-
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fade-in 0.5s ease-out;
 }
 </style>

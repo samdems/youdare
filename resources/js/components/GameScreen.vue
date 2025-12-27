@@ -278,29 +278,12 @@
         <!-- Game Screen -->
         <div v-else class="max-w-4xl mx-auto">
             <!-- Header with Stats -->
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold">🎮 Game On!</h2>
-                    <p class="text-sm opacity-70">
-                        {{ completedTasks.length }} completed •
-                        {{ skippedTasks.length }} skipped
-                    </p>
-                </div>
-                <button @click="endGame" class="btn btn-ghost gap-2">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                    End Game
-                </button>
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold">🎮 Game On!</h2>
+                <p class="text-sm opacity-70">
+                    {{ completedTasks.length }} completed •
+                    {{ skippedTasks.length }} skipped
+                </p>
             </div>
 
             <!-- Current Player Card (if players exist) -->
@@ -950,36 +933,6 @@ export default {
                 }
 
                 this.getRandomTask();
-            }
-        },
-
-        endGame() {
-            let message = `Game Over!\n\n`;
-
-            if (this.players.length > 0) {
-                const sorted = this.sortedPlayers;
-                message += `🏆 Final Results:\n\n`;
-                sorted.forEach((player, index) => {
-                    const medal =
-                        index === 0
-                            ? "🥇"
-                            : index === 1
-                              ? "🥈"
-                              : index === 2
-                                ? "🥉"
-                                : `${index + 1}.`;
-                    message += `${medal} ${player.avatar} ${player.name}: ${player.completed} completed\n`;
-                });
-            } else {
-                message += `You completed ${this.completedTasks.length} tasks and skipped ${this.skippedTasks.length}!`;
-            }
-
-            message += "\n\nWant to end the game?";
-
-            if (confirm(message)) {
-                this.gameStarted = false;
-                this.currentTask = null;
-                this.currentPlayerIndex = 0;
             }
         },
 

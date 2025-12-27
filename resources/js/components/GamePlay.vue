@@ -14,33 +14,12 @@
 
         <!-- Game Screen (shown during active task) -->
         <template v-else>
-            <!-- Game Header -->
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold">
-                        🎮 {{ game.name || "Truth or Dare" }}
-                    </h2>
-                    <p class="text-sm opacity-70">
-                        Game Code:
-                        <span class="font-mono font-bold">{{ game.code }}</span>
-                    </p>
-                </div>
-                <button @click="confirmEndGame" class="btn btn-ghost gap-2">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                    End Game
-                </button>
-            </div>
+            <!-- Player Turn Header -->
+            <player-turn-header
+                v-if="currentPlayer"
+                :player="currentPlayer"
+                :player-avatars="playerAvatars"
+            />
 
             <!-- Players Scoreboard -->
             <div class="card bg-base-200 shadow-lg mb-6">
@@ -107,41 +86,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Active Player Tags Section -->
-            <div
-                v-if="currentPlayer"
-                class="card bg-primary text-primary-content shadow-lg mb-6"
-            >
-                <div class="card-body p-4">
-                    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
-                        <span class="text-2xl">{{
-                            getPlayerAvatar(currentPlayer.order)
-                        }}</span>
-                        <span>{{ currentPlayer.name }}'s Tags</span>
-                        <span v-if="currentPlayer.gender" class="text-base">
-                            {{ currentPlayer.gender === "male" ? "👨" : "👩" }}
-                        </span>
-                    </h3>
-                    <div
-                        v-if="
-                            currentPlayer.tags && currentPlayer.tags.length > 0
-                        "
-                        class="flex flex-wrap gap-2"
-                    >
-                        <div
-                            v-for="tag in currentPlayer.tags"
-                            :key="tag.id"
-                            class="badge badge-lg badge-neutral gap-2"
-                        >
-                            <span>{{ tag.name }}</span>
-                        </div>
-                    </div>
-                    <div v-else class="text-sm opacity-70">
-                        No tags assigned yet
                     </div>
                 </div>
             </div>
@@ -293,64 +237,6 @@
             </div>
         </template>
 
-        <!-- End Game Modal -->
-        <dialog ref="endGameModal" class="modal">
-            <div class="modal-box">
-                <h3 class="font-bold text-lg mb-4">🏁 End Game?</h3>
-                <p class="mb-6">Are you sure you want to end the game?</p>
-
-                <!-- Final Scores -->
-                <div class="mb-6">
-                    <h4 class="font-semibold mb-3">Final Scores:</h4>
-                    <div class="space-y-2">
-                        <div
-                            v-for="(player, index) in sortedPlayersByScore"
-                            :key="player.id"
-                            class="flex items-center justify-between p-3 bg-base-200 rounded-lg"
-                        >
-                            <div class="flex items-center gap-3">
-                                <div class="text-2xl">
-                                    {{
-                                        index === 0
-                                            ? "🥇"
-                                            : index === 1
-                                              ? "🥈"
-                                              : index === 2
-                                                ? "🥉"
-                                                : "👤"
-                                    }}
-                                </div>
-                                <div>
-                                    <div class="font-bold">
-                                        {{ player.name }}
-                                    </div>
-                                    <div class="text-xs opacity-70">
-                                        {{ player.score }} points
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-action">
-                    <button @click="closeEndGameModal" class="btn btn-ghost">
-                        Cancel
-                    </button>
-                    <button
-                        @click="endGame"
-                        class="btn btn-error"
-                        :disabled="endingGame"
-                    >
-                        {{ endingGame ? "Ending..." : "End Game" }}
-                    </button>
-                </div>
-            </div>
-            <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-            </form>
-        </dialog>
-
         <!-- Error Alert -->
         <div v-if="error" class="alert alert-error shadow-lg">
             <svg
@@ -373,11 +259,13 @@
 
 <script>
 import TaskTypeSelector from "./TaskTypeSelector.vue";
+import PlayerTurnHeader from "./PlayerTurnHeader.vue";
 
 export default {
     name: "GamePlay",
     components: {
         TaskTypeSelector,
+        PlayerTurnHeader,
     },
     props: {
         game: {
@@ -395,7 +283,7 @@ export default {
             completedCount: 0,
             skippedCount: 0,
             taskType: "both",
-            endingGame: false,
+
             showingTypeSelector: false,
             playerAvatars: [
                 "😀",
@@ -577,48 +465,6 @@ export default {
 
         getPlayerAvatar(order) {
             return this.playerAvatars[order % this.playerAvatars.length];
-        },
-
-        confirmEndGame() {
-            this.$refs.endGameModal.showModal();
-        },
-
-        closeEndGameModal() {
-            this.$refs.endGameModal.close();
-        },
-
-        async endGame() {
-            this.endingGame = true;
-
-            try {
-                const response = await fetch(
-                    `/api/games/${this.game.id}/complete`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document.querySelector(
-                                'meta[name="csrf-token"]',
-                            ).content,
-                        },
-                    },
-                );
-
-                const data = await response.json();
-                if (data.success) {
-                    this.closeEndGameModal();
-                    this.$emit("game-ended", {
-                        players: this.sortedPlayersByScore,
-                        completed: this.completedCount,
-                        skipped: this.skippedCount,
-                    });
-                }
-            } catch (err) {
-                console.error("Error ending game:", err);
-                this.error = "Failed to end game";
-            } finally {
-                this.endingGame = false;
-            }
         },
     },
 };

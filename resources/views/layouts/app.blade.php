@@ -43,41 +43,33 @@
                     </div>
                     <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                         <li><a href="{{ route('game') }}">🎮 Play Game</a></li>
-                        <li><a href="{{ route('tasks.index') }}">All Tasks</a></li>
                         @auth
                             @if(Auth::user()->isAdmin())
+                                <li><a href="{{ route('tasks.index') }}">All Tasks</a></li>
                                 <li><a href="{{ route('tasks.create') }}">Create Task</a></li>
-                            @endif
-                        @endauth
-                        <li><a href="{{ route('tags.index') }}">🏷️ Tags</a></li>
-                        @auth
-                            @if(Auth::user()->isAdmin())
+                                <li><a href="{{ route('tags.index') }}">🏷️ Tags</a></li>
                                 <li><a href="{{ route('stats.index') }}">📊 Stats</a></li>
                             @endif
                         @endauth
-                        <li><a href="{{ route('tasks.random') }}">🎲 Random Task</a></li>
+
                     </ul>
                 </div>
-                <a href="{{ route('tasks.index') }}" class="btn btn-ghost text-xl">
+                <a href="/" class="btn btn-ghost text-xl">
                     🔥 <span class="text-primary font-bold">YouDare</span>
                 </a>
             </div>
             <div class="navbar-center hidden lg:flex">
                 <ul class="menu menu-horizontal px-1">
                     <li><a href="{{ route('game') }}" class="{{ request()->routeIs('game') ? 'active' : '' }}">🎮 Play Game</a></li>
-                    <li><a href="{{ route('tasks.index') }}" class="{{ request()->routeIs('tasks.index') ? 'active' : '' }}">All Tasks</a></li>
                     @auth
                         @if(Auth::user()->isAdmin())
+                            <li><a href="{{ route('tasks.index') }}" class="{{ request()->routeIs('tasks.index') ? 'active' : '' }}">All Tasks</a></li>
                             <li><a href="{{ route('tasks.create') }}" class="{{ request()->routeIs('tasks.create') ? 'active' : '' }}">Create Task</a></li>
-                        @endif
-                    @endauth
-                    <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">🏷️ Tags</a></li>
-                    @auth
-                        @if(Auth::user()->isAdmin())
+                            <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">🏷️ Tags</a></li>
                             <li><a href="{{ route('stats.index') }}" class="{{ request()->routeIs('stats.*') ? 'active' : '' }}">📊 Stats</a></li>
                         @endif
                     @endauth
-                    <li><a href="{{ route('tasks.random') }}">🎲 Random Task</a></li>
+
                 </ul>
             </div>
             <div class="navbar-end gap-2">

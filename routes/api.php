@@ -27,16 +27,12 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("me", [AuthController::class, "me"]);
 });
 
-// Task API routes
+// Task API routes - require admin
 Route::prefix("tasks")->group(function () {
-    // Public routes - anyone can view
-    Route::get("random", [TaskController::class, "random"]);
-    Route::get("statistics", [TaskController::class, "statistics"]);
-    Route::get("/", [TaskController::class, "index"]);
-    Route::get("{task}", [TaskController::class, "show"]);
-
-    // Protected routes - require admin
     Route::middleware("admin")->group(function () {
+        Route::get("statistics", [TaskController::class, "statistics"]);
+        Route::get("/", [TaskController::class, "index"]);
+        Route::get("{task}", [TaskController::class, "show"]);
         Route::post("/", [TaskController::class, "store"]);
         Route::put("{task}", [TaskController::class, "update"]);
         Route::patch("{task}", [TaskController::class, "update"]);
@@ -52,11 +48,11 @@ Route::prefix("tasks")->group(function () {
 
 // Tag API routes
 Route::prefix("tags")->group(function () {
-    // Public routes - anyone can view
+    // Public routes
     Route::get("/", [TagController::class, "index"]);
     Route::get("{tag}", [TagController::class, "show"]);
 
-    // Protected routes - require admin
+    // Admin-only routes
     Route::middleware("admin")->group(function () {
         Route::post("/", [TagController::class, "store"]);
         Route::put("{tag}", [TagController::class, "update"]);
