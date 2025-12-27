@@ -50,7 +50,11 @@
                             @endif
                         @endauth
                         <li><a href="{{ route('tags.index') }}">🏷️ Tags</a></li>
-                        <li><a href="{{ route('stats.index') }}">📊 Stats</a></li>
+                        @auth
+                            @if(Auth::user()->isAdmin())
+                                <li><a href="{{ route('stats.index') }}">📊 Stats</a></li>
+                            @endif
+                        @endauth
                         <li><a href="{{ route('tasks.random') }}">🎲 Random Task</a></li>
                     </ul>
                 </div>
@@ -68,7 +72,11 @@
                         @endif
                     @endauth
                     <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">🏷️ Tags</a></li>
-                    <li><a href="{{ route('stats.index') }}" class="{{ request()->routeIs('stats.*') ? 'active' : '' }}">📊 Stats</a></li>
+                    @auth
+                        @if(Auth::user()->isAdmin())
+                            <li><a href="{{ route('stats.index') }}" class="{{ request()->routeIs('stats.*') ? 'active' : '' }}">📊 Stats</a></li>
+                        @endif
+                    @endauth
                     <li><a href="{{ route('tasks.random') }}">🎲 Random Task</a></li>
                 </ul>
             </div>
@@ -87,6 +95,7 @@
                             @if(Auth::user()->isAdmin())
                                 <li><a href="{{ route('tasks.create') }}">➕ Create Task</a></li>
                                 <li><a href="{{ route('tags.create') }}">🏷️ Create Tag</a></li>
+                                <li><a href="{{ route('stats.index') }}">📊 View Stats</a></li>
                             @endif
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">

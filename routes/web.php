@@ -36,8 +36,10 @@ Route::get("/test-api", function () {
     return view("test-api");
 });
 
-// Stats route
-Route::get("stats", [StatsController::class, "index"])->name("stats.index");
+// Stats route - require admin
+Route::middleware("admin")->group(function () {
+    Route::get("stats", [StatsController::class, "index"])->name("stats.index");
+});
 
 // Task routes - specific routes first (before parameterized routes)
 Route::get("tasks/random", [TaskController::class, "random"])->name(
