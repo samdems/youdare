@@ -170,11 +170,14 @@
                                                 )
                                             "
                                             :class="[
-                                                'badge badge-sm gap-1 cursor-pointer transition-all',
+                                                'badge badge-sm gap-1 cursor-pointer transition-all tooltip tooltip-top',
                                                 player.tags.includes(tag.id)
                                                     ? 'badge-primary'
                                                     : 'badge-outline hover:badge-primary',
                                             ]"
+                                            :data-tip="
+                                                tag.description || tag.name
+                                            "
                                         >
                                             {{ tag.name }}
                                             <span
