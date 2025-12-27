@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,9 @@ Route::get("/game", function () {
 Route::get("/test-api", function () {
     return view("test-api");
 });
+
+// Stats route
+Route::get("stats", [StatsController::class, "index"])->name("stats.index");
 
 // Task routes - specific routes first (before parameterized routes)
 Route::get("tasks/random", [TaskController::class, "random"])->name(
