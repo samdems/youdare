@@ -376,7 +376,7 @@
                                     <span class="label-text font-semibold">@{{someone}} Must Have Tags</span>
                                 </label>
                                 <p class="text-sm opacity-70 mb-3">
-                                    Select tags that the random player must have. The player must have at least one of these tags. Leave empty for any player.
+                                    Select tags that the random player must have. The player must have ALL of these tags. Leave empty for any player.
                                 </p>
 
                                 @if($tags->count() > 0)

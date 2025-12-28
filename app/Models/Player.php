@@ -98,10 +98,11 @@ class Player extends Model
                 // Include tasks with no tags (always available)
                 $q->whereDoesntHave("tags");
 
-                // Include tasks that match active tags
+                // Include tasks where player has ALL required tags (AND logic)
                 if (count($tagIds) > 0) {
-                    $q->orWhereHas("tags", function ($tagQuery) use ($tagIds) {
-                        $tagQuery->whereIn("tags.id", $tagIds);
+                    $q->orWhere(function ($subQuery) use ($tagIds) {
+                        // This will be filtered in PHP later for ALL tags requirement
+                        $subQuery->has("tags");
                     });
                 }
 
@@ -129,13 +130,15 @@ class Player extends Model
                         return true;
                     }
 
-                    // Keep task if it matches active tags
-                    if (
-                        count($tagIds) > 0 &&
-                        $task->tags->pluck("id")->intersect($tagIds)->count() >
-                            0
-                    ) {
-                        return true;
+                    // Keep task if player has ALL required tags (AND logic)
+                    if (count($tagIds) > 0 && $task->tags->count() > 0) {
+                        $taskTagIds = $task->tags->pluck("id")->toArray();
+                        // Player must have ALL task tags
+                        $hasAllTags =
+                            count(array_diff($taskTagIds, $tagIds)) === 0;
+                        if ($hasAllTags) {
+                            return true;
+                        }
                     }
 
                     // Keep task if it can remove any tag from this player

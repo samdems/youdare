@@ -44,6 +44,7 @@ Updated `processTaskDescription()` function to handle gender filtering:
 - When `someone_gender` is set to `"same"`, filters eligible players to only those with the same gender as the current player
 - When `someone_gender` is set to `"other"`, filters eligible players to only those with a different gender than the current player
 - When `someone_gender` is `"any"` or not set, no gender filtering is applied
+- **Changed `someone_tags` logic**: Now uses `.every()` instead of `.some()` - players must have **ALL** specified tags (AND logic), not just one
 
 ### Task Creation/Edit Views
 
@@ -72,6 +73,8 @@ When creating or editing a task, you can now:
 The gender filter works in combination with other someone filters:
 1. Excludes the current player
 2. Applies tag-based filtering (someone_tags and someone_cant_have_tags)
+   - **someone_tags**: Player must have **ALL** specified tags (AND logic)
+   - **someone_cant_have_tags**: Player must NOT have any of these tags
 3. Applies gender filtering (someone_gender)
 4. Randomly selects from remaining eligible players
 
@@ -82,3 +85,19 @@ If no eligible players remain after all filters are applied, `{{someone}}` will 
 - Gender values in the system are: `"male"` and `"female"` (stored in players table)
 - Players without a gender value will only be eligible when `someone_gender` is set to `"any"`
 - The filter is relative to the current player, so the same task may select different gendered players depending on who's turn it is
+
+## Tag Logic Change (AND vs OR)
+
+### Updated Behavior (v2.0)
+- **Task Selection**: Players must have **ALL** tags that a task requires (AND logic)
+- **{{someone}} Selection**: The selected player must have **ALL** tags specified in `someone_tags` (AND logic)
+
+### Previous Behavior (v1.0)
+- Task Selection: Players only needed **ONE** of the task's tags (OR logic)
+- {{someone}} Selection: The selected player only needed **ONE** of the `someone_tags` (OR logic)
+
+### Why This Change?
+This change provides more precise control over task filtering. For example:
+- A task with tags ["Adults Only", "Couples"] now only shows for players who have BOTH tags
+- A `{{someone}}` filter with tags ["Male", "Single"] will only select players who have BOTH tags
+- This prevents unintended task appearances and provides better gameplay control

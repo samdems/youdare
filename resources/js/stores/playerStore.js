@@ -217,11 +217,12 @@ export const usePlayerStore = defineStore("player", () => {
                 (p) => p.id !== currentPlayer.value.id,
             );
 
-            // If task has someone_tags, filter to players that have at least one of those tags
+            // If task has someone_tags, filter to players that have ALL of those tags (AND logic)
             if (task && task.someone_tags && task.someone_tags.length > 0) {
                 eligiblePlayers = eligiblePlayers.filter((p) => {
                     const playerTagIds = p.tags ? p.tags.map((t) => t.id) : [];
-                    return task.someone_tags.some((tagId) =>
+                    // Player must have ALL required tags
+                    return task.someone_tags.every((tagId) =>
                         playerTagIds.includes(tagId),
                     );
                 });

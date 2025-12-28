@@ -195,7 +195,7 @@
                                     $someoneTags = \App\Models\Tag::whereIn('id', $task->someone_tags)->get();
                                 @endphp
                                 <div class="mb-4">
-                                    <div class="font-semibold text-sm mb-2">Must Have Tags (at least one):</div>
+                                    <div class="font-semibold text-sm mb-2">Must Have Tags (ALL required):</div>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($someoneTags as $tag)
                                             <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-info gap-2 hover:opacity-75 transition-opacity">
