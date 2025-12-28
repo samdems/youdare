@@ -256,7 +256,10 @@ const {
 // Computed
 const processedTaskDescription = computed(() => {
     if (!currentTask.value || !currentTask.value.description) return "";
-    return playerStore.processTaskDescription(currentTask.value.description);
+    return playerStore.processTaskDescription(
+        currentTask.value.description,
+        currentTask.value,
+    );
 });
 
 // Actions

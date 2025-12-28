@@ -76,9 +76,7 @@
                         <div class="text-sm text-base-content">
                             <div class="font-semibold mb-2">Template Variables Available:</div>
                             <div class="space-y-1">
-                                <div><code class="bg-base-300 px-1 rounded">@{{same_gender}}</code> - Random player with same gender</div>
-                                <div><code class="bg-base-300 px-1 rounded">@{{other_gender}}</code> - Random player with different gender</div>
-                                <div><code class="bg-base-300 px-1 rounded">@{{any_gender}}</code> or <code class="bg-base-300 px-1 rounded">@{{someone}}</code> - Any random player</div>
+                                <div><code class="bg-base-300 px-1 rounded">@{{someone}}</code> - Random player (use filters below to specify requirements)</div>
                                 <div><code class="bg-base-300 px-1 rounded">@{{number_of_players}}</code> - Total number of players</div>
                                 <div><code class="bg-base-300 px-1 rounded">@{{number_of_players/2}}</code> - Number of players divided by 2 (rounded)</div>
                             </div>
@@ -89,7 +87,7 @@
                         id="description"
                         rows="5"
                         class="textarea textarea-bordered textarea-lg @error('description') textarea-error @enderror"
-                        placeholder="e.g., Give @{{someone}} a compliment or Do @{{number_of_players/2}} pushups"
+                        placeholder="e.g., Give @{{someone}} a compliment or Tell @{{someone}} your biggest secret"
                         required
                         minlength="10"
                         maxlength="500"
@@ -154,241 +152,369 @@
                     @enderror
                 </div>
 
-                <!-- Tags Selection -->
-                <div class="form-control mb-6">
-                    <label class="label">
-                        <span class="label-text font-semibold">Tags</span>
-                    </label>
-                    <p class="text-sm opacity-70 mb-3">
-                        Select tags to categorize this task. Tags help organize and filter content.
-                    </p>
+                <!-- Tag Configuration Tabs -->
+                <div class="mb-6">
+                    <div class="text-lg font-semibold mb-4">Tag Configuration</div>
 
                     @php
                         $tags = \App\Models\Tag::orderBy('name')->get();
-                        $taskTagIds = $task->tags->pluck('id')->toArray();
                     @endphp
 
-                    @if($tags->count() > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($tags as $tag)
-                                <label class="cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="tags[]"
-                                        value="{{ $tag->id }}"
-                                        class="hidden peer"
-                                        {{ (is_array(old('tags')) ? in_array($tag->id, old('tags')) : in_array($tag->id, $taskTagIds)) ? 'checked' : '' }}
-                                    >
-                                    <div class="card border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary/50 transition-all">
-                                        <div class="card-body p-3 flex-row items-center gap-3">
-                                            <span class="text-2xl">🏷️</span>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-semibold truncate">{{ $tag->name }}</div>
-                                                @if($tag->description)
-                                                    <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
-                                                @endif
-                                            </div>
-                                            <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div role="tablist" class="tabs tabs-boxed bg-base-200 p-1 mb-6">
+                        <!-- Player Filters Tab -->
+                        <input type="radio" name="tag_tabs" role="tab" class="tab text-base font-semibold h-12 [&:checked]:bg-primary [&:checked]:text-primary-content" aria-label="Player Filters" checked />
+                        <div role="tabpanel" class="tab-content bg-base-100 rounded-lg p-6 mt-4">
+                            <p class="text-sm opacity-70 mb-6">
+                                Configure which players can see and receive this task based on their tags.
+                            </p>
+
+                            <!-- Tags Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Must Have Tags</span>
                                 </label>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-warning">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <span>No tags available. <a href="{{ route('tags.create') }}" class="link">Create tags</a> to categorize content.</span>
-                        </div>
-                    @endif
+                                <p class="text-sm opacity-70 mb-3">
+                                    Players must have at least one of these tags to see this task. Leave empty for all players.
+                                </p>
 
-                    @error('tags')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
-                </div>
-
-                <!-- Tags to Remove Selection -->
-                <div class="form-control mb-6">
-                    <label class="label">
-                        <span class="label-text font-semibold">Tags to Remove on Completion</span>
-                    </label>
-                    <p class="text-sm opacity-70 mb-3">
-                        Select tags that should be removed from the player when they complete this task. This is useful for one-time tasks or progressive challenges.
-                    </p>
-
-                    @php
-                        $taskTagsToRemove = $task->tags_to_remove ?? [];
-                    @endphp
-
-                    @if($tags->count() > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($tags as $tag)
-                                <label class="cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="tags_to_remove[]"
-                                        value="{{ $tag->id }}"
-                                        class="hidden peer"
-                                        {{ (is_array(old('tags_to_remove')) ? in_array($tag->id, old('tags_to_remove')) : in_array($tag->id, $taskTagsToRemove)) ? 'checked' : '' }}
-                                    >
-                                    <div class="card border-2 border-base-300 peer-checked:border-error peer-checked:bg-error/10 hover:border-error/50 transition-all">
-                                        <div class="card-body p-3 flex-row items-center gap-3">
-                                            <span class="text-2xl">🗑️</span>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-semibold truncate">{{ $tag->name }}</div>
-                                                @if($tag->description)
-                                                    <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
-                                                @endif
-                                            </div>
-                                            <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-error peer-checked:bg-error flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="tags[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('tags', $task->tags->pluck('id')->toArray())) && in_array($tag->id, old('tags', $task->tags->pluck('id')->toArray()))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">🏷️</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
                                     </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-warning">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <span>No tags available.</span>
-                        </div>
-                    @endif
-
-                    @error('tags_to_remove')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
-                </div>
-
-                <!-- Can't Have Tags Selection -->
-                <div class="form-control mb-6">
-                    <label class="label">
-                        <span class="label-text font-semibold">Can't Have Tags (Negative Filter)</span>
-                    </label>
-                    <p class="text-sm opacity-70 mb-3">
-                        Select tags that players must <strong>NOT</strong> have for this task to appear. This is the opposite of regular tags - if a player has any of these tags, they won't see this task.
-                    </p>
-
-                    @php
-                        $taskCantHaveTags = $task->cant_have_tags ?? [];
-                    @endphp
-
-                    @if($tags->count() > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($tags as $tag)
-                                <label class="cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="cant_have_tags[]"
-                                        value="{{ $tag->id }}"
-                                        class="hidden peer"
-                                        {{ (is_array(old('cant_have_tags')) ? in_array($tag->id, old('cant_have_tags')) : in_array($tag->id, $taskCantHaveTags)) ? 'checked' : '' }}
-                                    >
-                                    <div class="card border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning/10 hover:border-warning/50 transition-all">
-                                        <div class="card-body p-3 flex-row items-center gap-3">
-                                            <span class="text-2xl">🚫</span>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-semibold truncate">{{ $tag->name }}</div>
-                                                @if($tag->description)
-                                                    <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
-                                                @endif
-                                            </div>
-                                            <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available. <a href="{{ route('tags.create') }}" class="link">Create tags</a> to categorize content.</span>
                                     </div>
+                                @endif
+
+                                @error('tags')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- Can't Have Tags Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Can't Have Tags (Negative Filter)</span>
                                 </label>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-warning">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <span>No tags available.</span>
-                        </div>
-                    @endif
+                                <p class="text-sm opacity-70 mb-3">
+                                    Players must <strong>NOT</strong> have any of these tags to see this task. If a player has any of these tags, they won't see this task.
+                                </p>
 
-                    @error('cant_have_tags')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
-                </div>
-
-                <!-- Tags to Add on Completion Selection -->
-                <div class="form-control mb-6">
-                    <label class="label">
-                        <span class="label-text font-semibold">Tags to Add on Completion</span>
-                    </label>
-                    <p class="text-sm opacity-70 mb-3">
-                        Select tags that should be <strong>added</strong> to the player when they complete this task. Use this to reward players, mark progression, or unlock new content tiers.
-                    </p>
-
-                    @php
-                        $taskTagsToAdd = $task->tags_to_add ?? [];
-                    @endphp
-
-                    @if($tags->count() > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($tags as $tag)
-                                <label class="cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="tags_to_add[]"
-                                        value="{{ $tag->id }}"
-                                        class="hidden peer"
-                                        {{ (is_array(old('tags_to_add')) ? in_array($tag->id, old('tags_to_add')) : in_array($tag->id, $taskTagsToAdd)) ? 'checked' : '' }}
-                                    >
-                                    <div class="card border-2 border-base-300 peer-checked:border-success peer-checked:bg-success/10 hover:border-success/50 transition-all">
-                                        <div class="card-body p-3 flex-row items-center gap-3">
-                                            <span class="text-2xl">✨</span>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-semibold truncate">{{ $tag->name }}</div>
-                                                @if($tag->description)
-                                                    <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
-                                                @endif
-                                            </div>
-                                            <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-success peer-checked:bg-success flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="cant_have_tags[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('cant_have_tags', $task->cant_have_tags)) && in_array($tag->id, old('cant_have_tags', $task->cant_have_tags))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning/10 hover:border-warning/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">🚫</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
                                     </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-warning">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <span>No tags available.</span>
-                        </div>
-                    @endif
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available.</span>
+                                    </div>
+                                @endif
 
-                    @error('tags_to_add')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
+                                @error('cant_have_tags')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Someone Filters Tab -->
+                        <input type="radio" name="tag_tabs" role="tab" class="tab text-base font-semibold h-12 [&:checked]:bg-secondary [&:checked]:text-secondary-content" aria-label="Someone Filters" />
+                        <div role="tabpanel" class="tab-content bg-base-100 rounded-lg p-6 mt-4">
+                            <p class="text-sm opacity-70 mb-6">
+                                Configure filters for the <code class="bg-base-300 px-1 rounded">@{{someone}}</code> template variable. These determine which random player gets selected when your task uses <code class="bg-base-300 px-1 rounded">@{{someone}}</code>.
+                            </p>
+
+                            <!-- Someone Must Have Tags Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">@{{someone}} Must Have Tags</span>
+                                </label>
+                                <p class="text-sm opacity-70 mb-3">
+                                    Select tags that the random player must have. The player must have at least one of these tags. Leave empty for any player.
+                                </p>
+
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="someone_tags[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('someone_tags', $task->someone_tags)) && in_array($tag->id, old('someone_tags', $task->someone_tags))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-info peer-checked:bg-info/10 hover:border-info/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">👤</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-info peer-checked:bg-info flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available.</span>
+                                    </div>
+                                @endif
+
+                                @error('someone_tags')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- Someone Can't Have Tags Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">@{{someone}} Can't Have Tags</span>
+                                </label>
+                                <p class="text-sm opacity-70 mb-3">
+                                    Select tags that the random player must <strong>NOT</strong> have. If the player has any of these tags, they won't be selected.
+                                </p>
+
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="someone_cant_have_tags[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('someone_cant_have_tags', $task->someone_cant_have_tags)) && in_array($tag->id, old('someone_cant_have_tags', $task->someone_cant_have_tags))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning/10 hover:border-warning/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">🚷</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-warning peer-checked:bg-warning flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available.</span>
+                                    </div>
+                                @endif
+
+                                @error('someone_cant_have_tags')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Output Tags Tab -->
+                        <input type="radio" name="tag_tabs" role="tab" class="tab text-base font-semibold h-12 [&:checked]:bg-success [&:checked]:text-success-content" aria-label="Output Tags" />
+                        <div role="tabpanel" class="tab-content bg-base-100 rounded-lg p-6 mt-4">
+                            <p class="text-sm opacity-70 mb-6">
+                                Configure what happens to the player's tags when they complete this task.
+                            </p>
+
+                            <!-- Tags to Remove Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Tags to Remove on Completion</span>
+                                </label>
+                                <p class="text-sm opacity-70 mb-3">
+                                    Select tags that should be removed from the player when they complete this task. This is useful for one-time tasks or progressive challenges.
+                                </p>
+
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="tags_to_remove[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('tags_to_remove', $task->tags_to_remove)) && in_array($tag->id, old('tags_to_remove', $task->tags_to_remove))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-error peer-checked:bg-error/10 hover:border-error/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">🗑️</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-error peer-checked:bg-error flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available.</span>
+                                    </div>
+                                @endif
+
+                                @error('tags_to_remove')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- Tags to Add on Completion Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Tags to Add on Completion</span>
+                                </label>
+                                <p class="text-sm opacity-70 mb-3">
+                                    Select tags that should be <strong>added</strong> to the player when they complete this task. Use this to reward players, mark progression, or unlock new content tiers.
+                                </p>
+
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="tags_to_add[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('tags_to_add', $task->tags_to_add)) && in_array($tag->id, old('tags_to_add', $task->tags_to_add))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-success peer-checked:bg-success/10 hover:border-success/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">✨</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-success peer-checked:bg-success flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available.</span>
+                                    </div>
+                                @endif
+
+                                @error('tags_to_add')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Draft Status -->

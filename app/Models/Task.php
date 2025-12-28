@@ -21,6 +21,8 @@ class Task extends Model
         "tags_to_remove",
         "cant_have_tags",
         "tags_to_add",
+        "someone_tags",
+        "someone_cant_have_tags",
         "draft",
         "user_id",
     ];
@@ -36,6 +38,8 @@ class Task extends Model
         "tags_to_remove" => "array",
         "cant_have_tags" => "array",
         "tags_to_add" => "array",
+        "someone_tags" => "array",
+        "someone_cant_have_tags" => "array",
     ];
 
     /**

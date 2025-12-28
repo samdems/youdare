@@ -206,75 +206,45 @@ export const usePlayerStore = defineStore("player", () => {
         return playerAvatars[order % playerAvatars.length];
     };
 
-    const processTaskDescription = (description) => {
+    const processTaskDescription = (description, task = null) => {
         if (!description || !currentPlayer.value) return description;
 
         let processed = description;
 
-        // Replace {{same_gender}} - random player with same gender
-        if (processed.includes("{{same_gender}}")) {
-            const sameGenderPlayers = players.value.filter(
-                (p) =>
-                    p.id !== currentPlayer.value.id &&
-                    p.gender === currentPlayer.value.gender,
-            );
-            const randomPlayer =
-                sameGenderPlayers.length > 0
-                    ? sameGenderPlayers[
-                          Math.floor(Math.random() * sameGenderPlayers.length)
-                      ]
-                    : null;
-            processed = processed.replace(
-                /\{\{same_gender\}\}/g,
-                randomPlayer ? randomPlayer.name : "someone",
-            );
-        }
-
-        // Replace {{other_gender}} - random player with different gender
-        if (processed.includes("{{other_gender}}")) {
-            const otherGenderPlayers = players.value.filter(
-                (p) =>
-                    p.id !== currentPlayer.value.id &&
-                    p.gender !== currentPlayer.value.gender,
-            );
-            const randomPlayer =
-                otherGenderPlayers.length > 0
-                    ? otherGenderPlayers[
-                          Math.floor(Math.random() * otherGenderPlayers.length)
-                      ]
-                    : null;
-            processed = processed.replace(
-                /\{\{other_gender\}\}/g,
-                randomPlayer ? randomPlayer.name : "someone",
-            );
-        }
-
-        // Replace {{any_gender}} - any random player
-        if (processed.includes("{{any_gender}}")) {
-            const otherPlayers = players.value.filter(
-                (p) => p.id !== currentPlayer.value.id,
-            );
-            const randomPlayer =
-                otherPlayers.length > 0
-                    ? otherPlayers[
-                          Math.floor(Math.random() * otherPlayers.length)
-                      ]
-                    : null;
-            processed = processed.replace(
-                /\{\{any_gender\}\}/g,
-                randomPlayer ? randomPlayer.name : "someone",
-            );
-        }
-
-        // Replace {{someone}} - any random player (alias for any_gender)
+        // Replace {{someone}} - random player filtered by task's someone_tags and someone_cant_have_tags
         if (processed.includes("{{someone}}")) {
-            const otherPlayers = players.value.filter(
+            let eligiblePlayers = players.value.filter(
                 (p) => p.id !== currentPlayer.value.id,
             );
+
+            // If task has someone_tags, filter to players that have at least one of those tags
+            if (task && task.someone_tags && task.someone_tags.length > 0) {
+                eligiblePlayers = eligiblePlayers.filter((p) => {
+                    const playerTagIds = p.tags ? p.tags.map((t) => t.id) : [];
+                    return task.someone_tags.some((tagId) =>
+                        playerTagIds.includes(tagId),
+                    );
+                });
+            }
+
+            // If task has someone_cant_have_tags, filter out players that have any of those tags
+            if (
+                task &&
+                task.someone_cant_have_tags &&
+                task.someone_cant_have_tags.length > 0
+            ) {
+                eligiblePlayers = eligiblePlayers.filter((p) => {
+                    const playerTagIds = p.tags ? p.tags.map((t) => t.id) : [];
+                    return !task.someone_cant_have_tags.some((tagId) =>
+                        playerTagIds.includes(tagId),
+                    );
+                });
+            }
+
             const randomPlayer =
-                otherPlayers.length > 0
-                    ? otherPlayers[
-                          Math.floor(Math.random() * otherPlayers.length)
+                eligiblePlayers.length > 0
+                    ? eligiblePlayers[
+                          Math.floor(Math.random() * eligiblePlayers.length)
                       ]
                     : null;
             processed = processed.replace(
