@@ -142,6 +142,89 @@
                 </div>
             @endif
 
+            <!-- Someone Filters Section -->
+            @if($task->description && str_contains($task->description, '{{someone}}'))
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold mb-3">{{"{{"}}someone{{"}}"}} Variable Filters:</h2>
+                    <div class="alert alert-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="w-full">
+                            <div class="font-semibold mb-3">This task uses the {{"{{"}}someone{{"}}"}} variable to select a random player with these filters:</div>
+
+                            <!-- Gender Filter -->
+                            <div class="mb-4">
+                                <div class="font-semibold text-sm mb-2">Gender Filter:</div>
+                                <div class="badge badge-lg gap-2 {{ $task->someone_gender === 'same' ? 'badge-info' : ($task->someone_gender === 'other' ? 'badge-secondary' : 'badge-primary') }}">
+                                    @if($task->someone_gender === 'same')
+                                        <span>👥</span>
+                                        <span>Same Gender</span>
+                                    @elseif($task->someone_gender === 'other')
+                                        <span>🔄</span>
+                                        <span>Other Gender</span>
+                                    @else
+                                        <span>🌐</span>
+                                        <span>Any Gender</span>
+                                    @endif
+                                </div>
+                                <div class="text-xs opacity-70 mt-1">
+                                    @if($task->someone_gender === 'same')
+                                        Player must be the same gender as current player
+                                    @elseif($task->someone_gender === 'other')
+                                        Player must be a different gender than current player
+                                    @else
+                                        No gender restriction
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Must Have Tags -->
+                            @if($task->someone_tags && count($task->someone_tags) > 0)
+                                @php
+                                    $someoneTags = \App\Models\Tag::whereIn('id', $task->someone_tags)->get();
+                                @endphp
+                                <div class="mb-4">
+                                    <div class="font-semibold text-sm mb-2">Must Have Tags (at least one):</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($someoneTags as $tag)
+                                            <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-info gap-2 hover:opacity-75 transition-opacity">
+                                                <span>👤</span>
+                                                <span>{{ $tag->name }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Can't Have Tags -->
+                            @if($task->someone_cant_have_tags && count($task->someone_cant_have_tags) > 0)
+                                @php
+                                    $someoneCantHaveTags = \App\Models\Tag::whereIn('id', $task->someone_cant_have_tags)->get();
+                                @endphp
+                                <div>
+                                    <div class="font-semibold text-sm mb-2">Can't Have Tags:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($someoneCantHaveTags as $tag)
+                                            <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-warning gap-2 hover:opacity-75 transition-opacity">
+                                                <span>🚷</span>
+                                                <span>{{ $tag->name }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if((!$task->someone_tags || count($task->someone_tags) === 0) && (!$task->someone_cant_have_tags || count($task->someone_cant_have_tags) === 0) && (!$task->someone_gender || $task->someone_gender === 'any'))
+                                <div class="text-sm opacity-70">
+                                    No additional filters applied - any player except current player can be selected
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Task Details -->
             <div class="stats stats-vertical lg:stats-horizontal shadow mb-8 w-full">
                 <div class="stat">
