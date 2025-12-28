@@ -82,19 +82,24 @@ class Game extends Model
     }
 
     /**
-     * Mark a task as used in this game.
+     * Mark a task as used by a specific player in this game.
      *
      * @param  Task|int  $task
-     * @param  Player|int|null  $player
+     * @param  Player|int  $player
      * @return void
      */
-    public function markTaskAsUsed($task, $player = null)
+    public function markTaskAsUsed($task, $player)
     {
         $taskId = is_object($task) ? $task->id : $task;
         $playerId = is_object($player) ? $player->id : $player;
 
-        // Only add if not already in history
-        if (!$this->usedTasks()->where("task_id", $taskId)->exists()) {
+        // Only add if not already in history for this player
+        if (
+            !$this->usedTasks()
+                ->wherePivot("player_id", $playerId)
+                ->where("task_id", $taskId)
+                ->exists()
+        ) {
             $this->usedTasks()->attach($taskId, ["player_id" => $playerId]);
         }
     }
@@ -110,15 +115,70 @@ class Game extends Model
     }
 
     /**
-     * Check if a task has been used in this game.
+     * Get tasks available for a specific player in this game.
+     * Filters out tasks where the player has any of the cant_have_tags.
+     * Also excludes tasks that have already been used by this player.
+     *
+     * @param  Player  $player
+     * @param  bool  $excludeUsed  Whether to exclude previously used tasks by this player
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAvailableTasksForPlayer(
+        Player $player,
+        $excludeUsed = true,
+    ) {
+        // Use the player's own method which handles cant_have_tags filtering
+        $tasks = $player->getAvailableTasks();
+
+        // Exclude tasks that have been used by this specific player
+        if ($excludeUsed) {
+            $playerId = is_object($player) ? $player->id : $player;
+            $usedTaskIds = $this->usedTasks()
+                ->wherePivot("player_id", $playerId)
+                ->pluck("task_id")
+                ->toArray();
+            $tasks = $tasks->filter(function ($task) use ($usedTaskIds) {
+                return !in_array($task->id, $usedTaskIds);
+            });
+
+            // If no unused tasks remain for this player, clear their history and return all tasks
+            if ($tasks->isEmpty()) {
+                $this->clearTaskHistoryForPlayer($player);
+                $tasks = $player->getAvailableTasks();
+            }
+        }
+
+        return $tasks;
+    }
+
+    /**
+     * Clear the task history for a specific player in this game.
+     *
+     * @param  Player|int  $player
+     * @return void
+     */
+    public function clearTaskHistoryForPlayer($player)
+    {
+        $playerId = is_object($player) ? $player->id : $player;
+        $this->usedTasks()->wherePivot("player_id", $playerId)->detach();
+    }
+
+    /**
+     * Check if a specific player has used a task in this game.
      *
      * @param  Task|int  $task
+     * @param  Player|int  $player
      * @return bool
      */
-    public function hasUsedTask($task)
+    public function hasPlayerUsedTask($task, $player)
     {
         $taskId = is_object($task) ? $task->id : $task;
-        return $this->usedTasks()->where("task_id", $taskId)->exists();
+        $playerId = is_object($player) ? $player->id : $player;
+
+        return $this->usedTasks()
+            ->wherePivot("player_id", $playerId)
+            ->where("task_id", $taskId)
+            ->exists();
     }
 
     /**
@@ -211,39 +271,6 @@ class Game extends Model
 
                 return false;
             });
-        }
-
-        return $tasks;
-    }
-
-    /**
-     * Get tasks available for a specific player in this game.
-     * Filters out tasks where the player has any of the cant_have_tags.
-     * Also excludes tasks that have already been used in this game.
-     *
-     * @param  Player  $player
-     * @param  bool  $excludeUsed  Whether to exclude previously used tasks
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getAvailableTasksForPlayer(
-        Player $player,
-        $excludeUsed = true,
-    ) {
-        // Use the player's own method which handles cant_have_tags filtering
-        $tasks = $player->getAvailableTasks();
-
-        // Exclude tasks that have been used in this game
-        if ($excludeUsed) {
-            $usedTaskIds = $this->usedTasks()->pluck("task_id")->toArray();
-            $tasks = $tasks->filter(function ($task) use ($usedTaskIds) {
-                return !in_array($task->id, $usedTaskIds);
-            });
-
-            // If no unused tasks remain, clear history and return all tasks
-            if ($tasks->isEmpty()) {
-                $this->clearTaskHistory();
-                $tasks = $player->getAvailableTasks();
-            }
         }
 
         return $tasks;

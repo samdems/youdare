@@ -178,8 +178,9 @@ class Player extends Model
 
     /**
      * Get a random task for this player.
-     * Excludes tasks that have already been used in this game.
-     * Automatically resets history if all tasks have been used.
+     * Excludes tasks that have already been used by this player.
+     * Automatically resets this player's history if all tasks have been used.
+     * Other players can still receive tasks that this player has seen.
      *
      * @param  string|null  $type  Filter by task type ('truth' or 'dare')
      * @param  bool  $markAsUsed  Whether to mark the selected task as used

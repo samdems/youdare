@@ -22,8 +22,8 @@ return new class extends Migration {
                 ->comment("Player who received this task");
             $table->timestamps();
 
-            // Prevent duplicate entries for same game-task combination
-            $table->unique(["game_id", "task_id"]);
+            // Prevent duplicate entries for same game-player-task combination
+            $table->unique(["game_id", "player_id", "task_id"]);
 
             // Index for faster queries
             $table->index(["game_id", "created_at"]);
