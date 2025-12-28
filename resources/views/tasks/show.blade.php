@@ -4,14 +4,23 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    <!-- Back Button -->
-    <div class="mb-6">
+    <!-- Navigation Buttons -->
+    <div class="mb-6 flex justify-between items-center">
         <a href="{{ route('tasks.index') }}" class="btn btn-ghost btn-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
             Back to All Tasks
         </a>
+
+        @if($nextTask)
+            <a href="{{ route('tasks.show', $nextTask) }}" class="btn btn-primary btn-sm">
+                Next Task
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </a>
+        @endif
     </div>
 
     <!-- Task Card -->

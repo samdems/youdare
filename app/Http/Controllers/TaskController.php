@@ -95,7 +95,12 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        return view("tasks.show", compact("task"));
+        // Find the next task (older in creation date)
+        $nextTask = Task::where("created_at", "<", $task->created_at)
+            ->orderBy("created_at", "desc")
+            ->first();
+
+        return view("tasks.show", compact("task", "nextTask"));
     }
 
     /**
