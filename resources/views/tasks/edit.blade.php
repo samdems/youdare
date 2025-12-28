@@ -286,6 +286,90 @@
                                 Configure filters for the <code class="bg-base-300 px-1 rounded">@{{someone}}</code> template variable. These determine which random player gets selected when your task uses <code class="bg-base-300 px-1 rounded">@{{someone}}</code>.
                             </p>
 
+                            <!-- Someone Gender Filter -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">@{{someone}} Gender Filter</span>
+                                </label>
+                                <p class="text-sm opacity-70 mb-3">
+                                    Filter by gender relative to the current player.
+                                </p>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <label class="cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="someone_gender"
+                                            value="any"
+                                            class="hidden peer"
+                                            {{ old('someone_gender', $task->someone_gender ?? 'any') === 'any' ? 'checked' : '' }}
+                                        >
+                                        <div class="card border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary/50 transition-all">
+                                            <div class="card-body p-3 flex-row items-center gap-3">
+                                                <span class="text-2xl">🌐</span>
+                                                <div class="flex-1">
+                                                    <div class="font-semibold">Any Gender</div>
+                                                    <div class="text-xs opacity-70">No gender restriction</div>
+                                                </div>
+                                                <div class="w-5 h-5 rounded-full border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center">
+                                                    <div class="w-2 h-2 rounded-full bg-white hidden peer-checked:block"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="someone_gender"
+                                            value="same"
+                                            class="hidden peer"
+                                            {{ old('someone_gender', $task->someone_gender ?? 'any') === 'same' ? 'checked' : '' }}
+                                        >
+                                        <div class="card border-2 border-base-300 peer-checked:border-info peer-checked:bg-info/10 hover:border-info/50 transition-all">
+                                            <div class="card-body p-3 flex-row items-center gap-3">
+                                                <span class="text-2xl">👥</span>
+                                                <div class="flex-1">
+                                                    <div class="font-semibold">Same Gender</div>
+                                                    <div class="text-xs opacity-70">As current player</div>
+                                                </div>
+                                                <div class="w-5 h-5 rounded-full border-2 border-base-300 peer-checked:border-info peer-checked:bg-info flex items-center justify-center">
+                                                    <div class="w-2 h-2 rounded-full bg-white hidden peer-checked:block"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="someone_gender"
+                                            value="other"
+                                            class="hidden peer"
+                                            {{ old('someone_gender', $task->someone_gender ?? 'any') === 'other' ? 'checked' : '' }}
+                                        >
+                                        <div class="card border-2 border-base-300 peer-checked:border-secondary peer-checked:bg-secondary/10 hover:border-secondary/50 transition-all">
+                                            <div class="card-body p-3 flex-row items-center gap-3">
+                                                <span class="text-2xl">🔄</span>
+                                                <div class="flex-1">
+                                                    <div class="font-semibold">Other Gender</div>
+                                                    <div class="text-xs opacity-70">Different from current player</div>
+                                                </div>
+                                                <div class="w-5 h-5 rounded-full border-2 border-base-300 peer-checked:border-secondary peer-checked:bg-secondary flex items-center justify-center">
+                                                    <div class="w-2 h-2 rounded-full bg-white hidden peer-checked:block"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                @error('someone_gender')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
                             <!-- Someone Must Have Tags Selection -->
                             <div class="form-control mb-6">
                                 <label class="label">

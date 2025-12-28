@@ -241,6 +241,23 @@ export const usePlayerStore = defineStore("player", () => {
                 });
             }
 
+            // If task has someone_gender filter, apply gender filtering
+            if (task && task.someone_gender) {
+                const currentGender = currentPlayer.value.gender;
+                if (task.someone_gender === "same" && currentGender) {
+                    // Filter to only players with the same gender
+                    eligiblePlayers = eligiblePlayers.filter(
+                        (p) => p.gender === currentGender,
+                    );
+                } else if (task.someone_gender === "other" && currentGender) {
+                    // Filter to only players with a different gender
+                    eligiblePlayers = eligiblePlayers.filter(
+                        (p) => p.gender && p.gender !== currentGender,
+                    );
+                }
+                // "any" or no gender set means no filtering needed
+            }
+
             const randomPlayer =
                 eligiblePlayers.length > 0
                     ? eligiblePlayers[

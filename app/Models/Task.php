@@ -23,6 +23,7 @@ class Task extends Model
         "tags_to_add",
         "someone_tags",
         "someone_cant_have_tags",
+        "someone_gender",
         "draft",
         "user_id",
     ];
@@ -40,6 +41,7 @@ class Task extends Model
         "tags_to_add" => "array",
         "someone_tags" => "array",
         "someone_cant_have_tags" => "array",
+        "someone_gender" => "string",
     ];
 
     /**

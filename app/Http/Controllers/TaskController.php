@@ -68,6 +68,7 @@ class TaskController extends Controller
             "someone_tags.*" => "exists:tags,id",
             "someone_cant_have_tags" => "array",
             "someone_cant_have_tags.*" => "exists:tags,id",
+            "someone_gender" => "nullable|in:any,same,other",
         ]);
 
         $validated["draft"] = $request->boolean("draft");
@@ -137,6 +138,7 @@ class TaskController extends Controller
             "someone_tags.*" => "exists:tags,id",
             "someone_cant_have_tags" => "array",
             "someone_cant_have_tags.*" => "exists:tags,id",
+            "someone_gender" => "nullable|in:any,same,other",
         ]);
 
         $validated["draft"] = $request->boolean("draft");

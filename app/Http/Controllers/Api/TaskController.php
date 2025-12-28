@@ -115,6 +115,11 @@ class TaskController extends Controller
             "cant_have_tags.*" => "exists:tags,id",
             "tags_to_add" => "array",
             "tags_to_add.*" => "exists:tags,id",
+            "someone_tags" => "array",
+            "someone_tags.*" => "exists:tags,id",
+            "someone_cant_have_tags" => "array",
+            "someone_cant_have_tags.*" => "exists:tags,id",
+            "someone_gender" => "nullable|in:any,same,other",
         ]);
 
         $validated["draft"] = $request->boolean("draft");
@@ -172,6 +177,11 @@ class TaskController extends Controller
             "cant_have_tags.*" => "exists:tags,id",
             "tags_to_add" => "sometimes|array",
             "tags_to_add.*" => "exists:tags,id",
+            "someone_tags" => "sometimes|array",
+            "someone_tags.*" => "exists:tags,id",
+            "someone_cant_have_tags" => "sometimes|array",
+            "someone_cant_have_tags.*" => "exists:tags,id",
+            "someone_gender" => "sometimes|nullable|in:any,same,other",
         ]);
 
         if ($request->has("draft")) {
