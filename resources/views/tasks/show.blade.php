@@ -62,13 +62,21 @@
             @if($task->tags()->count() > 0)
                 <div class="mb-6">
                     <h2 class="text-lg font-semibold mb-3">Tags:</h2>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach($task->tags as $tag)
-                            <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-primary gap-2 hover:badge-secondary transition-colors">
-                                <span>🏷️</span>
-                                <span>{{ $tag->name }}</span>
-                            </a>
-                        @endforeach
+                    <div class="alert alert-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <div class="font-semibold mb-2">This task is associated with these tags:</div>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($task->tags as $tag)
+                                    <a href="{{ route('tags.show', $tag) }}" class="badge badge-lg badge-primary gap-2 hover:opacity-75 transition-opacity">
+                                        <span>🏷️</span>
+                                        <span>{{ $tag->name }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
                 </div>
             @endif
