@@ -73,6 +73,23 @@
                     </select>
                 </div>
 
+                <div class="form-control w-full md:col-span-4">
+                    <label class="label">
+                        <span class="label-text">Tags</span>
+                    </label>
+                    <select name="tags[]" multiple class="select select-bordered w-full h-32" size="5">
+                        <option value="" disabled>Select tags to filter (hold Ctrl/Cmd to select multiple)</option>
+                        @foreach($allTags as $tag)
+                            <option value="{{ $tag->id }}" {{ in_array($tag->id, request('tags', [])) ? 'selected' : '' }}>
+                                {{ $tag->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <label class="label">
+                        <span class="label-text-alt">Tasks with any of the selected tags will be shown</span>
+                    </label>
+                </div>
+
                 <div class="md:col-span-4 flex gap-2">
                     <button type="submit" class="btn btn-primary">
                         Apply Filters

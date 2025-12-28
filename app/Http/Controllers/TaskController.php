@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -32,10 +33,24 @@ class TaskController extends Controller
             $query->where("spice_rating", "<=", $request->get("max_spice"));
         }
 
+        // Filter by tags if provided
+        if ($request->filled("tags")) {
+            $tagIds = $request->get("tags");
+            if (!is_array($tagIds)) {
+                $tagIds = [$tagIds];
+            }
+            $query->whereHas("tags", function ($q) use ($tagIds) {
+                $q->whereIn("tags.id", $tagIds);
+            });
+        }
+
         // Order by creation date by default
         $tasks = $query->orderBy("created_at", "desc")->paginate(15);
 
-        return view("tasks.index", compact("tasks"));
+        // Get all tags for the filter dropdown
+        $allTags = Tag::orderBy("name")->get();
+
+        return view("tasks.index", compact("tasks", "allTags"));
     }
 
     /**
