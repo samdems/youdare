@@ -79,9 +79,7 @@
                     <!-- Task Description -->
                     <div class="text-center py-12">
                         <p class="text-3xl font-bold leading-relaxed">
-                            {{
-                                processTaskDescription(currentTask.description)
-                            }}
+                            {{ processedTaskDescription }}
                         </p>
                     </div>
 
@@ -216,324 +214,113 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { onMounted, watch, computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useGameStore } from "../stores/gameStore";
+import { usePlayerStore } from "../stores/playerStore";
 import TaskTypeSelector from "./TaskTypeSelector.vue";
 
-export default {
-    name: "GamePlay",
-    components: {
-        TaskTypeSelector,
+const props = defineProps({
+    game: {
+        type: Object,
+        required: true,
     },
-    props: {
-        game: {
-            type: Object,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            players: [],
-            currentPlayerId: null,
-            currentTask: null,
-            completedCount: 0,
-            skippedCount: 0,
-            loading: false,
-            error: null,
-            showingTypeSelector: false,
-            selectedTaskType: null,
-            playerAvatars: [
-                "😀",
-                "😎",
-                "🥳",
-                "🤓",
-                "🤠",
-                "🥸",
-                "😺",
-                "🦊",
-                "🐶",
-                "🐼",
-                "🦁",
-                "🐯",
-                "🐸",
-                "🐙",
-                "🦄",
-                "🐲",
-                "🌟",
-                "⚡",
-                "🔥",
-                "💎",
-            ],
-        };
-    },
-    computed: {
-        currentPlayer() {
-            return this.players.find((p) => p.id === this.currentPlayerId);
-        },
-        sortedPlayersByScore() {
-            return [...this.players].sort((a, b) => b.score - a.score);
-        },
-        processedTaskDescription() {
-            if (!this.currentTask || !this.currentTask.description) return "";
-            return this.processTaskDescription(this.currentTask.description);
-        },
-    },
-    mounted() {
-        this.loadPlayers();
-    },
-    methods: {
-        async loadPlayers() {
-            this.loading = true;
-            try {
-                // The game object already has all the data we need from GameSetup
-                if (this.game && this.game.players) {
-                    this.players = this.game.players;
-                    this.currentPlayerId =
-                        this.game.current_player_id ||
-                        (this.players.length > 0 ? this.players[0].id : null);
-                    this.completedCount = this.game.completed_count || 0;
-                    this.skippedCount = this.game.skipped_count || 0;
+});
 
-                    if (this.players.length === 0) {
-                        this.error = "No players found";
-                        return;
-                    }
+const emit = defineEmits(["game-ended"]);
 
-                    this.showTypeSelector();
+// Use the Pinia stores
+const gameStore = useGameStore();
+const playerStore = usePlayerStore();
 
-                    // Debug: Output players and their tags
-                    console.log("=== PLAYERS AND TAGS ===");
-                    console.table(
-                        this.players.map((player) => ({
-                            ID: player.id,
-                            Name: player.name,
-                            Gender: player.gender,
-                            Score: player.score,
-                            "Tag Count": player.tags ? player.tags.length : 0,
-                            Tags: player.tags
-                                ? player.tags.map((t) => t.name).join(", ")
-                                : "none",
-                        })),
-                    );
-                } else {
-                    this.error = "Game data not available";
-                }
-            } catch (err) {
-                console.error("Error loading players:", err);
-                this.error = "Failed to load game data";
-            } finally {
-                this.loading = false;
-            }
-        },
+// Get reactive refs from stores
+const {
+    currentTask,
+    completedCount,
+    skippedCount,
+    loading,
+    error,
+    showingTypeSelector,
+    selectedTaskType,
+} = storeToRefs(gameStore);
 
-        async getNextTask() {
-            if (!this.currentPlayer) return;
+const {
+    players,
+    currentPlayerId,
+    currentPlayer,
+    sortedPlayersByScore,
+    playerAvatars,
+} = storeToRefs(playerStore);
 
-            this.loading = true;
-            this.error = null;
-            this.currentTask = null;
+// Computed
+const processedTaskDescription = computed(() => {
+    if (!currentTask.value || !currentTask.value.description) return "";
+    return playerStore.processTaskDescription(currentTask.value.description);
+});
 
-            try {
-                const typeParam =
-                    this.selectedTaskType && this.selectedTaskType !== "both"
-                        ? `?type=${this.selectedTaskType}`
-                        : "";
-                const response = await fetch(
-                    `/api/players/${this.currentPlayerId}/tasks/random${typeParam}`,
-                );
-                const data = await response.json();
-
-                if (data.success) {
-                    this.currentTask = data.data;
-                } else {
-                    this.error = data.message || "No tasks available";
-                }
-            } catch (err) {
-                console.error("Error fetching task:", err);
-                this.error = "Failed to load task";
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        async completeTask() {
-            if (!this.currentTask || !this.currentPlayer) return;
-
-            this.loading = true;
-
-            try {
-                const response = await fetch(
-                    `/api/players/${this.currentPlayerId}/complete-task`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document.querySelector(
-                                'meta[name="csrf-token"]',
-                            ).content,
-                        },
-                        body: JSON.stringify({
-                            task_id: this.currentTask.id,
-                            points: 1,
-                        }),
-                    },
-                );
-
-                const data = await response.json();
-                if (data.success) {
-                    const player = this.players.find(
-                        (p) => p.id === this.currentPlayerId,
-                    );
-                    if (player && data.data.player) {
-                        player.score = data.data.player.score;
-                        player.tags = data.data.player.tags;
-                    }
-                    this.completedCount++;
-
-                    this.nextPlayer();
-                }
-            } catch (err) {
-                console.error("Error completing task:", err);
-                this.error = "Failed to complete task";
-                this.loading = false;
-            }
-        },
-
-        skipTask() {
-            this.skippedCount++;
-            this.nextPlayer();
-        },
-
-        nextPlayer() {
-            const currentIndex = this.players.findIndex(
-                (p) => p.id === this.currentPlayerId,
-            );
-            const nextIndex = (currentIndex + 1) % this.players.length;
-            this.currentPlayerId = this.players[nextIndex].id;
-            this.showTypeSelector();
-        },
-
-        showTypeSelector() {
-            this.currentTask = null;
-            this.showingTypeSelector = true;
-            this.selectedTaskType = null;
-        },
-
-        onTypeSelected(type) {
-            this.selectedTaskType = type;
-            this.showingTypeSelector = false;
-            this.getNextTask();
-        },
-
-        setTaskType(type) {
-            this.selectedTaskType = type;
-        },
-
-        getPlayerAvatar(order) {
-            return this.playerAvatars[order % this.playerAvatars.length];
-        },
-
-        processTaskDescription(description) {
-            if (!description || !this.currentPlayer) return description;
-
-            let processed = description;
-
-            // Replace {{same_gender}} - random player with same gender
-            if (processed.includes("{{same_gender}}")) {
-                const sameGenderPlayers = this.players.filter(
-                    (p) =>
-                        p.id !== this.currentPlayer.id &&
-                        p.gender === this.currentPlayer.gender,
-                );
-                const randomPlayer =
-                    sameGenderPlayers.length > 0
-                        ? sameGenderPlayers[
-                              Math.floor(
-                                  Math.random() * sameGenderPlayers.length,
-                              )
-                          ]
-                        : null;
-                processed = processed.replace(
-                    /\{\{same_gender\}\}/g,
-                    randomPlayer ? randomPlayer.name : "someone",
-                );
-            }
-
-            // Replace {{other_gender}} - random player with different gender
-            if (processed.includes("{{other_gender}}")) {
-                const otherGenderPlayers = this.players.filter(
-                    (p) =>
-                        p.id !== this.currentPlayer.id &&
-                        p.gender !== this.currentPlayer.gender,
-                );
-                const randomPlayer =
-                    otherGenderPlayers.length > 0
-                        ? otherGenderPlayers[
-                              Math.floor(
-                                  Math.random() * otherGenderPlayers.length,
-                              )
-                          ]
-                        : null;
-                processed = processed.replace(
-                    /\{\{other_gender\}\}/g,
-                    randomPlayer ? randomPlayer.name : "someone",
-                );
-            }
-
-            // Replace {{any_gender}} - any random player
-            if (processed.includes("{{any_gender}}")) {
-                const otherPlayers = this.players.filter(
-                    (p) => p.id !== this.currentPlayer.id,
-                );
-                const randomPlayer =
-                    otherPlayers.length > 0
-                        ? otherPlayers[
-                              Math.floor(Math.random() * otherPlayers.length)
-                          ]
-                        : null;
-                processed = processed.replace(
-                    /\{\{any_gender\}\}/g,
-                    randomPlayer ? randomPlayer.name : "someone",
-                );
-            }
-
-            // Replace {{someone}} - any random player (alias for any_gender)
-            if (processed.includes("{{someone}}")) {
-                const otherPlayers = this.players.filter(
-                    (p) => p.id !== this.currentPlayer.id,
-                );
-                const randomPlayer =
-                    otherPlayers.length > 0
-                        ? otherPlayers[
-                              Math.floor(Math.random() * otherPlayers.length)
-                          ]
-                        : null;
-                processed = processed.replace(
-                    /\{\{someone\}\}/g,
-                    randomPlayer ? randomPlayer.name : "someone",
-                );
-            }
-
-            // Replace {{number_of_players}}
-            if (processed.includes("{{number_of_players}}")) {
-                processed = processed.replace(
-                    /\{\{number_of_players\}\}/g,
-                    this.players.length,
-                );
-            }
-
-            // Replace {{number_of_players/X}} - divided and rounded
-            const divisionRegex = /\{\{number_of_players\/(\d+)\}\}/g;
-            processed = processed.replace(divisionRegex, (match, divisor) => {
-                const result = Math.round(
-                    this.players.length / parseInt(divisor),
-                );
-                return result;
-            });
-
-            return processed;
-        },
-    },
+// Actions
+const getNextTask = async () => {
+    await gameStore.getNextTask(currentPlayerId.value);
 };
+
+const completeTask = async () => {
+    const updatedPlayer = await gameStore.completeTask(currentPlayerId.value);
+    if (updatedPlayer) {
+        playerStore.updatePlayer(currentPlayerId.value, updatedPlayer);
+        playerStore.nextPlayer();
+        gameStore.showTypeSelector(playerStore.currentPlayer);
+    }
+};
+
+const skipTask = () => {
+    gameStore.skipTask();
+    playerStore.nextPlayer();
+    gameStore.showTypeSelector(playerStore.currentPlayer);
+};
+
+const showTypeSelector = () => {
+    gameStore.showTypeSelector(currentPlayer.value);
+};
+
+const onTypeSelected = async (type) => {
+    gameStore.onTypeSelected(type);
+    await getNextTask();
+};
+
+const setTaskType = (type) => {
+    gameStore.setTaskType(type);
+};
+
+const getPlayerAvatar = (order) => {
+    return playerStore.getPlayerAvatar(order);
+};
+
+const nextPlayer = () => {
+    playerStore.nextPlayer();
+    gameStore.showTypeSelector(playerStore.currentPlayer);
+};
+
+// Watch for game prop changes
+watch(
+    () => props.game,
+    (newGame) => {
+        if (newGame) {
+            gameStore.initializeGame(newGame);
+            playerStore.setPlayers(newGame.players || []);
+            gameStore.showTypeSelector(playerStore.currentPlayer);
+        }
+    },
+    { immediate: true },
+);
+
+// Lifecycle
+onMounted(() => {
+    if (props.game) {
+        gameStore.initializeGame(props.game);
+        playerStore.setPlayers(props.game.players || []);
+    }
+});
 </script>
 
 <style scoped>

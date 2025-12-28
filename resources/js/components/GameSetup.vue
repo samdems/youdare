@@ -274,242 +274,58 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "GameSetup",
-    data() {
-        return {
-            // Tags
-            availableTags: [],
-            loadingTags: true,
+<script setup>
+import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import { useGameStore } from "../stores/gameStore";
+import { usePlayerStore } from "../stores/playerStore";
 
-            // Players
-            players: [],
-            newPlayerName: "",
-            nextPlayerId: 1,
-            playerAvatars: [
-                "😀",
-                "😎",
-                "🥳",
-                "🤓",
-                "🤠",
-                "🥸",
-                "😺",
-                "🦊",
-                "🐶",
-                "🐼",
-                "🦁",
-                "🐯",
-                "🐸",
-                "🐙",
-                "🦄",
-                "🐲",
-                "🌟",
-                "⚡",
-                "🔥",
-                "💎",
-            ],
+const emit = defineEmits(["game-created"]);
 
-            // Settings
-            gameName: "",
-            maxSpiceRating: 3,
+// Use the Pinia stores
+const gameStore = useGameStore();
+const playerStore = usePlayerStore();
 
-            // State
-            creatingGame: false,
-            error: null,
-        };
-    },
-    computed: {
-        // Filter tags based on game's max spice level
-        availableTagsFiltered() {
-            return this.availableTags.filter(
-                (t) => t.min_spice_level <= this.maxSpiceRating,
-            );
-        },
-        defaultTags() {
-            return this.availableTagsFiltered.filter((t) => t.is_default);
-        },
-    },
-    mounted() {
-        this.fetchTags();
-    },
-    methods: {
-        async fetchTags() {
-            this.loadingTags = true;
-            try {
-                const response = await fetch("/api/tags");
-                const data = await response.json();
-                if (data.status === "success" || data.success) {
-                    this.availableTags = data.data;
-                }
-            } catch (err) {
-                console.error("Error fetching tags:", err);
-                this.error = "Failed to load tags";
-            } finally {
-                this.loadingTags = false;
-            }
-        },
+// Get reactive refs from stores
+const {
+    gameName,
+    maxSpiceRating,
+    creatingGame,
+    error,
+    availableTags,
+    loadingTags,
+    availableTagsFiltered,
+} = storeToRefs(gameStore);
 
-        addPlayer(gender) {
-            const name = this.newPlayerName.trim();
-            if (!name || !gender) return;
+const { players, newPlayerName } = storeToRefs(playerStore);
 
-            // Start with default tags
-            const defaultTags = this.availableTagsFiltered
-                .filter((t) => t.is_default)
-                .map((t) => t.id);
+// Get actions from stores
+const { fetchTags } = gameStore;
+const { removePlayer, togglePlayerTag } = playerStore;
 
-            // Add gender-specific tags (only if not 'other')
-            if (gender !== "other") {
-                const genderTags = this.availableTagsFiltered.filter(
-                    (t) =>
-                        t.default_for_gender === gender ||
-                        t.default_for_gender === "both",
-                );
-
-                genderTags.forEach((tag) => {
-                    if (!defaultTags.includes(tag.id)) {
-                        defaultTags.push(tag.id);
-                    }
-                });
-            }
-
-            const player = {
-                id: this.nextPlayerId++,
-                name: name,
-                gender: gender || null,
-                avatar: this.playerAvatars[
-                    Math.floor(Math.random() * this.playerAvatars.length)
-                ],
-                tags: defaultTags,
-                order: this.players.length,
-            };
-
-            this.players.push(player);
-            this.newPlayerName = "";
-        },
-
-        removePlayer(playerId) {
-            const index = this.players.findIndex((p) => p.id === playerId);
-            if (index > -1) {
-                this.players.splice(index, 1);
-                // Update order
-                this.players.forEach((p, i) => {
-                    p.order = i;
-                });
-            }
-        },
-
-        togglePlayerTag(playerId, tagId) {
-            const player = this.players.find((p) => p.id === playerId);
-            if (!player) return;
-
-            const index = player.tags.indexOf(tagId);
-            if (index > -1) {
-                player.tags.splice(index, 1);
-            } else {
-                player.tags.push(tagId);
-            }
-        },
-
-        getTagName(tagId) {
-            const tag = this.availableTags.find((t) => t.id === tagId);
-            return tag ? tag.name : "Unknown";
-        },
-
-        async createGame() {
-            if (this.players.length < 2) {
-                this.error = "Please add at least 2 players";
-                return;
-            }
-
-            this.creatingGame = true;
-            this.error = null;
-
-            try {
-                // Step 1: Create the game
-                const gameResponse = await fetch("/api/games", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]',
-                        ).content,
-                    },
-                    body: JSON.stringify({
-                        name: this.gameName || "New Game",
-                        max_spice_rating: this.maxSpiceRating,
-                    }),
-                });
-
-                const gameData = await gameResponse.json();
-                if (!gameData.success) {
-                    throw new Error(
-                        gameData.message || "Failed to create game",
-                    );
-                }
-
-                const game = gameData.data;
-
-                // Step 2: Add players
-                for (const player of this.players) {
-                    const playerResponse = await fetch(
-                        `/api/games/${game.id}/players`,
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": document.querySelector(
-                                    'meta[name="csrf-token"]',
-                                ).content,
-                            },
-                            body: JSON.stringify({
-                                name: player.name,
-                                gender: player.gender,
-                                tag_ids: player.tags,
-                            }),
-                        },
-                    );
-
-                    const playerData = await playerResponse.json();
-                    if (!playerData.success) {
-                        throw new Error(`Failed to add player ${player.name}`);
-                    }
-                }
-
-                // Step 3: Start the game
-                const startResponse = await fetch(
-                    `/api/games/${game.id}/start`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document.querySelector(
-                                'meta[name="csrf-token"]',
-                            ).content,
-                        },
-                    },
-                );
-
-                const startData = await startResponse.json();
-                if (!startData.success) {
-                    throw new Error(
-                        startData.message || "Failed to start game",
-                    );
-                }
-
-                // Emit event to parent component with game data
-                this.$emit("game-created", startData.data);
-            } catch (err) {
-                console.error("Error creating game:", err);
-                this.error =
-                    err.message || "Failed to create game. Please try again.";
-            } finally {
-                this.creatingGame = false;
-            }
-        },
-    },
+// Wrap addPlayer to pass available tags
+const addPlayer = (gender) => {
+    return playerStore.addPlayer(gender, availableTagsFiltered.value);
 };
+
+const getTagName = (tagId) => {
+    const tag = availableTags.value.find((t) => t.id === tagId);
+    return tag ? tag.name : "Unknown";
+};
+
+// Wrapper for createGame to emit event
+const createGame = async () => {
+    const gameData = await gameStore.createGame(players.value);
+    if (gameData) {
+        playerStore.setPlayers(gameData.players || []);
+        emit("game-created", gameData);
+    }
+};
+
+// Lifecycle
+onMounted(() => {
+    fetchTags();
+});
 </script>
 
 <style scoped>

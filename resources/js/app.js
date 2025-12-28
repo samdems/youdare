@@ -1,9 +1,15 @@
 import "./bootstrap";
 import { createApp } from "vue";
+import { createPinia } from "pinia";
 import GameScreen from "./components/GameScreen.vue";
 import GameManager from "./components/GameManager.vue";
 
 console.log("Vue app.js loaded");
+
+// Enable Vue DevTools in development
+if (import.meta.env.DEV) {
+    console.log("Development mode - Vue DevTools enabled");
+}
 
 // Wait for DOM to be ready
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,6 +22,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "Found game-manager element, mounting Vue with GameManager...",
         );
         const app = createApp(GameManager);
+        const pinia = createPinia();
+        app.use(pinia);
+
+        // Force enable devtools (for development only)
+        app.config.devtools = true;
+        app.config.performance = true;
+
         app.mount("game-manager");
         console.log("Vue GameManager mounted successfully");
         return;
@@ -28,6 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "Found game-screen element, mounting Vue with GameScreen...",
         );
         const app = createApp(GameScreen);
+        const pinia = createPinia();
+        app.use(pinia);
+
+        // Force enable devtools (for development only)
+        app.config.devtools = true;
+        app.config.performance = true;
+
         app.mount("game-screen");
         console.log("Vue GameScreen mounted successfully");
         return;

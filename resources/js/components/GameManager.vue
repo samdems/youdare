@@ -125,41 +125,31 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
+import { useGameStore } from "../stores/gameStore";
+import { usePlayerStore } from "../stores/playerStore";
 import GameSetup from "./GameSetup.vue";
 import GamePlay from "./GamePlay.vue";
 
-export default {
-    name: "GameManager",
-    components: {
-        GameSetup,
-        GamePlay,
-    },
-    data() {
-        return {
-            gameStarted: false,
-            currentGame: null,
-            gameResults: null,
-        };
-    },
-    methods: {
-        onGameCreated(game) {
-            this.currentGame = game;
-            this.gameStarted = true;
-        },
+const gameStore = useGameStore();
+const playerStore = usePlayerStore();
 
-        onGameEnded(results) {
-            this.gameResults = results;
-            this.gameStarted = false;
-            this.currentGame = null;
-        },
+const gameStarted = computed(() => gameStore.isPlayingPhase);
+const currentGame = computed(() => gameStore.currentGame);
+const gameResults = computed(() => gameStore.gameResults);
 
-        playAgain() {
-            this.gameResults = null;
-            this.gameStarted = false;
-            this.currentGame = null;
-        },
-    },
+const onGameCreated = () => {
+    // Game creation is handled in GameSetup, just transition phase
+};
+
+const onGameEnded = () => {
+    gameStore.endGame(playerStore.players);
+};
+
+const playAgain = () => {
+    gameStore.playAgain();
+    playerStore.reset();
 };
 </script>
 

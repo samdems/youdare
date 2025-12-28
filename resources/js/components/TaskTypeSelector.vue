@@ -89,64 +89,65 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "TaskTypeSelector",
-    props: {
-        player: {
-            type: Object,
-            required: true,
-        },
-        players: {
-            type: Array,
-            required: true,
-        },
-        round: {
-            type: Number,
-            default: 1,
-        },
-        completed: {
-            type: Number,
-            default: 0,
-        },
-        skipped: {
-            type: Number,
-            default: 0,
-        },
-        playerAvatars: {
-            type: Array,
-            default: () => [
-                "😀",
-                "😎",
-                "🥳",
-                "🤓",
-                "🤠",
-                "🥸",
-                "😺",
-                "🦊",
-                "🐶",
-                "🐼",
-                "🦁",
-                "🐯",
-                "🐸",
-                "🐙",
-                "🦄",
-                "🐲",
-                "🌟",
-                "⚡",
-                "🔥",
-                "💎",
-            ],
-        },
+<script setup>
+import { defineProps, defineEmits } from "vue";
+
+const props = defineProps({
+    player: {
+        type: Object,
+        required: true,
     },
-    methods: {
-        selectType(type) {
-            this.$emit("type-selected", type);
-        },
-        getPlayerAvatar(order) {
-            return this.playerAvatars[order % this.playerAvatars.length];
-        },
+    players: {
+        type: Array,
+        required: true,
     },
+    round: {
+        type: Number,
+        default: 1,
+    },
+    completed: {
+        type: Number,
+        default: 0,
+    },
+    skipped: {
+        type: Number,
+        default: 0,
+    },
+    playerAvatars: {
+        type: Array,
+        default: () => [
+            "😀",
+            "😎",
+            "🥳",
+            "🤓",
+            "🤠",
+            "🥸",
+            "😺",
+            "🦊",
+            "🐶",
+            "🐼",
+            "🦁",
+            "🐯",
+            "🐸",
+            "🐙",
+            "🦄",
+            "🐲",
+            "🌟",
+            "⚡",
+            "🔥",
+            "💎",
+        ],
+    },
+});
+
+const emit = defineEmits(["type-selected"]);
+
+const selectType = (type) => {
+    emit("type-selected", type);
+};
+
+const getPlayerAvatar = (order) => {
+    return props.playerAvatars[order % props.playerAvatars.length];
 };
 </script>
 

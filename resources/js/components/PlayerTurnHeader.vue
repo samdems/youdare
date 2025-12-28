@@ -1,9 +1,7 @@
 <template>
     <div class="text-center mb-8 animate-fade-in">
         <h1 class="text-5xl font-bold mb-4">
-            <span class="text-6xl">{{
-                getPlayerAvatar(player.order)
-            }}</span>
+            <span class="text-6xl">{{ getPlayerAvatar(player.order) }}</span>
             <br />
             {{ player.name }}'s Turn!
         </h1>
@@ -11,45 +9,43 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "PlayerTurnHeader",
-    props: {
-        player: {
-            type: Object,
-            required: true,
-        },
-        playerAvatars: {
-            type: Array,
-            default: () => [
-                "😀",
-                "😎",
-                "🥳",
-                "🤓",
-                "🤠",
-                "🥸",
-                "😺",
-                "🦊",
-                "🐶",
-                "🐼",
-                "🦁",
-                "🐯",
-                "🐸",
-                "🐙",
-                "🦄",
-                "🐲",
-                "🌟",
-                "⚡",
-                "🔥",
-                "💎",
-            ],
-        },
+<script setup>
+import { defineProps } from "vue";
+
+const props = defineProps({
+    player: {
+        type: Object,
+        required: true,
     },
-    methods: {
-        getPlayerAvatar(order) {
-            return this.playerAvatars[order % this.playerAvatars.length];
-        },
+    playerAvatars: {
+        type: Array,
+        default: () => [
+            "😀",
+            "😎",
+            "🥳",
+            "🤓",
+            "🤠",
+            "🥸",
+            "😺",
+            "🦊",
+            "🐶",
+            "🐼",
+            "🦁",
+            "🐯",
+            "🐸",
+            "🐙",
+            "🦄",
+            "🐲",
+            "🌟",
+            "⚡",
+            "🔥",
+            "💎",
+        ],
     },
+});
+
+const getPlayerAvatar = (order) => {
+    return props.playerAvatars[order % props.playerAvatars.length];
 };
 </script>
 
