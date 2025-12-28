@@ -126,10 +126,8 @@ class TaskController extends Controller
 
         $task = Task::create($validated);
 
-        // Attach tags if provided
-        if ($request->has("tags")) {
-            $task->tags()->attach($request->get("tags"));
-        }
+        // Sync tags (including empty array to allow clearing all tags)
+        $task->tags()->sync($request->input("tags", []));
 
         return response()->json(
             [
@@ -190,10 +188,8 @@ class TaskController extends Controller
 
         $task->update($validated);
 
-        // Sync tags if provided
-        if ($request->has("tags")) {
-            $task->tags()->sync($request->get("tags"));
-        }
+        // Sync tags (including empty array to allow clearing all tags)
+        $task->tags()->sync($request->input("tags", []));
 
         return response()->json([
             "status" => "success",

@@ -85,10 +85,8 @@ class TaskController extends Controller
 
         $task = Task::create($validated);
 
-        // Attach tags if provided
-        if ($request->has("tags")) {
-            $task->tags()->attach($request->get("tags"));
-        }
+        // Sync tags (including empty array to allow clearing all tags)
+        $task->tags()->sync($request->input("tags", []));
 
         // Check if user wants to create another
         if ($request->input("action") === "save_and_new") {
@@ -168,10 +166,8 @@ class TaskController extends Controller
 
         $task->update($validated);
 
-        // Sync tags if provided
-        if ($request->has("tags")) {
-            $task->tags()->sync($request->get("tags"));
-        }
+        // Sync tags (including empty array to allow clearing all tags)
+        $task->tags()->sync($request->input("tags", []));
 
         return redirect()
             ->route("tasks.show", $task)
