@@ -178,16 +178,30 @@ class Player extends Model
 
     /**
      * Get a random task for this player.
+     * Excludes tasks that have already been used in this game.
+     * Automatically resets history if all tasks have been used.
+     *
+     * @param  string|null  $type  Filter by task type ('truth' or 'dare')
+     * @param  bool  $markAsUsed  Whether to mark the selected task as used
+     * @return Task|null
      */
-    public function getRandomTask($type = null)
+    public function getRandomTask($type = null, $markAsUsed = true)
     {
-        $availableTasks = $this->getAvailableTasks();
+        // Use game's method to get tasks excluding used ones
+        $availableTasks = $this->game->getAvailableTasksForPlayer($this, true);
 
         if ($type) {
             $availableTasks = $availableTasks->where("type", $type);
         }
 
-        return $availableTasks->shuffle()->first();
+        $task = $availableTasks->shuffle()->first();
+
+        // Mark the task as used if requested and a task was found
+        if ($task && $markAsUsed) {
+            $this->game->markTaskAsUsed($task, $this);
+        }
+
+        return $task;
     }
 
     /**

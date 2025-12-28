@@ -72,6 +72,56 @@ class Game extends Model
     }
 
     /**
+     * Get the tasks that have been used in this game.
+     */
+    public function usedTasks()
+    {
+        return $this->belongsToMany(Task::class, "game_task_history")
+            ->withPivot("player_id")
+            ->withTimestamps();
+    }
+
+    /**
+     * Mark a task as used in this game.
+     *
+     * @param  Task|int  $task
+     * @param  Player|int|null  $player
+     * @return void
+     */
+    public function markTaskAsUsed($task, $player = null)
+    {
+        $taskId = is_object($task) ? $task->id : $task;
+        $playerId = is_object($player) ? $player->id : $player;
+
+        // Only add if not already in history
+        if (!$this->usedTasks()->where("task_id", $taskId)->exists()) {
+            $this->usedTasks()->attach($taskId, ["player_id" => $playerId]);
+        }
+    }
+
+    /**
+     * Clear the task history for this game (allows tasks to repeat).
+     *
+     * @return void
+     */
+    public function clearTaskHistory()
+    {
+        $this->usedTasks()->detach();
+    }
+
+    /**
+     * Check if a task has been used in this game.
+     *
+     * @param  Task|int  $task
+     * @return bool
+     */
+    public function hasUsedTask($task)
+    {
+        $taskId = is_object($task) ? $task->id : $task;
+        return $this->usedTasks()->where("task_id", $taskId)->exists();
+    }
+
+    /**
      * Get all available tags for this game (game tags + player tags).
      */
     public function getAllActiveTags()
@@ -169,14 +219,34 @@ class Game extends Model
     /**
      * Get tasks available for a specific player in this game.
      * Filters out tasks where the player has any of the cant_have_tags.
+     * Also excludes tasks that have already been used in this game.
      *
      * @param  Player  $player
+     * @param  bool  $excludeUsed  Whether to exclude previously used tasks
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAvailableTasksForPlayer(Player $player)
-    {
+    public function getAvailableTasksForPlayer(
+        Player $player,
+        $excludeUsed = true,
+    ) {
         // Use the player's own method which handles cant_have_tags filtering
-        return $player->getAvailableTasks();
+        $tasks = $player->getAvailableTasks();
+
+        // Exclude tasks that have been used in this game
+        if ($excludeUsed) {
+            $usedTaskIds = $this->usedTasks()->pluck("task_id")->toArray();
+            $tasks = $tasks->filter(function ($task) use ($usedTaskIds) {
+                return !in_array($task->id, $usedTaskIds);
+            });
+
+            // If no unused tasks remain, clear history and return all tasks
+            if ($tasks->isEmpty()) {
+                $this->clearTaskHistory();
+                $tasks = $player->getAvailableTasks();
+            }
+        }
+
+        return $tasks;
     }
 
     /**
