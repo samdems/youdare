@@ -73,6 +73,16 @@ class TaskController extends Controller
 
         $validated["draft"] = $request->boolean("draft");
 
+        // Ensure array fields are set to empty arrays if not present in request
+        $validated["tags_to_remove"] = $request->input("tags_to_remove", []);
+        $validated["cant_have_tags"] = $request->input("cant_have_tags", []);
+        $validated["tags_to_add"] = $request->input("tags_to_add", []);
+        $validated["someone_tags"] = $request->input("someone_tags", []);
+        $validated["someone_cant_have_tags"] = $request->input(
+            "someone_cant_have_tags",
+            [],
+        );
+
         $task = Task::create($validated);
 
         // Attach tags if provided
@@ -100,6 +110,9 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
+        // Refresh the task to ensure we have the latest data
+        $task = $task->fresh();
+
         // Find the next task (older in creation date)
         $nextTask = Task::where("created_at", "<", $task->created_at)
             ->orderBy("created_at", "desc")
@@ -142,6 +155,16 @@ class TaskController extends Controller
         ]);
 
         $validated["draft"] = $request->boolean("draft");
+
+        // Ensure array fields are set to empty arrays if not present in request
+        $validated["tags_to_remove"] = $request->input("tags_to_remove", []);
+        $validated["cant_have_tags"] = $request->input("cant_have_tags", []);
+        $validated["tags_to_add"] = $request->input("tags_to_add", []);
+        $validated["someone_tags"] = $request->input("someone_tags", []);
+        $validated["someone_cant_have_tags"] = $request->input(
+            "someone_cant_have_tags",
+            [],
+        );
 
         $task->update($validated);
 
