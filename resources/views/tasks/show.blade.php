@@ -145,13 +145,13 @@
             <!-- Someone Filters Section -->
             @if($task->description && str_contains($task->description, '{{someone}}'))
                 <div class="mb-6">
-                    <h2 class="text-lg font-semibold mb-3">{{"{{"}}someone{{"}}"}} Variable Filters:</h2>
+                    <h2 class="text-lg font-semibold mb-3"><code class="bg-base-300 px-1 rounded">@{{someone}}</code> Variable Filters:</h2>
                     <div class="alert alert-info">
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div class="w-full">
-                            <div class="font-semibold mb-3">This task uses the {{"{{"}}someone{{"}}"}} variable to select a random player with these filters:</div>
+                            <div class="font-semibold mb-3">This task uses the <code class="bg-base-300 px-1 rounded">@{{someone}}</code> variable to select a random player with these filters:</div>
 
                             <!-- Gender Filter -->
                             <div class="mb-4">
