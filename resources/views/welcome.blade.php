@@ -96,6 +96,31 @@
                         @endauth
                     </div>
 
+                    <!-- Pro Feature Callout -->
+                    @guest
+                    <div class="alert alert-warning shadow-lg max-w-2xl mx-auto mb-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-bold">🔥 Want Adult Content?</h3>
+                            <div class="text-sm">Heat levels 3-5 (adult content) require a Pro account. <a href="{{ route('stripe.go-pro') }}" class="link link-primary font-bold">Upgrade now!</a></div>
+                        </div>
+                    </div>
+                    @else
+                        @if(!Auth::user()->isPro())
+                        <div class="alert alert-warning shadow-lg max-w-2xl mx-auto mb-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-bold">🔥 Unlock Heat Levels 3-5!</h3>
+                                <div class="text-sm">Get access to adult content. <a href="{{ route('stripe.go-pro') }}" class="link link-primary font-bold">Go Pro!</a></div>
+                            </div>
+                        </div>
+                        @endif
+                    @endguest
+
                     <!-- Features -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
                         <div class="card bg-base-100 shadow-xl">
@@ -116,9 +141,10 @@
 
                         <div class="card bg-base-100 shadow-xl">
                             <div class="card-body items-center text-center">
-                                <span class="text-5xl mb-4">🌶️</span>
-                                <h3 class="card-title">Spice Levels</h3>
-                                <p>Choose your comfort level from mild to extreme intensity</p>
+                                <span class="text-5xl mb-4">🔥</span>
+                                <h3 class="card-title">Heat Levels 1-5</h3>
+                                <p>Choose your comfort level from family-friendly to adult-only content</p>
+                                <div class="badge badge-warning mt-2">Levels 3-5 Pro Only</div>
                             </div>
                         </div>
                     </div>

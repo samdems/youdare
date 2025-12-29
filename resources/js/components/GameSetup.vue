@@ -14,7 +14,8 @@
                 </p>
                 <p class="py-2 font-semibold">
                     To unlock adult content (Heat levels 3-5), everyone in the
-                    room must be 18 years or older.
+                    room must be 18 years or older. Heat levels 3-5 also require
+                    a Pro account.
                 </p>
                 <p class="pb-4 text-sm text-base-content/70">
                     Is everyone present 18+?
@@ -61,16 +62,25 @@
                         v-model="maxSpiceRating"
                         :available-count="availableTagsFiltered.length"
                         :is-adult="isAdult"
+                        :is-pro="isPro"
                     />
 
                     <div class="card-actions justify-end mt-6">
                         <button
+                            v-if="isPro || maxSpiceRating < 3"
                             @click="goToStep2"
                             class="btn btn-primary btn-lg gap-2"
                         >
                             Next: Set Tags
                             <ArrowRight :size="20" />
                         </button>
+                        <a
+                            v-if="!isPro && maxSpiceRating >= 3"
+                            href="/go-pro"
+                            class="btn btn-warning btn-lg gap-2"
+                        >
+                            Upgrade
+                        </a>
                     </div>
                 </div>
             </div>
@@ -262,6 +272,13 @@ import {
     ArrowRight,
     ArrowLeft,
 } from "lucide-vue-next";
+
+const props = defineProps({
+    isPro: {
+        type: Boolean,
+        default: false,
+    },
+});
 
 const emit = defineEmits(["game-created"]);
 

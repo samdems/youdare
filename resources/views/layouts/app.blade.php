@@ -26,6 +26,40 @@
         .bg-spice-3 { background-color: #fef3c7; }
         .bg-spice-4 { background-color: #fee2e2; }
         .bg-spice-5 { background-color: #fecaca; }
+
+        /* Pro Badge Styling */
+        .badge-pro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            animation: pulse-glow 2s ease-in-out infinite;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .badge-pro:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+            }
+        }
+
+        .pro-indicator {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .pro-star-shine {
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+        }
     </style>
 
     @stack('styles')
@@ -42,8 +76,23 @@
                         </svg>
                     </div>
                     <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                        @auth
+                            @if(Auth::user()->isPro())
+                                <li class="menu-title">
+                                    <div class="badge badge-pro badge-sm gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        PRO MEMBER
+                                    </div>
+                                </li>
+                            @endif
+                        @endauth
                         <li><a href="{{ route('game') }}">🎮 Play Game</a></li>
                         @auth
+                            @if(!Auth::user()->isPro())
+                                <li><a href="{{ route('stripe.go-pro') }}" class="text-primary font-bold">⚡ Go Pro</a></li>
+                            @endif
                             @if(Auth::user()->isAdmin())
                                 <li><a href="{{ route('tasks.index') }}">All Tasks</a></li>
                                 <li><a href="{{ route('tasks.create') }}">Create Task</a></li>
@@ -62,6 +111,9 @@
                 <ul class="menu menu-horizontal px-1">
                     <li><a href="{{ route('game') }}" class="{{ request()->routeIs('game') ? 'active' : '' }}">🎮 Play Game</a></li>
                     @auth
+                        @if(!Auth::user()->isPro())
+                            <li><a href="{{ route('stripe.go-pro') }}" class="text-primary font-bold {{ request()->routeIs('stripe.*') ? 'active' : '' }}">⚡ Go Pro</a></li>
+                        @endif
                         @if(Auth::user()->isAdmin())
                             <li><a href="{{ route('tasks.index') }}" class="{{ request()->routeIs('tasks.index') ? 'active' : '' }}">All Tasks</a></li>
                             <li><a href="{{ route('tasks.create') }}" class="{{ request()->routeIs('tasks.create') ? 'active' : '' }}">Create Task</a></li>
@@ -74,16 +126,47 @@
             </div>
             <div class="navbar-end gap-2">
                 @auth
+                    @if(Auth::user()->isPro())
+                        <div class="tooltip tooltip-bottom" data-tip="✨ Pro Member - Lifetime Access ✨">
+                            <div class="badge badge-pro badge-lg gap-2 hidden sm:flex text-base px-4 py-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pro-star-shine" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span class="font-extrabold">PRO MEMBER</span>
+                            </div>
+                        </div>
+                    @endif
                     <div class="dropdown dropdown-end">
-                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder relative">
                             <div class="bg-neutral text-neutral-content rounded-full w-10">
                                 <span class="text-xl">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                             </div>
+                            @if(Auth::user()->isPro())
+                                <span class="absolute -top-1 -right-1 flex h-5 w-5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full pro-indicator opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-5 w-5 pro-indicator items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </span>
+                                </span>
+                            @endif
                         </div>
                         <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                            <li class="menu-title">
+                            <li class="menu-title flex flex-row items-center gap-2">
                                 <span>{{ Auth::user()->name }}</span>
+                                @if(Auth::user()->isPro())
+                                    <span class="badge badge-pro badge-sm gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        PRO
+                                    </span>
+                                @endif
                             </li>
+                            @if(!Auth::user()->isPro())
+                                <li><a href="{{ route('stripe.go-pro') }}" class="text-primary font-bold">⚡ Go Pro</a></li>
+                            @endif
                             @if(Auth::user()->isAdmin())
                                 <li><a href="{{ route('tasks.create') }}">➕ Create Task</a></li>
                                 <li><a href="{{ route('tags.create') }}">🏷️ Create Tag</a></li>

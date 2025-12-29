@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,23 @@ Route::get("/game", function () {
 // Test API route
 Route::get("/test-api", function () {
     return view("test-api");
+});
+
+// Stripe/Pro routes
+Route::middleware("auth")->group(function () {
+    Route::get("go-pro", [StripeController::class, "showGoPro"])->name(
+        "stripe.go-pro",
+    );
+    Route::post("checkout", [
+        StripeController::class,
+        "createCheckoutSession",
+    ])->name("stripe.checkout");
+    Route::get("payment/success", [StripeController::class, "success"])->name(
+        "stripe.success",
+    );
+    Route::get("payment/cancel", [StripeController::class, "cancel"])->name(
+        "stripe.cancel",
+    );
 });
 
 // Stats route - require admin

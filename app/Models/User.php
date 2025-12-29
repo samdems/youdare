@@ -22,6 +22,10 @@ class User extends Authenticatable
         "name",
         "email",
         "is_admin",
+        "is_pro",
+        "pro_expires_at",
+        "stripe_customer_id",
+        "stripe_payment_intent_id",
         "login_token",
         "login_token_expires_at",
     ];
@@ -43,6 +47,8 @@ class User extends Authenticatable
         return [
             "email_verified_at" => "datetime",
             "is_admin" => "boolean",
+            "is_pro" => "boolean",
+            "pro_expires_at" => "datetime",
             "login_token_expires_at" => "datetime",
         ];
     }
@@ -69,5 +75,38 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;
+    }
+
+    /**
+     * Check if the user has an active pro account.
+     */
+    public function isPro(): bool
+    {
+        if (!$this->is_pro) {
+            return false;
+        }
+
+        // If pro_expires_at is null, it's lifetime pro
+        if ($this->pro_expires_at === null) {
+            return true;
+        }
+
+        // Check if pro subscription hasn't expired
+        return $this->pro_expires_at->isFuture();
+    }
+
+    /**
+     * Activate pro account.
+     */
+    public function activatePro(
+        ?string $stripeCustomerId,
+        ?string $stripePaymentIntentId,
+    ): void {
+        $this->is_pro = true;
+        // Set expiration to 100 years in the future (essentially lifetime)
+        $this->pro_expires_at = now()->addYears(100);
+        $this->stripe_customer_id = $stripeCustomerId;
+        $this->stripe_payment_intent_id = $stripePaymentIntentId;
+        $this->save();
     }
 }

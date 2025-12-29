@@ -33,7 +33,7 @@ class AuthController extends Controller
 
         if (!$user) {
             // Auto-create account if it doesn't exist
-            $defaultName = $validated["name"];
+            $defaultName = $validated["name"] ?? null;
 
             if (!$defaultName) {
                 // Generate name from email: split on . and - and capitalize each word
