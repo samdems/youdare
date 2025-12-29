@@ -1,12 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Login')
+@section('title', 'Get Started')
 
 @section('content')
 <div class="max-w-md mx-auto">
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-            <h2 class="card-title text-2xl font-bold mb-4">🔐 Login</h2>
+            <h2 class="card-title text-2xl font-bold mb-4">🚀 Get Started</h2>
+
+            <p class="text-base-content/70 mb-4">
+                Enter your email address and we'll send you a magic link. If you don't have an account, we'll create one for you automatically. No password needed!
+            </p>
 
             @if ($errors->any())
                 <div role="alert" class="alert alert-error mb-4">
@@ -24,9 +28,9 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <div class="form-control w-full mb-4">
+                <div class="form-control w-full mb-6">
                     <label class="label">
-                        <span class="label-text">Email</span>
+                        <span class="label-text">Email Address</span>
                     </label>
                     <input
                         type="email"
@@ -44,40 +48,10 @@
                     @enderror
                 </div>
 
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">Password</span>
-                    </label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="••••••••"
-                        class="input input-bordered w-full @error('password') input-error @enderror"
-                        required
-                    />
-                    @error('password')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
-                </div>
-
-                <div class="form-control mb-6">
-                    <label class="label cursor-pointer justify-start gap-2">
-                        <input type="checkbox" name="remember" class="checkbox checkbox-primary" />
-                        <span class="label-text">Remember me</span>
-                    </label>
-                </div>
-
                 <div class="card-actions flex flex-col gap-2">
                     <button type="submit" class="btn btn-primary w-full">
-                        Login
+                        ✨ Send Magic Link
                     </button>
-
-                    <div class="text-center text-sm">
-                        <span class="text-base-content/70">Don't have an account?</span>
-                        <a href="{{ route('register') }}" class="link link-primary ml-1">Register here</a>
-                    </div>
                 </div>
             </form>
         </div>

@@ -18,14 +18,20 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ["name", "email", "password", "is_admin"];
+    protected $fillable = [
+        "name",
+        "email",
+        "is_admin",
+        "login_token",
+        "login_token_expires_at",
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
      */
-    protected $hidden = ["password", "remember_token"];
+    protected $hidden = ["remember_token", "login_token"];
 
     /**
      * Get the attributes that should be cast.
@@ -36,8 +42,8 @@ class User extends Authenticatable
     {
         return [
             "email_verified_at" => "datetime",
-            "password" => "hashed",
             "is_admin" => "boolean",
+            "login_token_expires_at" => "datetime",
         ];
     }
 

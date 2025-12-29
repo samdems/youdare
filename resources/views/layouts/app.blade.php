@@ -98,8 +98,7 @@
                         </ul>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-ghost">Login</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary">🔐 Get Started</a>
                 @endauth
 
                 <label class="swap swap-rotate btn btn-ghost btn-circle">

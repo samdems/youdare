@@ -12,14 +12,19 @@ Route::get("/", function () {
 
 // Authentication routes
 Route::middleware("guest")->group(function () {
-    Route::get("register", [AuthController::class, "showRegisterForm"])->name(
-        "register",
-    );
-    Route::post("register", [AuthController::class, "register"]);
+    // Redirect old register routes to login
+    Route::get("register", function () {
+        return redirect()->route("login");
+    })->name("register");
+
     Route::get("login", [AuthController::class, "showLoginForm"])->name(
         "login",
     );
-    Route::post("login", [AuthController::class, "login"]);
+    Route::post("login", [AuthController::class, "sendMagicLink"]);
+    Route::get("magic-link/{token}", [
+        AuthController::class,
+        "verifyMagicLink",
+    ])->name("magic-link.verify");
 });
 
 Route::post("logout", [AuthController::class, "logout"])

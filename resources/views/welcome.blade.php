@@ -54,11 +54,8 @@
                     <a href="{{ route('game') }}" class="btn btn-ghost">
                         🎮 Play Game
                     </a>
-                    <a href="{{ route('login') }}" class="btn btn-ghost">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">
-                        Register
+                    <a href="{{ route('login') }}" class="btn btn-primary">
+                        🔐 Get Started
                     </a>
                 @endauth
             </div>

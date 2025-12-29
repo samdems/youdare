@@ -3,70 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\MagicLinkNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
-     * Show the registration form.
-     */
-    public function showRegisterForm()
-    {
-        return view('auth.register');
-    }
-
-    /**
-     * Handle registration.
-     */
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
-
-        Auth::login($user);
-
-        return redirect()->route('tasks.index')->with('success', 'Welcome! Your account has been created successfully.');
-    }
-
-    /**
      * Show the login form.
      */
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view("auth.login");
     }
 
     /**
-     * Handle login.
+     * Handle magic link request (login or auto-register).
      */
-    public function login(Request $request)
+    public function sendMagicLink(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $validated = $request->validate([
+            "name" => "nullable|string|max:255",
+            "email" => "required|email|max:255",
         ]);
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
+        $user = User::where("email", $validated["email"])->first();
 
-            return redirect()->intended(route('tasks.index'))->with('success', 'Welcome back, ' . Auth::user()->name . '!');
+        if (!$user) {
+            // Auto-create account if it doesn't exist
+            $defaultName = $validated["name"];
+
+            if (!$defaultName) {
+                // Generate name from email: split on . and - and capitalize each word
+                $emailPrefix = explode("@", $validated["email"])[0];
+                $nameParts = preg_split("/[.\-_]/", $emailPrefix);
+                $defaultName = implode(" ", array_map("ucfirst", $nameParts));
+            }
+
+            $user = User::create([
+                "name" => $defaultName,
+                "email" => $validated["email"],
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => 'The provided credentials do not match our records.',
+        $this->generateAndSendMagicLink($user);
+
+        return back()->with(
+            "success",
+            "Check your email for a magic login link!",
+        );
+    }
+
+    /**
+     * Verify magic link and log in user.
+     */
+    public function verifyMagicLink(Request $request, string $token)
+    {
+        $user = User::where("login_token", $token)
+            ->where("login_token_expires_at", ">", now())
+            ->first();
+
+        if (!$user) {
+            throw ValidationException::withMessages([
+                "token" =>
+                    "This login link is invalid or has expired. Please request a new one.",
+            ]);
+        }
+
+        // Clear the token
+        $user->update([
+            "login_token" => null,
+            "login_token_expires_at" => null,
         ]);
+
+        // Log in the user
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()
+            ->intended(route("game"))
+            ->with("success", "Welcome back, " . $user->name . "!");
     }
 
     /**
@@ -79,6 +97,29 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'You have been logged out successfully.');
+        return redirect()
+            ->route("login")
+            ->with("success", "You have been logged out successfully.");
+    }
+
+    /**
+     * Generate and send a magic link to the user.
+     */
+    protected function generateAndSendMagicLink(User $user): void
+    {
+        // Generate a secure random token
+        $token = Str::random(64);
+
+        // Save token and expiration (15 minutes)
+        $user->update([
+            "login_token" => $token,
+            "login_token_expires_at" => now()->addMinutes(15),
+        ]);
+
+        // Generate the login URL
+        $loginUrl = route("magic-link.verify", ["token" => $token]);
+
+        // Send the notification
+        $user->notify(new MagicLinkNotification($loginUrl));
     }
 }

@@ -8,6 +8,10 @@
         <div class="card-body">
             <h2 class="card-title text-2xl font-bold mb-4">📝 Register</h2>
 
+            <p class="text-base-content/70 mb-4">
+                Create your account and we'll send you a magic link to get started. No password needed!
+            </p>
+
             @if ($errors->any())
                 <div role="alert" class="alert alert-error mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -44,9 +48,9 @@
                     @enderror
                 </div>
 
-                <div class="form-control w-full mb-4">
+                <div class="form-control w-full mb-6">
                     <label class="label">
-                        <span class="label-text">Email</span>
+                        <span class="label-text">Email Address</span>
                     </label>
                     <input
                         type="email"
@@ -63,43 +67,9 @@
                     @enderror
                 </div>
 
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">Password</span>
-                    </label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="••••••••"
-                        class="input input-bordered w-full @error('password') input-error @enderror"
-                        required
-                    />
-                    @error('password')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
-                    <label class="label">
-                        <span class="label-text-alt">Minimum 8 characters</span>
-                    </label>
-                </div>
-
-                <div class="form-control w-full mb-6">
-                    <label class="label">
-                        <span class="label-text">Confirm Password</span>
-                    </label>
-                    <input
-                        type="password"
-                        name="password_confirmation"
-                        placeholder="••••••••"
-                        class="input input-bordered w-full"
-                        required
-                    />
-                </div>
-
                 <div class="card-actions flex flex-col gap-2">
                     <button type="submit" class="btn btn-primary w-full">
-                        Register
+                        ✨ Create Account
                     </button>
 
                     <div class="text-center text-sm">
