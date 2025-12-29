@@ -1,38 +1,50 @@
 <template>
-    <div class="game-setup max-w-4xl mx-auto p-6">
+    <div class="game-setup max-w-4xl mx-auto p-4 sm:p-6">
         <!-- 18+ Age Verification Modal -->
-        <dialog
-            v-if="showAgeVerification"
-            ref="ageVerificationModal"
-            class="modal modal-open"
-        >
-            <div class="modal-box">
-                <h3 class="font-bold text-lg mb-4">Age Verification</h3>
-                <p class="py-2">
-                    This game has multiple heat levels. The first two levels are
-                    family-friendly and safe for all ages.
-                </p>
-                <p class="py-2 font-semibold">
-                    To unlock adult content (Heat levels 3-5), everyone in the
-                    room must be 18 years or older. Heat levels 3-5 also require
-                    a Pro account.
-                </p>
-                <p class="pb-4 text-sm text-base-content/70">
-                    Is everyone present 18+?
-                </p>
-                <div class="modal-action">
-                    <button @click="confirmAge(false)" class="btn btn-outline">
-                        No - Family Mode Only
-                    </button>
-                    <button @click="confirmAge(true)" class="btn btn-primary">
-                        Yes - Everyone is 18+
-                    </button>
+        <Teleport to="body">
+            <dialog
+                v-if="showAgeVerification"
+                ref="ageVerificationModal"
+                class="modal modal-open"
+            >
+                <div
+                    class="modal-box !max-w-none w-[calc(100vw-2rem)] sm:!max-w-sm"
+                >
+                    <h3 class="font-bold text-lg sm:text-xl mb-3">
+                        Age Verification
+                    </h3>
+                    <p class="py-2 text-sm sm:text-base">
+                        This game has multiple heat levels. The first two levels
+                        are family-friendly and safe for all ages.
+                    </p>
+                    <p class="py-2 font-semibold text-sm sm:text-base">
+                        To unlock adult content (Heat levels 3-5), everyone in
+                        the room must be 18 years or older. Heat levels 3-5 also
+                        require a Pro account.
+                    </p>
+                    <p class="pb-4 text-xs sm:text-sm text-base-content/70">
+                        Is everyone present 18+?
+                    </p>
+                    <div class="modal-action flex-col gap-2 sm:flex-row">
+                        <button
+                            @click="confirmAge(false)"
+                            class="btn btn-outline w-full sm:w-auto"
+                        >
+                            No - Family Mode
+                        </button>
+                        <button
+                            @click="confirmAge(true)"
+                            class="btn btn-primary w-full sm:w-auto"
+                        >
+                            Yes - Everyone is 18+
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </dialog>
+            </dialog>
+        </Teleport>
 
         <!-- Step Indicator -->
-        <div class="flex justify-center mb-8">
+        <div class="flex justify-center mb-6 sm:mb-8">
             <ul class="steps steps-horizontal">
                 <li class="step" :class="{ 'step-primary': setupStep >= 1 }">
                     Pick Heat
@@ -47,13 +59,17 @@
         </div>
 
         <!-- Step 1: Pick Your Heat (Spice Level) -->
-        <div v-if="setupStep === 1" class="space-y-8">
+        <div v-if="setupStep === 1" class="space-y-6 sm:space-y-8">
             <div class="card bg-base-100 shadow-lg">
-                <div class="card-body">
-                    <h3 class="text-2xl font-bold mb-4 text-center">
+                <div class="card-body p-4 sm:p-6">
+                    <h3
+                        class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center"
+                    >
                         Step 1: Pick Your Heat 🔥
                     </h3>
-                    <p class="text-center text-base-content/60 mb-6">
+                    <p
+                        class="text-center text-sm sm:text-base text-base-content/60 mb-4 sm:mb-6"
+                    >
                         Choose the spice level for your game
                     </p>
 
@@ -65,11 +81,11 @@
                         :is-pro="isPro"
                     />
 
-                    <div class="card-actions justify-end mt-6">
+                    <div class="card-actions justify-end mt-4 sm:mt-6">
                         <button
                             v-if="isPro || maxSpiceRating < 3"
                             @click="goToStep2"
-                            class="btn btn-primary btn-lg gap-2"
+                            class="btn btn-primary btn-md sm:btn-lg gap-2 w-full sm:w-auto"
                         >
                             Next: Set Tags
                             <ArrowRight :size="20" />
@@ -77,7 +93,7 @@
                         <a
                             v-if="!isPro && maxSpiceRating >= 3"
                             href="/go-pro"
-                            class="btn btn-warning btn-lg gap-2"
+                            class="btn btn-warning btn-md sm:btn-lg gap-2 w-full sm:w-auto"
                         >
                             Upgrade
                         </a>
@@ -87,13 +103,17 @@
         </div>
 
         <!-- Step 2: Set Tags in Play -->
-        <div v-else-if="setupStep === 2" class="space-y-8">
+        <div v-else-if="setupStep === 2" class="space-y-6 sm:space-y-8">
             <div class="card bg-base-100 shadow-lg">
-                <div class="card-body">
-                    <h3 class="text-2xl font-bold mb-4 text-center">
+                <div class="card-body p-4 sm:p-6">
+                    <h3
+                        class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center"
+                    >
                         Step 2: Set Tags in Play 🏷️
                     </h3>
-                    <p class="text-center text-base-content/60 mb-6">
+                    <p
+                        class="text-center text-sm sm:text-base text-base-content/60 mb-4 sm:mb-6"
+                    >
                         Select which tags will be available for this game (based
                         on spice level {{ maxSpiceRating }})
                     </p>
@@ -112,13 +132,13 @@
 
                         <div
                             v-if="availableTagsFiltered.length > 0"
-                            class="grid grid-cols-2 md:grid-cols-4 gap-3"
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3"
                         >
                             <button
                                 v-for="tag in availableTagsFiltered"
                                 :key="tag.id"
                                 @click="toggleTagInPlay(tag.id)"
-                                class="btn btn-lg h-auto py-4 transition-all tooltip tooltip-top"
+                                class="btn btn-md sm:btn-lg h-auto py-3 sm:py-4 transition-all tooltip tooltip-top"
                                 :class="{
                                     'btn-primary': selectedTagsInPlay.includes(
                                         tag.id,
@@ -141,14 +161,19 @@
                         </div>
                     </div>
 
-                    <div class="card-actions justify-between mt-6">
-                        <button @click="setupStep = 1" class="btn btn-outline">
+                    <div
+                        class="card-actions justify-between mt-4 sm:mt-6 flex-col sm:flex-row gap-2"
+                    >
+                        <button
+                            @click="setupStep = 1"
+                            class="btn btn-outline w-full sm:w-auto order-2 sm:order-1"
+                        >
                             <ArrowLeft :size="20" />
                             Back
                         </button>
                         <button
                             @click="goToStep3"
-                            class="btn btn-primary btn-lg gap-2"
+                            class="btn btn-primary btn-md sm:btn-lg gap-2 w-full sm:w-auto order-1 sm:order-2"
                             :disabled="selectedTagsInPlay.length === 0"
                         >
                             Next: Add Players
@@ -160,14 +185,18 @@
         </div>
 
         <!-- Step 3: Add Players -->
-        <div v-else-if="setupStep === 3" class="space-y-8">
+        <div v-else-if="setupStep === 3" class="space-y-6 sm:space-y-8">
             <!-- Add Player Card -->
             <div class="card bg-base-100 shadow-lg">
-                <div class="card-body">
-                    <h3 class="text-2xl font-bold mb-4 text-center">
+                <div class="card-body p-4 sm:p-6">
+                    <h3
+                        class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center"
+                    >
                         Step 3: Add Players 👥
                     </h3>
-                    <p class="text-center text-base-content/60 mb-6">
+                    <p
+                        class="text-center text-sm sm:text-base text-base-content/60 mb-4 sm:mb-6"
+                    >
                         Add players and assign tags (only selected tags are
                         shown)
                     </p>
@@ -209,15 +238,20 @@
             </div>
 
             <!-- Navigation and Start Game -->
-            <div class="flex justify-between items-center">
-                <button @click="setupStep = 2" class="btn btn-outline">
+            <div
+                class="flex justify-between items-center flex-col sm:flex-row gap-3"
+            >
+                <button
+                    @click="setupStep = 2"
+                    class="btn btn-outline w-full sm:w-auto order-2 sm:order-1"
+                >
                     <ArrowLeft :size="20" />
                     Back to Tags
                 </button>
 
                 <button
                     @click="createGame"
-                    class="btn btn-success btn-lg gap-2 min-w-[200px]"
+                    class="btn btn-success btn-md sm:btn-lg gap-2 w-full sm:min-w-[200px] order-1 sm:order-2"
                     :disabled="players.length < 2 || creatingGame"
                     :class="{ loading: creatingGame }"
                 >

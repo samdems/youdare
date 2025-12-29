@@ -1,16 +1,18 @@
 <template>
     <div>
         <label class="label">
-            <span class="label-text font-semibold">Choose Spice Level</span>
+            <span class="label-text font-semibold text-sm sm:text-base"
+                >Choose Spice Level</span
+            >
         </label>
-        <div class="grid grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
             <button
                 v-for="level in maxLevel"
                 :key="level"
                 v-show="isAdult === null || isAdult === true || level <= 2"
                 @click="selectLevel(level)"
                 :class="[
-                    'btn btn-outline flex-col h-24 gap-2 transition-all px-4 py-4',
+                    'btn btn-outline flex-col h-24 sm:h-24 gap-1 sm:gap-2 transition-all !px-2 sm:!px-4 !py-2 sm:!py-4 min-w-0',
                     modelValue === level ? 'btn-warning btn-active' : '',
                     level >= 3 && !isPro ? 'opacity-70' : '',
                 ]"
@@ -19,39 +21,46 @@
                     <Flame
                         v-for="n in level"
                         :key="n"
-                        :size="20"
-                        class="text-orange-500"
+                        :size="18"
+                        class="text-orange-500 sm:w-5 sm:h-5"
                     />
                 </div>
-                <span class="text-xs">{{ getLevelName(level) }}</span>
+                <span class="text-xs sm:text-xs leading-tight">{{
+                    getLevelName(level)
+                }}</span>
                 <span
                     v-if="level >= 3 && !isPro"
-                    class="text-[10px] text-warning mt-1"
+                    class="text-[10px] sm:text-[10px] text-warning mt-0.5 sm:mt-1 font-bold"
                     >PRO</span
                 >
             </button>
         </div>
-        <div :class="['alert mt-4', getAlertClass(modelValue)]">
-            <Info :size="20" />
+        <div :class="['alert mt-3 sm:mt-4', getAlertClass(modelValue)]">
+            <Info :size="18" class="sm:w-5 sm:h-5 flex-shrink-0" />
             <div class="flex flex-col gap-1">
-                <span class="text-lg font-semibold">{{
+                <span class="text-base sm:text-lg font-semibold">{{
                     getLevelTitle(modelValue)
                 }}</span>
-                <span class="text-sm">{{
+                <span class="text-xs sm:text-sm">{{
                     getLevelDescription(modelValue)
                 }}</span>
-                <span class="text-xs opacity-70"
+                <span class="text-[10px] sm:text-xs opacity-70"
                     >{{ availableCount }} tags available at this level</span
                 >
             </div>
         </div>
 
         <!-- Pro Upgrade Notice -->
-        <div v-if="!isPro && modelValue >= 3" class="alert alert-warning mt-4">
-            <Info :size="20" />
+        <div
+            v-if="!isPro && modelValue >= 3"
+            class="alert alert-warning mt-3 sm:mt-4"
+        >
+            <Info :size="18" class="sm:w-5 sm:h-5 flex-shrink-0" />
             <div class="flex flex-col gap-1">
-                <span class="font-semibold">Pro Feature Required</span>
-                <span class="text-sm"
+                <span class="font-semibold text-sm sm:text-base"
+                    >Pro Feature Required</span
+                >
+                <span class="text-xs sm:text-sm"
                     >Heat levels 3-5 are only available to Pro users. Upgrade to
                     unlock adult content!</span
                 >
