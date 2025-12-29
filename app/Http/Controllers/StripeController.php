@@ -35,7 +35,7 @@ class StripeController extends Controller
                 ->with("success", "You already have a Pro account!");
         }
 
-        $amount = env("STRIPE_PRO_AMOUNT", 999); // Default to $9.99
+        $amount = env("STRIPE_PRO_AMOUNT", 199); // Default to $9.99
 
         return view("stripe.go-pro", compact("amount"));
     }
@@ -63,7 +63,7 @@ class StripeController extends Controller
         }
 
         try {
-            $amount = (int) env("STRIPE_PRO_AMOUNT", 999); // Amount in cents
+            $amount = (int) env("STRIPE_PRO_AMOUNT", 199); // Amount in cents
 
             // Create or retrieve Stripe customer
             $customerId = $user->stripe_customer_id;
