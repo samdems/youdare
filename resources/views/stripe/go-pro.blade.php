@@ -123,7 +123,7 @@
         <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content">
             <div class="card-body">
                 <h3 class="card-title text-2xl justify-center mb-2">Ready to upgrade?</h3>
-                <p class="mb-4">Join thousands of Pro users and unlock the full potential of YouDare!</p>
+                <p class="mb-4">Join all the other Pro users and unlock the full potential of YouDare!</p>
                 <form action="{{ route('stripe.checkout') }}" method="POST" class="inline-block">
                     @csrf
                     <button type="submit" class="btn btn-neutral btn-lg">
