@@ -3,7 +3,6 @@
         <input
             type="text"
             v-model="playerName"
-            @keyup.enter="handleAddPlayer('other')"
             placeholder="Enter player name"
             class="input input-bordered w-full"
             maxlength="20"
