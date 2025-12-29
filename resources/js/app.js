@@ -1,7 +1,6 @@
 import "./bootstrap";
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import GameScreen from "./components/GameScreen.vue";
 import GameManager from "./components/GameManager.vue";
 
 console.log("Vue app.js loaded");
@@ -31,25 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         app.mount("game-manager");
         console.log("Vue GameManager mounted successfully");
-        return;
-    }
-
-    // Check for game-screen element (legacy)
-    const gameScreenElement = document.querySelector("game-screen");
-    if (gameScreenElement) {
-        console.log(
-            "Found game-screen element, mounting Vue with GameScreen...",
-        );
-        const app = createApp(GameScreen);
-        const pinia = createPinia();
-        app.use(pinia);
-
-        // Force enable devtools (for development only)
-        app.config.devtools = true;
-        app.config.performance = true;
-
-        app.mount("game-screen");
-        console.log("Vue GameScreen mounted successfully");
         return;
     }
 

@@ -9,28 +9,10 @@ export const usePlayerStore = defineStore("player", () => {
     const newPlayerName = ref("");
     const nextPlayerId = ref(1);
 
-    const playerAvatars = [
-        "😀",
-        "😎",
-        "🥳",
-        "🤓",
-        "🤠",
-        "🥸",
-        "😺",
-        "🦊",
-        "🐶",
-        "🐼",
-        "🦁",
-        "🐯",
-        "🐸",
-        "🐙",
-        "🦄",
-        "🐲",
-        "🌟",
-        "⚡",
-        "🔥",
-        "💎",
-    ];
+    // Helper function to generate DiceBear avatar URL
+    const getDicebearUrl = (seed) => {
+        return `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(seed)}`;
+    };
 
     // Getters
     const currentPlayer = computed(() => {
@@ -65,19 +47,8 @@ export const usePlayerStore = defineStore("player", () => {
             };
         }
 
-        // Get random avatar
-        const usedAvatars = players.value.map((p) => p.avatar);
-        const availableAvatars = playerAvatars.filter(
-            (avatar) => !usedAvatars.includes(avatar),
-        );
-        const avatar =
-            availableAvatars.length > 0
-                ? availableAvatars[
-                      Math.floor(Math.random() * availableAvatars.length)
-                  ]
-                : playerAvatars[
-                      Math.floor(Math.random() * playerAvatars.length)
-                  ];
+        // Use player name as avatar seed
+        const avatar = getDicebearUrl(playerName);
 
         // Start with default tags
         const defaultTagIds = availableTagsFiltered
@@ -143,9 +114,9 @@ export const usePlayerStore = defineStore("player", () => {
             const data = await games.getGamePlayers(gameId);
 
             if (data.status === "success" || data.success === true) {
-                players.value = data.data.map((player, index) => ({
+                players.value = data.data.map((player) => ({
                     ...player,
-                    avatar: playerAvatars[index % playerAvatars.length],
+                    avatar: player.avatar || getDicebearUrl(player.name),
                 }));
 
                 if (players.value.length > 0) {
@@ -168,8 +139,7 @@ export const usePlayerStore = defineStore("player", () => {
     const setPlayers = (playerList) => {
         players.value = playerList.map((player, index) => ({
             ...player,
-            avatar:
-                player.avatar || playerAvatars[index % playerAvatars.length],
+            avatar: player.avatar || getDicebearUrl(player.name),
             score: player.score || 0,
             order: index,
         }));
@@ -202,8 +172,9 @@ export const usePlayerStore = defineStore("player", () => {
         }
     };
 
-    const getPlayerAvatar = (order) => {
-        return playerAvatars[order % playerAvatars.length];
+    const getPlayerAvatar = (playerId) => {
+        const player = players.value.find((p) => p.id === playerId);
+        return player ? player.avatar : getDicebearUrl("default");
     };
 
     const processTaskDescription = (description, task = null) => {
@@ -302,7 +273,6 @@ export const usePlayerStore = defineStore("player", () => {
         currentPlayerId,
         newPlayerName,
         nextPlayerId,
-        playerAvatars,
 
         // Getters
         currentPlayer,

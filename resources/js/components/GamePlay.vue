@@ -14,20 +14,6 @@
 
         <!-- Game Screen -->
         <template v-else>
-            <!-- Current Player Badge -->
-            <div v-if="currentPlayer" class="text-center mb-6">
-                <div
-                    class="inline-flex items-center gap-3 bg-primary text-primary-content px-6 py-3 rounded-full shadow-lg"
-                >
-                    <span class="text-3xl">{{
-                        getPlayerAvatar(currentPlayer.order)
-                    }}</span>
-                    <span class="font-bold text-lg">{{
-                        currentPlayer.name
-                    }}</span>
-                </div>
-            </div>
-
             <!-- Scoreboard -->
             <div
                 v-if="players.length > 0"
@@ -43,9 +29,11 @@
                             : 'bg-base-200 opacity-60',
                     ]"
                 >
-                    <span class="text-xl">{{
-                        getPlayerAvatar(player.order)
-                    }}</span>
+                    <img
+                        :src="player.avatar"
+                        :alt="`${player.name}'s avatar`"
+                        class="w-8 h-8 rounded-full"
+                    />
                     <span class="font-semibold text-sm">{{ player.name }}</span>
                     <span class="badge badge-sm">{{ player.score }}</span>
                 </div>

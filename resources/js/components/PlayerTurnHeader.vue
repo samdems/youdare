@@ -1,7 +1,11 @@
 <template>
     <div class="text-center mb-8 animate-fade-in">
         <h1 class="text-5xl font-bold mb-4">
-            <span class="text-6xl">{{ getPlayerAvatar(player.order) }}</span>
+            <img
+                :src="player.avatar"
+                :alt="`${player.name}'s avatar`"
+                class="w-24 h-24 rounded-full mx-auto mb-4"
+            />
             <br />
             {{ player.name }}'s Turn!
         </h1>
@@ -18,36 +22,7 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    playerAvatars: {
-        type: Array,
-        default: () => [
-            "😀",
-            "😎",
-            "🥳",
-            "🤓",
-            "🤠",
-            "🥸",
-            "😺",
-            "🦊",
-            "🐶",
-            "🐼",
-            "🦁",
-            "🐯",
-            "🐸",
-            "🐙",
-            "🦄",
-            "🐲",
-            "🌟",
-            "⚡",
-            "🔥",
-            "💎",
-        ],
-    },
 });
-
-const getPlayerAvatar = (order) => {
-    return props.playerAvatars[order % props.playerAvatars.length];
-};
 </script>
 
 <style scoped>

@@ -8,7 +8,7 @@ export const useGameStore = defineStore("game", () => {
     const gamePhase = ref("setup"); // 'setup', 'playing', 'results'
     const gameResults = ref(null);
     const gameName = ref("");
-    const maxSpiceRating = ref(3);
+    const maxSpiceRating = ref(1);
     const creatingGame = ref(false);
     const error = ref(null);
     const availableTags = ref([]);
@@ -184,7 +184,7 @@ export const useGameStore = defineStore("game", () => {
         showingTypeSelector.value = true;
         selectedTaskType.value = null;
 
-        // Log current player's tags to console
+        // Log current player's info to console (without avatar URL)
         if (currentPlayer) {
             console.log("=== NEW TURN ===");
             console.log(
@@ -228,7 +228,7 @@ export const useGameStore = defineStore("game", () => {
         currentGame.value = null;
         gameResults.value = null;
         gameName.value = "";
-        maxSpiceRating.value = 3;
+        maxSpiceRating.value = 1;
         currentTask.value = null;
         completedCount.value = 0;
         skippedCount.value = 0;
@@ -242,7 +242,7 @@ export const useGameStore = defineStore("game", () => {
         gamePhase.value = "setup";
         gameResults.value = null;
         gameName.value = "";
-        maxSpiceRating.value = 3;
+        maxSpiceRating.value = 1;
         creatingGame.value = false;
         error.value = null;
         currentTask.value = null;

@@ -1,123 +1,69 @@
 <template>
     <div class="task-type-selector max-w-3xl mx-auto p-6">
-        <!-- Current Player Highlight -->
-        <div v-if="player" class="text-center mb-8">
-            <div class="text-7xl mb-3">
-                {{ getPlayerAvatar(player.order) }}
-            </div>
-            <h2 class="text-3xl font-bold mb-1">{{ player.name }}'s Turn</h2>
-            <p class="text-base-content/60">Choose your challenge</p>
+        <!-- Fixed Header Section -->
+        <div class="header-section">
+            <!-- Current Player Highlight -->
+            <current-player-badge
+                v-if="player"
+                :player="player"
+                variant="large"
+            />
+
+            <!-- Scoreboard -->
+            <scoreboard
+                :players="players"
+                :current-player-id="player ? player.id : null"
+            />
         </div>
 
-        <!-- Choice Buttons -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <!-- Truth Button -->
-            <button
-                @click="selectType('truth')"
-                class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-info hover:bg-info-focus border-none text-info-content"
-            >
-                <MessageCircle :size="48" />
-                <span class="text-xl font-bold">Truth</span>
-            </button>
-
-            <!-- Dare Button -->
-            <button
-                @click="selectType('dare')"
-                class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-secondary hover:bg-secondary-focus border-none text-secondary-content"
-            >
-                <Target :size="48" />
-                <span class="text-xl font-bold">Dare</span>
-            </button>
-
-            <!-- Random Button -->
-            <button
-                @click="selectType('both')"
-                class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-accent hover:bg-accent-focus border-none text-accent-content"
-            >
-                <Shuffle :size="48" />
-                <span class="text-xl font-bold">Random</span>
-            </button>
-        </div>
-
-        <!-- Scoreboard -->
-        <div class="card bg-base-200 shadow-lg mb-6">
-            <div class="card-body p-4">
-                <div class="flex items-center justify-center gap-4 flex-wrap">
-                    <div
-                        v-for="p in players"
-                        :key="p.id"
-                        :class="[
-                            'flex items-center gap-2 px-3 py-2 rounded-lg transition-all',
-                            player && p.id === player.id
-                                ? 'bg-primary text-primary-content font-bold'
-                                : 'opacity-60',
-                        ]"
-                    >
-                        <span class="text-2xl">
-                            {{ getPlayerAvatar(p.order) }}
-                        </span>
-                        <div class="text-sm">
-                            <div>{{ p.name }}</div>
-                            <div
-                                class="text-xs opacity-70 flex items-center gap-1"
-                            >
-                                <Star :size="12" />
-                                {{ p.score }} pts
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-3 gap-2">
-            <div class="stat bg-base-200 rounded-lg p-3 text-center">
-                <div
-                    class="stat-title text-xs flex items-center justify-center gap-1"
+        <!-- Flexible Content Section -->
+        <div class="content-section">
+            <!-- Choice Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <!-- Truth Button -->
+                <button
+                    @click="selectType('truth')"
+                    class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-info hover:bg-info-focus border-none text-info-content"
                 >
-                    <Hash :size="12" />
-                    Round
-                </div>
-                <div class="stat-value text-2xl text-primary">{{ round }}</div>
-            </div>
-            <div class="stat bg-base-200 rounded-lg p-3 text-center">
-                <div
-                    class="stat-title text-xs flex items-center justify-center gap-1"
+                    <MessageCircle :size="48" />
+                    <span class="text-xl font-bold">Truth</span>
+                </button>
+
+                <!-- Dare Button -->
+                <button
+                    @click="selectType('dare')"
+                    class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-secondary hover:bg-secondary-focus border-none text-secondary-content"
                 >
-                    <CheckCircle :size="12" />
-                    Completed
-                </div>
-                <div class="stat-value text-2xl text-success">
-                    {{ completed }}
-                </div>
-            </div>
-            <div class="stat bg-base-200 rounded-lg p-3 text-center">
-                <div
-                    class="stat-title text-xs flex items-center justify-center gap-1"
+                    <Target :size="48" />
+                    <span class="text-xl font-bold">Dare</span>
+                </button>
+
+                <!-- Random Button -->
+                <button
+                    @click="selectType('both')"
+                    class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-accent hover:bg-accent-focus border-none text-accent-content"
                 >
-                    <SkipForward :size="12" />
-                    Skipped
-                </div>
-                <div class="stat-value text-2xl text-warning">
-                    {{ skipped }}
-                </div>
+                    <Shuffle :size="48" />
+                    <span class="text-xl font-bold">Random</span>
+                </button>
             </div>
+
+            <!-- Stats -->
+            <game-stats
+                :completed="completed"
+                :skipped="skipped"
+                :round="round"
+            />
         </div>
     </div>
 </template>
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
-import {
-    MessageCircle,
-    Target,
-    Shuffle,
-    Star,
-    Hash,
-    CheckCircle,
-    SkipForward,
-} from "lucide-vue-next";
+import { MessageCircle, Target, Shuffle } from "lucide-vue-next";
+import CurrentPlayerBadge from "./CurrentPlayerBadge.vue";
+import Scoreboard from "./Scoreboard.vue";
+import GameStats from "./GameStats.vue";
 
 const props = defineProps({
     player: {
@@ -140,31 +86,6 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
-    playerAvatars: {
-        type: Array,
-        default: () => [
-            "😀",
-            "😎",
-            "🥳",
-            "🤓",
-            "🤠",
-            "🥸",
-            "😺",
-            "🦊",
-            "🐶",
-            "🐼",
-            "🦁",
-            "🐯",
-            "🐸",
-            "🐙",
-            "🦄",
-            "🐲",
-            "🌟",
-            "⚡",
-            "🔥",
-            "💎",
-        ],
-    },
 });
 
 const emit = defineEmits(["type-selected"]);
@@ -172,15 +93,21 @@ const emit = defineEmits(["type-selected"]);
 const selectType = (type) => {
     emit("type-selected", type);
 };
-
-const getPlayerAvatar = (order) => {
-    return props.playerAvatars[order % props.playerAvatars.length];
-};
 </script>
 
 <style scoped>
 .task-type-selector {
     min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-section {
+    flex-shrink: 0;
+}
+
+.content-section {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;

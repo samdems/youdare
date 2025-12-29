@@ -1,199 +1,185 @@
 <template>
     <div class="game-setup max-w-4xl mx-auto p-6">
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-6xl font-bold mb-2">
-                <Gamepad2 :size="80" class="mx-auto mb-4 text-primary" />
-            </h1>
-            <h2 class="text-3xl font-bold mb-2">New Game</h2>
-            <p class="text-base-content/60">
-                Setup your game in just a few steps
-            </p>
+        <!-- 18+ Age Verification Modal -->
+        <dialog
+            v-if="showAgeVerification"
+            ref="ageVerificationModal"
+            class="modal modal-open"
+        >
+            <div class="modal-box">
+                <h3 class="font-bold text-lg mb-4">Age Verification</h3>
+                <p class="py-2">
+                    This game has multiple heat levels. The first two levels are
+                    family-friendly and safe for all ages.
+                </p>
+                <p class="py-2 font-semibold">
+                    To unlock adult content (Heat levels 3-5), everyone in the
+                    room must be 18 years or older.
+                </p>
+                <p class="pb-4 text-sm text-base-content/70">
+                    Is everyone present 18+?
+                </p>
+                <div class="modal-action">
+                    <button @click="confirmAge(false)" class="btn btn-outline">
+                        No - Family Mode Only
+                    </button>
+                    <button @click="confirmAge(true)" class="btn btn-primary">
+                        Yes - Everyone is 18+
+                    </button>
+                </div>
+            </div>
+        </dialog>
+
+        <!-- Step Indicator -->
+        <div class="flex justify-center mb-8">
+            <ul class="steps steps-horizontal">
+                <li class="step" :class="{ 'step-primary': setupStep >= 1 }">
+                    Pick Heat
+                </li>
+                <li class="step" :class="{ 'step-primary': setupStep >= 2 }">
+                    Set Tags
+                </li>
+                <li class="step" :class="{ 'step-primary': setupStep >= 3 }">
+                    Add Players
+                </li>
+            </ul>
         </div>
 
-        <div class="space-y-8">
-            <!-- Game Settings Card -->
+        <!-- Step 1: Pick Your Heat (Spice Level) -->
+        <div v-if="setupStep === 1" class="space-y-8">
             <div class="card bg-base-100 shadow-lg">
                 <div class="card-body">
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <Settings :size="24" />
-                        <span>Game Settings</span>
+                    <h3 class="text-2xl font-bold mb-4 text-center">
+                        Step 1: Pick Your Heat 🔥
                     </h3>
+                    <p class="text-center text-base-content/60 mb-6">
+                        Choose the spice level for your game
+                    </p>
 
                     <!-- Spice Level -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold"
-                                >Choose Spice Level</span
-                            >
-                        </label>
-                        <div class="grid grid-cols-5 gap-3">
-                            <button
-                                v-for="level in 5"
-                                :key="level"
-                                @click="maxSpiceRating = level"
-                                :class="[
-                                    'btn btn-outline flex-col h-24 gap-2 transition-all px-4 py-4',
-                                    maxSpiceRating === level
-                                        ? 'btn-warning btn-active'
-                                        : '',
-                                ]"
-                            >
-                                <div class="flex gap-0.5">
-                                    <Flame
-                                        v-for="n in level"
-                                        :key="n"
-                                        :size="20"
-                                        class="text-orange-500"
-                                    />
-                                </div>
-                                <span class="text-xs">{{
-                                    level === 1
-                                        ? "Mild"
-                                        : level === 2
-                                          ? "Medium"
-                                          : level === 3
-                                            ? "Hot"
-                                            : level === 4
-                                              ? "Extra"
-                                              : "Extreme"
-                                }}</span>
-                            </button>
-                        </div>
-                    </div>
+                    <spice-level-selector
+                        v-model="maxSpiceRating"
+                        :available-count="availableTagsFiltered.length"
+                        :is-adult="isAdult"
+                    />
 
-                    <div class="alert alert-info mt-4">
-                        <Info :size="20" />
-                        <span class="text-sm"
-                            >{{ availableTagsFiltered.length }} tags available
-                            at this level</span
+                    <div class="card-actions justify-end mt-6">
+                        <button
+                            @click="goToStep2"
+                            class="btn btn-primary btn-lg gap-2"
                         >
+                            Next: Set Tags
+                            <ArrowRight :size="20" />
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Step 2: Set Tags in Play -->
+        <div v-else-if="setupStep === 2" class="space-y-8">
+            <div class="card bg-base-100 shadow-lg">
+                <div class="card-body">
+                    <h3 class="text-2xl font-bold mb-4 text-center">
+                        Step 2: Set Tags in Play 🏷️
+                    </h3>
+                    <p class="text-center text-base-content/60 mb-6">
+                        Select which tags will be available for this game (based
+                        on spice level {{ maxSpiceRating }})
+                    </p>
+
+                    <!-- All Available Tags -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-semibold">Available Tags:</h4>
+                            <button
+                                @click="selectAllTags"
+                                class="btn btn-sm btn-outline"
+                            >
+                                Select All
+                            </button>
+                        </div>
+
+                        <div
+                            v-if="availableTagsFiltered.length > 0"
+                            class="grid grid-cols-2 md:grid-cols-4 gap-3"
+                        >
+                            <button
+                                v-for="tag in availableTagsFiltered"
+                                :key="tag.id"
+                                @click="toggleTagInPlay(tag.id)"
+                                class="btn btn-lg h-auto py-4 transition-all tooltip tooltip-top"
+                                :class="{
+                                    'btn-primary': selectedTagsInPlay.includes(
+                                        tag.id,
+                                    ),
+                                    'btn-outline': !selectedTagsInPlay.includes(
+                                        tag.id,
+                                    ),
+                                }"
+                                :data-tip="tag.description || tag.name"
+                            >
+                                <span class="text-sm font-bold">{{
+                                    tag.name
+                                }}</span>
+                            </button>
+                        </div>
+                        <div v-else class="text-center py-8">
+                            <p class="text-base-content/60">
+                                No tags available for this spice level
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card-actions justify-between mt-6">
+                        <button @click="setupStep = 1" class="btn btn-outline">
+                            <ArrowLeft :size="20" />
+                            Back
+                        </button>
+                        <button
+                            @click="goToStep3"
+                            class="btn btn-primary btn-lg gap-2"
+                            :disabled="selectedTagsInPlay.length === 0"
+                        >
+                            Next: Add Players
+                            <ArrowRight :size="20" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Add Players -->
+        <div v-else-if="setupStep === 3" class="space-y-8">
             <!-- Add Player Card -->
             <div class="card bg-base-100 shadow-lg">
                 <div class="card-body">
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <Users :size="24" />
-                        <span>Players</span>
-                        <span class="badge badge-primary">{{
-                            players.length
-                        }}</span>
+                    <h3 class="text-2xl font-bold mb-4 text-center">
+                        Step 3: Add Players 👥
                     </h3>
+                    <p class="text-center text-base-content/60 mb-6">
+                        Add players and assign tags (only selected tags are
+                        shown)
+                    </p>
 
                     <!-- Add Player Form -->
-                    <div class="space-y-3 mb-6">
-                        <input
-                            type="text"
+                    <div class="mb-6">
+                        <player-form
                             v-model="newPlayerName"
-                            placeholder="Enter player name"
-                            class="input input-bordered w-full"
-                            maxlength="20"
+                            @add-player="addPlayer"
                         />
-                        <div class="grid grid-cols-3 gap-2">
-                            <button
-                                @click="addPlayer('male')"
-                                class="btn btn-outline gap-2"
-                                :disabled="!newPlayerName.trim()"
-                            >
-                                <User :size="20" />
-                                <span>Add Male</span>
-                            </button>
-                            <button
-                                @click="addPlayer('female')"
-                                class="btn btn-outline gap-2"
-                                :disabled="!newPlayerName.trim()"
-                            >
-                                <User :size="20" />
-                                <span>Add Female</span>
-                            </button>
-                            <button
-                                @click="addPlayer('other')"
-                                class="btn btn-outline gap-2"
-                                :disabled="!newPlayerName.trim()"
-                            >
-                                <User :size="20" />
-                                <span>Add Other</span>
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Players List -->
                     <div v-if="players.length > 0" class="space-y-3">
-                        <div
+                        <player-list-item
                             v-for="player in players"
                             :key="player.id"
-                            class="flex items-start gap-3 p-3 rounded-lg bg-base-200 hover:bg-base-300 transition-colors"
-                        >
-                            <div class="text-3xl">{{ player.avatar }}</div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bold">{{
-                                        player.name
-                                    }}</span>
-                                    <User
-                                        :size="16"
-                                        :class="
-                                            player.gender === 'male'
-                                                ? 'text-blue-500'
-                                                : player.gender === 'female'
-                                                  ? 'text-pink-500'
-                                                  : 'text-purple-500'
-                                        "
-                                    />
-                                    <span class="text-xs text-base-content/60"
-                                        >{{ player.tags.length }} tags</span
-                                    >
-                                </div>
-
-                                <!-- Tags - All Available -->
-                                <div class="border-t border-base-300 pt-2 mt-2">
-                                    <div
-                                        class="text-xs font-semibold mb-2 opacity-70"
-                                    >
-                                        Available Tags
-                                    </div>
-                                    <div class="flex flex-wrap gap-1">
-                                        <button
-                                            v-for="tag in availableTagsFiltered"
-                                            :key="tag.id"
-                                            @click="
-                                                togglePlayerTag(
-                                                    player.id,
-                                                    tag.id,
-                                                )
-                                            "
-                                            :class="[
-                                                'badge badge-sm gap-1 cursor-pointer transition-all tooltip tooltip-top',
-                                                player.tags.includes(tag.id)
-                                                    ? 'badge-primary'
-                                                    : 'badge-outline hover:badge-primary',
-                                            ]"
-                                            :data-tip="
-                                                tag.description || tag.name
-                                            "
-                                        >
-                                            {{ tag.name }}
-                                            <Check
-                                                v-if="
-                                                    player.tags.includes(tag.id)
-                                                "
-                                                :size="12"
-                                            />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                @click="removePlayer(player.id)"
-                                class="btn btn-ghost btn-sm btn-circle"
-                                title="Remove player"
-                            >
-                                <X :size="16" />
-                            </button>
-                        </div>
+                            :player="player"
+                            :available-tags="tagsInPlayFiltered"
+                            @remove="removePlayer"
+                            @toggle-tag="togglePlayerTag"
+                        />
                     </div>
 
                     <div
@@ -212,36 +198,39 @@
                 </div>
             </div>
 
-            <!-- Start Game Button -->
-            <div
-                class="card bg-gradient-to-r from-success/10 to-primary/10 shadow-lg"
-            >
-                <div class="card-body items-center text-center">
-                    <button
-                        @click="createGame"
-                        class="btn btn-success btn-lg gap-2 min-w-[200px]"
-                        :disabled="players.length < 2 || creatingGame"
-                        :class="{ loading: creatingGame }"
-                    >
-                        <Play v-if="!creatingGame" :size="24" />
-                        {{ creatingGame ? "Creating..." : "Start Game" }}
-                    </button>
+            <!-- Navigation and Start Game -->
+            <div class="flex justify-between items-center">
+                <button @click="setupStep = 2" class="btn btn-outline">
+                    <ArrowLeft :size="20" />
+                    Back to Tags
+                </button>
 
-                    <div
-                        v-if="players.length >= 2"
-                        class="text-sm text-base-content/60 mt-3"
-                    >
-                        Ready to play with {{ players.length }} player{{
-                            players.length !== 1 ? "s" : ""
-                        }}
-                    </div>
-                    <div
-                        v-else
-                        class="text-sm text-warning mt-3 flex items-center gap-2"
-                    >
-                        <AlertCircle :size="16" />
-                        Add at least 2 players to continue
-                    </div>
+                <button
+                    @click="createGame"
+                    class="btn btn-success btn-lg gap-2 min-w-[200px]"
+                    :disabled="players.length < 2 || creatingGame"
+                    :class="{ loading: creatingGame }"
+                >
+                    <Play v-if="!creatingGame" :size="24" />
+                    {{ creatingGame ? "Creating..." : "Start Game" }}
+                </button>
+            </div>
+
+            <div class="text-center">
+                <div
+                    v-if="players.length >= 2"
+                    class="text-sm text-base-content/60"
+                >
+                    Ready to play with {{ players.length }} player{{
+                        players.length !== 1 ? "s" : ""
+                    }}
+                </div>
+                <div
+                    v-else
+                    class="text-sm text-warning flex items-center gap-2 justify-center"
+                >
+                    <AlertCircle :size="16" />
+                    Add at least 2 players to continue
                 </div>
             </div>
         </div>
@@ -255,26 +244,39 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useGameStore } from "../stores/gameStore";
 import { usePlayerStore } from "../stores/playerStore";
+import SpiceLevelSelector from "./SpiceLevelSelector.vue";
+import PlayerForm from "./PlayerForm.vue";
+import PlayerListItem from "./PlayerListItem.vue";
 import {
     Gamepad2,
     Settings,
-    Flame,
-    Info,
     Users,
-    User,
     UserPlus,
-    Check,
-    X,
     Play,
     AlertCircle,
     XCircle,
+    ArrowRight,
+    ArrowLeft,
 } from "lucide-vue-next";
 
 const emit = defineEmits(["game-created"]);
+
+// Age verification
+const ageVerificationModal = ref(null);
+const isAdult = ref(null);
+const showAgeVerification = ref(true);
+
+const confirmAge = (adult) => {
+    isAdult.value = adult;
+    showAgeVerification.value = false;
+    if (!adult && maxSpiceRating.value > 2) {
+        maxSpiceRating.value = 2;
+    }
+};
 
 // Use the Pinia stores
 const gameStore = useGameStore();
@@ -293,18 +295,58 @@ const {
 
 const { players, newPlayerName } = storeToRefs(playerStore);
 
+// Local state for stepped setup
+const setupStep = ref(1); // 1 = pick heat, 2 = set tags, 3 = add players
+const selectedTagsInPlay = ref([]);
+
+// Computed: Filter available tags to only show selected ones
+const tagsInPlayFiltered = computed(() => {
+    return availableTagsFiltered.value.filter((tag) =>
+        selectedTagsInPlay.value.includes(tag.id),
+    );
+});
+
+// Helper function to get tag name by ID
+const getTagName = (tagId) => {
+    const tag = availableTagsFiltered.value.find((t) => t.id === tagId);
+    return tag ? tag.name : tagId;
+};
+
+// Step navigation
+const goToStep2 = () => {
+    setupStep.value = 2;
+};
+
+const goToStep3 = () => {
+    if (selectedTagsInPlay.value.length === 0) {
+        error.value = "Please select at least one tag";
+        return;
+    }
+    setupStep.value = 3;
+};
+
+// Tag selection
+const toggleTagInPlay = (tagId) => {
+    const index = selectedTagsInPlay.value.indexOf(tagId);
+    if (index > -1) {
+        selectedTagsInPlay.value.splice(index, 1);
+    } else {
+        selectedTagsInPlay.value.push(tagId);
+    }
+};
+
+const selectAllTags = () => {
+    selectedTagsInPlay.value = availableTagsFiltered.value.map((tag) => tag.id);
+};
+
 // Get actions from stores
 const { fetchTags } = gameStore;
 const { removePlayer, togglePlayerTag } = playerStore;
 
-// Wrap addPlayer to pass available tags
-const addPlayer = (gender) => {
-    return playerStore.addPlayer(gender, availableTagsFiltered.value);
-};
-
-const getTagName = (tagId) => {
-    const tag = availableTags.value.find((t) => t.id === tagId);
-    return tag ? tag.name : "Unknown";
+// Wrap addPlayer to pass filtered tags
+const addPlayer = ({ name, gender }) => {
+    newPlayerName.value = name;
+    return playerStore.addPlayer(gender, tagsInPlayFiltered.value);
 };
 
 // Wrapper for createGame to emit event
@@ -319,6 +361,10 @@ const createGame = async () => {
 // Lifecycle
 onMounted(() => {
     fetchTags();
+    // Show age verification on mount
+    if (showAgeVerification.value && ageVerificationModal.value) {
+        ageVerificationModal.value.showModal();
+    }
 });
 </script>
 
