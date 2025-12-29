@@ -103,8 +103,8 @@ class User extends Authenticatable
         ?string $stripePaymentIntentId,
     ): void {
         $this->is_pro = true;
-        // Set expiration to 100 years in the future (essentially lifetime)
-        $this->pro_expires_at = now()->addYears(100);
+        // Set expiration to null for lifetime pro
+        $this->pro_expires_at = null;
         $this->stripe_customer_id = $stripeCustomerId;
         $this->stripe_payment_intent_id = $stripePaymentIntentId;
         $this->save();
