@@ -11,6 +11,7 @@
 
 <script setup>
 import { defineProps } from "vue";
+import { User } from "lucide-vue-next";
 
 const props = defineProps({
     player: {

@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="text-center mb-10">
             <h1 class="text-6xl font-bold mb-2">
-                <span class="text-7xl">🎮</span>
+                <Gamepad2 :size="80" class="mx-auto mb-4 text-primary" />
             </h1>
             <h2 class="text-3xl font-bold mb-2">New Game</h2>
             <p class="text-base-content/60">
@@ -16,7 +16,7 @@
             <div class="card bg-base-100 shadow-lg">
                 <div class="card-body">
                     <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <span>⚙️</span>
+                        <Settings :size="24" />
                         <span>Game Settings</span>
                     </h3>
 
@@ -39,9 +39,14 @@
                                         : '',
                                 ]"
                             >
-                                <span class="text-2xl">{{
-                                    "🌶️".repeat(level)
-                                }}</span>
+                                <div class="flex gap-0.5">
+                                    <Flame
+                                        v-for="n in level"
+                                        :key="n"
+                                        :size="20"
+                                        class="text-orange-500"
+                                    />
+                                </div>
                                 <span class="text-xs">{{
                                     level === 1
                                         ? "Mild"
@@ -58,19 +63,7 @@
                     </div>
 
                     <div class="alert alert-info mt-4">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="stroke-current shrink-0 w-5 h-5"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            ></path>
-                        </svg>
+                        <Info :size="20" />
                         <span class="text-sm"
                             >{{ availableTagsFiltered.length }} tags available
                             at this level</span
@@ -83,7 +76,7 @@
             <div class="card bg-base-100 shadow-lg">
                 <div class="card-body">
                     <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <span>👥</span>
+                        <Users :size="24" />
                         <span>Players</span>
                         <span class="badge badge-primary">{{
                             players.length
@@ -105,7 +98,7 @@
                                 class="btn btn-outline gap-2"
                                 :disabled="!newPlayerName.trim()"
                             >
-                                <span class="text-2xl">👨</span>
+                                <User :size="20" />
                                 <span>Add Male</span>
                             </button>
                             <button
@@ -113,7 +106,7 @@
                                 class="btn btn-outline gap-2"
                                 :disabled="!newPlayerName.trim()"
                             >
-                                <span class="text-2xl">👩</span>
+                                <User :size="20" />
                                 <span>Add Female</span>
                             </button>
                             <button
@@ -121,7 +114,7 @@
                                 class="btn btn-outline gap-2"
                                 :disabled="!newPlayerName.trim()"
                             >
-                                <span class="text-2xl">🧑</span>
+                                <User :size="20" />
                                 <span>Add Other</span>
                             </button>
                         </div>
@@ -140,13 +133,16 @@
                                     <span class="font-bold">{{
                                         player.name
                                     }}</span>
-                                    <span class="text-lg">{{
-                                        player.gender === "male"
-                                            ? "👨"
-                                            : player.gender === "female"
-                                              ? "👩"
-                                              : "🧑"
-                                    }}</span>
+                                    <User
+                                        :size="16"
+                                        :class="
+                                            player.gender === 'male'
+                                                ? 'text-blue-500'
+                                                : player.gender === 'female'
+                                                  ? 'text-pink-500'
+                                                  : 'text-purple-500'
+                                        "
+                                    />
                                     <span class="text-xs text-base-content/60"
                                         >{{ player.tags.length }} tags</span
                                     >
@@ -180,12 +176,12 @@
                                             "
                                         >
                                             {{ tag.name }}
-                                            <span
+                                            <Check
                                                 v-if="
                                                     player.tags.includes(tag.id)
                                                 "
-                                                >✓</span
-                                            >
+                                                :size="12"
+                                            />
                                         </button>
                                     </div>
                                 </div>
@@ -195,7 +191,7 @@
                                 class="btn btn-ghost btn-sm btn-circle"
                                 title="Remove player"
                             >
-                                ✕
+                                <X :size="16" />
                             </button>
                         </div>
                     </div>
@@ -204,6 +200,10 @@
                         v-else
                         class="text-center py-12 border-2 border-dashed border-base-300 rounded-lg"
                     >
+                        <UserPlus
+                            :size="48"
+                            class="mx-auto mb-3 text-base-content/30"
+                        />
                         <p class="text-base-content/50">No players yet</p>
                         <p class="text-sm text-base-content/40 mt-1">
                             Add at least 2 players to start
@@ -223,19 +223,7 @@
                         :disabled="players.length < 2 || creatingGame"
                         :class="{ loading: creatingGame }"
                     >
-                        <svg
-                            v-if="!creatingGame"
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
+                        <Play v-if="!creatingGame" :size="24" />
                         {{ creatingGame ? "Creating..." : "Start Game" }}
                     </button>
 
@@ -247,7 +235,11 @@
                             players.length !== 1 ? "s" : ""
                         }}
                     </div>
-                    <div v-else class="text-sm text-warning mt-3">
+                    <div
+                        v-else
+                        class="text-sm text-warning mt-3 flex items-center gap-2"
+                    >
+                        <AlertCircle :size="16" />
                         Add at least 2 players to continue
                     </div>
                 </div>
@@ -256,19 +248,7 @@
 
         <!-- Error Alert -->
         <div v-if="error" class="alert alert-error shadow-lg mt-6">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-            </svg>
+            <XCircle :size="24" />
             <span>{{ error }}</span>
         </div>
     </div>
@@ -279,6 +259,20 @@ import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useGameStore } from "../stores/gameStore";
 import { usePlayerStore } from "../stores/playerStore";
+import {
+    Gamepad2,
+    Settings,
+    Flame,
+    Info,
+    Users,
+    User,
+    UserPlus,
+    Check,
+    X,
+    Play,
+    AlertCircle,
+    XCircle,
+} from "lucide-vue-next";
 
 const emit = defineEmits(["game-created"]);
 

@@ -64,15 +64,22 @@
                                     : 'badge-secondary',
                             ]"
                         >
-                            <span class="text-3xl">{{
-                                currentTask.type === "truth" ? "💬" : "🎯"
-                            }}</span>
+                            <MessageCircle
+                                v-if="currentTask.type === 'truth'"
+                                :size="28"
+                            />
+                            <Target v-else :size="28" />
                             <span class="text-lg font-bold uppercase">{{
                                 currentTask.type
                             }}</span>
                         </div>
-                        <div class="text-2xl">
-                            {{ "🌶️".repeat(currentTask.spice_rating) }}
+                        <div class="flex gap-1">
+                            <Flame
+                                v-for="n in currentTask.spice_rating"
+                                :key="n"
+                                :size="24"
+                                class="text-orange-500"
+                            />
                         </div>
                     </div>
 
@@ -104,18 +111,7 @@
                             class="btn btn-success btn-lg gap-2 flex-1 max-w-[200px]"
                             :disabled="loading"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd"
-                                />
-                            </svg>
+                            <CheckCircle :size="24" />
                             Done
                         </button>
                         <button
@@ -123,23 +119,7 @@
                             class="btn btn-outline btn-lg gap-2 flex-1 max-w-[200px]"
                             :disabled="loading"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                                    clip-rule="evenodd"
-                                />
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                                    clip-rule="evenodd"
-                                />
-                            </svg>
+                            <SkipForward :size="24" />
                             Skip
                         </button>
                     </div>
@@ -149,7 +129,7 @@
             <!-- Loading State -->
             <div v-else-if="loading" class="card bg-base-100 shadow-xl">
                 <div class="card-body items-center justify-center py-20">
-                    <span class="loading loading-spinner loading-lg"></span>
+                    <Loader :size="48" class="animate-spin text-primary" />
                     <p class="mt-4 text-lg opacity-70">Loading next task...</p>
                 </div>
             </div>
@@ -160,12 +140,13 @@
                 class="card bg-base-100 shadow-xl"
             >
                 <div class="card-body items-center justify-center py-20">
-                    <div class="text-7xl mb-4">😕</div>
+                    <Frown :size="64" class="mb-4 text-base-content/50" />
                     <p class="text-2xl font-bold mb-2">No tasks available</p>
                     <p class="text-sm opacity-70 mb-6">
                         Try adjusting your game settings
                     </p>
-                    <button @click="getNextTask" class="btn btn-primary">
+                    <button @click="getNextTask" class="btn btn-primary gap-2">
+                        <RotateCcw :size="20" />
                         Try Again
                     </button>
                 </div>
@@ -196,19 +177,7 @@
 
         <!-- Error Alert -->
         <div v-if="error" class="alert alert-error shadow-lg mt-6">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-            </svg>
+            <XCircle :size="24" />
             <span>{{ error }}</span>
         </div>
     </div>
@@ -220,6 +189,17 @@ import { storeToRefs } from "pinia";
 import { useGameStore } from "../stores/gameStore";
 import { usePlayerStore } from "../stores/playerStore";
 import TaskTypeSelector from "./TaskTypeSelector.vue";
+import {
+    MessageCircle,
+    Target,
+    Flame,
+    CheckCircle,
+    SkipForward,
+    Loader,
+    Frown,
+    RotateCcw,
+    XCircle,
+} from "lucide-vue-next";
 
 const props = defineProps({
     game: {
@@ -329,5 +309,18 @@ onMounted(() => {
 <style scoped>
 .game-play {
     min-height: 70vh;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }
 </style>

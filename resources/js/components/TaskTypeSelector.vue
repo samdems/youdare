@@ -16,7 +16,7 @@
                 @click="selectType('truth')"
                 class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-info hover:bg-info-focus border-none text-info-content"
             >
-                <span class="text-5xl">💬</span>
+                <MessageCircle :size="48" />
                 <span class="text-xl font-bold">Truth</span>
             </button>
 
@@ -25,7 +25,7 @@
                 @click="selectType('dare')"
                 class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-secondary hover:bg-secondary-focus border-none text-secondary-content"
             >
-                <span class="text-5xl">🎯</span>
+                <Target :size="48" />
                 <span class="text-xl font-bold">Dare</span>
             </button>
 
@@ -34,7 +34,7 @@
                 @click="selectType('both')"
                 class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-accent hover:bg-accent-focus border-none text-accent-content"
             >
-                <span class="text-5xl">🎲</span>
+                <Shuffle :size="48" />
                 <span class="text-xl font-bold">Random</span>
             </button>
         </div>
@@ -58,7 +58,10 @@
                         </span>
                         <div class="text-sm">
                             <div>{{ p.name }}</div>
-                            <div class="text-xs opacity-70">
+                            <div
+                                class="text-xs opacity-70 flex items-center gap-1"
+                            >
+                                <Star :size="12" />
                                 {{ p.score }} pts
                             </div>
                         </div>
@@ -70,17 +73,32 @@
         <!-- Stats -->
         <div class="grid grid-cols-3 gap-2">
             <div class="stat bg-base-200 rounded-lg p-3 text-center">
-                <div class="stat-title text-xs">Round</div>
+                <div
+                    class="stat-title text-xs flex items-center justify-center gap-1"
+                >
+                    <Hash :size="12" />
+                    Round
+                </div>
                 <div class="stat-value text-2xl text-primary">{{ round }}</div>
             </div>
             <div class="stat bg-base-200 rounded-lg p-3 text-center">
-                <div class="stat-title text-xs">Completed</div>
+                <div
+                    class="stat-title text-xs flex items-center justify-center gap-1"
+                >
+                    <CheckCircle :size="12" />
+                    Completed
+                </div>
                 <div class="stat-value text-2xl text-success">
                     {{ completed }}
                 </div>
             </div>
             <div class="stat bg-base-200 rounded-lg p-3 text-center">
-                <div class="stat-title text-xs">Skipped</div>
+                <div
+                    class="stat-title text-xs flex items-center justify-center gap-1"
+                >
+                    <SkipForward :size="12" />
+                    Skipped
+                </div>
                 <div class="stat-value text-2xl text-warning">
                     {{ skipped }}
                 </div>
@@ -91,6 +109,15 @@
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
+import {
+    MessageCircle,
+    Target,
+    Shuffle,
+    Star,
+    Hash,
+    CheckCircle,
+    SkipForward,
+} from "lucide-vue-next";
 
 const props = defineProps({
     player: {
