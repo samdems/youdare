@@ -210,6 +210,10 @@
                 <p class="font-bold text-lg">
                     YouDare - Truth or Dare Game
                 </p>
+                <div class="flex gap-4 text-sm">
+                    <a href="{{ route('privacy') }}" class="link link-hover">Privacy Policy</a>
+                    <a href="{{ route('terms') }}" class="link link-hover">Terms of Service</a>
+                </div>
                 <p>&copy; {{ date('Y') }} All rights reserved</p>
             </div>
         </footer>

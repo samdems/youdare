@@ -11,6 +11,15 @@ Route::get("/", function () {
     return view("welcome");
 });
 
+// Legal pages
+Route::get("/privacy", function () {
+    return view("privacy");
+})->name("privacy");
+
+Route::get("/terms", function () {
+    return view("terms");
+})->name("terms");
+
 // Authentication routes
 Route::middleware("guest")->group(function () {
     // Redirect old register routes to login
