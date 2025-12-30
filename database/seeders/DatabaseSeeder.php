@@ -27,5 +27,8 @@ class DatabaseSeeder extends Seeder
 
         // Seed tasks
         $this->call(TaskSeeder::class);
+
+        // Seed promo codes
+        $this->call(PromoCodeSeeder::class);
     }
 }

@@ -32,9 +32,43 @@
                 </div>
 
                 <div class="flex-shrink-0">
-                    <form action="{{ route('stripe.checkout') }}" method="POST">
+                    <form action="{{ route('stripe.checkout') }}" method="POST" id="checkoutForm">
                         @csrf
-                        <button type="submit" class="btn btn-primary btn-lg">
+
+                        <!-- Hidden input to store validated promo code -->
+                        <input type="hidden" name="promo_code" id="promoCodeHidden" value="">
+
+                        <!-- Promo Code Input -->
+                        <div class="form-control w-full mb-4">
+                            <label class="label">
+                                <span class="label-text">Have a promo code?</span>
+                            </label>
+                            <div class="join w-full">
+                                <input
+                                    type="text"
+                                    id="promoCodeInput"
+                                    placeholder="Enter code"
+                                    class="input input-bordered join-item flex-1"
+                                    style="text-transform: uppercase;"
+                                    oninput="this.value = this.value.toUpperCase()"
+                                />
+                                <button type="button" id="applyPromoBtn" class="btn join-item">Apply</button>
+                            </div>
+                            <div id="promoMessage" class="label hidden">
+                                <span class="label-text-alt"></span>
+                            </div>
+                        </div>
+
+                        <!-- Price Display -->
+                        <div class="mb-4 text-center">
+                            <div id="originalPrice" class="text-2xl font-bold">
+                                ${{ number_format($amount / 100, 2) }}
+                            </div>
+                            <div id="discountedPrice" class="text-3xl font-bold text-success hidden"></div>
+                            <div id="savingsText" class="text-sm text-success hidden"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
@@ -124,17 +158,118 @@
             <div class="card-body">
                 <h3 class="card-title text-2xl justify-center mb-2">Ready to upgrade?</h3>
                 <p class="mb-4">Join all the other Pro users and unlock the full potential of YouDare!</p>
-                <form action="{{ route('stripe.checkout') }}" method="POST" class="inline-block">
-                    @csrf
-                    <button type="submit" class="btn btn-neutral btn-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Upgrade to Pro - ${{ number_format($amount / 100, 2) }}
-                    </button>
-                </form>
+                <button type="button" id="bottomCheckoutBtn" class="btn btn-neutral btn-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span id="bottomCheckoutText">Upgrade to Pro - ${{ number_format($amount / 100, 2) }}</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const promoInput = document.getElementById('promoCodeInput');
+    const applyBtn = document.getElementById('applyPromoBtn');
+    const promoMessage = document.getElementById('promoMessage');
+    const originalPrice = document.getElementById('originalPrice');
+    const discountedPrice = document.getElementById('discountedPrice');
+    const savingsText = document.getElementById('savingsText');
+    const form = document.getElementById('checkoutForm');
+
+    const baseAmount = {{ $amount }};
+    let appliedPromo = null;
+
+    applyBtn.addEventListener('click', function() {
+        const code = promoInput.value.trim();
+
+        if (!code) {
+            showMessage('Please enter a promo code', 'error');
+            return;
+        }
+
+        // Disable button while checking
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Checking...';
+
+        // Validate promo code via AJAX
+        fetch('/api/validate-promo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            },
+            body: JSON.stringify({ code: code })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                appliedPromo = data;
+                applyDiscount(data.percent_off);
+                showMessage(`✓ ${data.percent_off}% discount applied!`, 'success');
+                promoInput.readOnly = true;
+                promoInput.classList.add('input-disabled');
+                applyBtn.textContent = 'Applied';
+                // Store validated code in hidden input
+                document.getElementById('promoCodeHidden').value = code;
+            } else {
+                showMessage(data.message || 'Invalid promo code', 'error');
+                applyBtn.disabled = false;
+                applyBtn.textContent = 'Apply';
+            }
+        })
+        .catch(error => {
+            showMessage('Error validating promo code', 'error');
+            applyBtn.disabled = false;
+            applyBtn.textContent = 'Apply';
+        });
+    });
+
+    function applyDiscount(percentOff) {
+        // Match PHP backend calculation exactly: round($amount * (1 - $discount / 100))
+        const newAmount = Math.round(baseAmount * (1 - percentOff / 100));
+        const discount = baseAmount - newAmount;
+
+        originalPrice.classList.add('line-through', 'text-base-content/50', 'text-xl');
+        discountedPrice.textContent = '$' + (newAmount / 100).toFixed(2);
+        discountedPrice.classList.remove('hidden');
+        savingsText.textContent = `Save ${percentOff}% ($${(discount / 100).toFixed(2)})`;
+        savingsText.classList.remove('hidden');
+    }
+
+    function showMessage(message, type) {
+        const messageSpan = promoMessage.querySelector('.label-text-alt');
+        messageSpan.textContent = message;
+        messageSpan.className = 'label-text-alt ' + (type === 'success' ? 'text-success' : 'text-error');
+        promoMessage.classList.remove('hidden');
+    }
+
+    // Allow Enter key to apply promo
+    promoInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyBtn.click();
+        }
+    });
+
+    // Bottom checkout button submits the main form
+    const bottomCheckoutBtn = document.getElementById('bottomCheckoutBtn');
+    const bottomCheckoutText = document.getElementById('bottomCheckoutText');
+
+    bottomCheckoutBtn.addEventListener('click', function() {
+        form.submit();
+    });
+
+    // Update bottom button text when discount is applied
+    const originalApplyDiscount = applyDiscount;
+    applyDiscount = function(percentOff) {
+        originalApplyDiscount(percentOff);
+        const discount = baseAmount * (percentOff / 100);
+        const newAmount = baseAmount - discount;
+        bottomCheckoutText.textContent = `Upgrade to Pro - $${(newAmount / 100).toFixed(2)} (${percentOff}% off!)`;
+    };
+});
+</script>
 @endsection

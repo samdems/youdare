@@ -113,6 +113,7 @@
                                 <li><a href="{{ route('tasks.index') }}">All Tasks</a></li>
                                 <li><a href="{{ route('tasks.create') }}">Create Task</a></li>
                                 <li><a href="{{ route('tags.index') }}">🏷️ Tags</a></li>
+                                <li><a href="{{ route('promo-codes.index') }}">🎟️ Promo Codes</a></li>
                                 <li><a href="{{ route('stats.index') }}">📊 Stats</a></li>
                             @endif
                         @endauth
@@ -134,6 +135,7 @@
                             <li><a href="{{ route('tasks.index') }}" class="{{ request()->routeIs('tasks.index') ? 'active' : '' }}">All Tasks</a></li>
                             <li><a href="{{ route('tasks.create') }}" class="{{ request()->routeIs('tasks.create') ? 'active' : '' }}">Create Task</a></li>
                             <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">🏷️ Tags</a></li>
+                            <li><a href="{{ route('promo-codes.index') }}" class="{{ request()->routeIs('promo-codes.*') ? 'active' : '' }}">🎟️ Promo Codes</a></li>
                             <li><a href="{{ route('stats.index') }}" class="{{ request()->routeIs('stats.*') ? 'active' : '' }}">📊 Stats</a></li>
                         @endif
                     @endauth

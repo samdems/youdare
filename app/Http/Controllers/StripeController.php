@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\PromoCode;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
@@ -41,6 +43,43 @@ class StripeController extends Controller
     }
 
     /**
+     * Validate promo code via API
+     *
+     * @return JsonResponse
+     */
+    public function validatePromoCode(Request $request): JsonResponse
+    {
+        $code = $request->input("code");
+
+        if (!$code) {
+            return response()->json([
+                "valid" => false,
+                "message" => "Please enter a promo code",
+            ]);
+        }
+
+        // Convert to uppercase for case-insensitive matching
+        $code = strtoupper($code);
+
+        $promoCode = PromoCode::where("code", $code)
+            ->where("is_active", true)
+            ->first();
+
+        if (!$promoCode) {
+            return response()->json([
+                "valid" => false,
+                "message" => "Invalid or inactive promo code",
+            ]);
+        }
+
+        return response()->json([
+            "valid" => true,
+            "code" => $promoCode->code,
+            "percent_off" => $promoCode->percent_off,
+        ]);
+    }
+
+    /**
      * Create Stripe Checkout Session
      *
      * @return RedirectResponse
@@ -65,6 +104,32 @@ class StripeController extends Controller
         try {
             $amount = (int) env("STRIPE_PRO_AMOUNT", 199); // Amount in cents
 
+            // Check for promo code
+            $promoCode = $request->input("promo_code");
+            $discount = 0;
+
+            if ($promoCode) {
+                // Convert to uppercase for case-insensitive matching
+                $promoCode = strtoupper($promoCode);
+
+                $promo = PromoCode::where("code", $promoCode)
+                    ->where("is_active", true)
+                    ->first();
+
+                if ($promo) {
+                    $discount = $promo->percent_off;
+                    // Calculate discounted amount and round to integer
+                    $amount = (int) round($amount * (1 - $discount / 100));
+
+                    // Log for debugging
+                    \Log::info("Promo code applied", [
+                        "code" => $promoCode,
+                        "discount_percent" => $discount,
+                        "final_amount" => $amount,
+                    ]);
+                }
+            }
+
             // Create or retrieve Stripe customer
             $customerId = $user->stripe_customer_id;
 
@@ -87,11 +152,15 @@ class StripeController extends Controller
                         "price_data" => [
                             "currency" => "usd",
                             "product_data" => [
-                                "name" => "YouDare Pro - Lifetime Access",
+                                "name" =>
+                                    "YouDare Pro - Lifetime Access" .
+                                    ($discount > 0
+                                        ? " ({$discount}% discount applied)"
+                                        : ""),
                                 "description" =>
                                     "Unlock premium features with lifetime access to YouDare Pro!",
                             ],
-                            "unit_amount" => $amount,
+                            "unit_amount" => (int) $amount,
                         ],
                         "quantity" => 1,
                     ],
@@ -104,6 +173,8 @@ class StripeController extends Controller
                 "client_reference_id" => $user->id,
                 "metadata" => [
                     "user_id" => $user->id,
+                    "promo_code" => $promoCode ?? "",
+                    "discount_percent" => $discount,
                 ],
             ]);
 

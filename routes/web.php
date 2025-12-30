@@ -5,6 +5,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\PromoCodeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get("/", function () {
@@ -66,6 +67,11 @@ Route::middleware("auth")->group(function () {
     Route::get("payment/cancel", [StripeController::class, "cancel"])->name(
         "stripe.cancel",
     );
+    // API route for validating promo codes
+    Route::post("api/validate-promo", [
+        StripeController::class,
+        "validatePromoCode",
+    ]);
 });
 
 // Stats route - require admin
@@ -115,4 +121,30 @@ Route::middleware("admin")->group(function () {
     Route::delete("tags/{tag}", [TagController::class, "destroy"])->name(
         "tags.destroy",
     );
+});
+
+// Promo Code routes - require admin
+Route::middleware("admin")->group(function () {
+    Route::get("promo-codes", [PromoCodeController::class, "index"])->name(
+        "promo-codes.index",
+    );
+    Route::get("promo-codes/create", [
+        PromoCodeController::class,
+        "create",
+    ])->name("promo-codes.create");
+    Route::post("promo-codes", [PromoCodeController::class, "store"])->name(
+        "promo-codes.store",
+    );
+    Route::get("promo-codes/{promoCode}/edit", [
+        PromoCodeController::class,
+        "edit",
+    ])->name("promo-codes.edit");
+    Route::put("promo-codes/{promoCode}", [
+        PromoCodeController::class,
+        "update",
+    ])->name("promo-codes.update");
+    Route::delete("promo-codes/{promoCode}", [
+        PromoCodeController::class,
+        "destroy",
+    ])->name("promo-codes.destroy");
 });
