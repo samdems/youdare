@@ -6,15 +6,31 @@
     <title>{{ config('app.name', 'YouDare') }} - Truth or Dare Game</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_io/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon_io/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon_io/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon_io/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('favicon_io/site.webmanifest') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        .logo-svg {
+            filter: brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(2384%) hue-rotate(226deg) brightness(102%) contrast(101%);
+        }
+        [data-theme="dark"] .logo-svg {
+            filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7500%) hue-rotate(324deg) brightness(104%) contrast(104%);
+        }
+    </style>
 </head>
 <body class="antialiased">
     <div class="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <!-- Navigation -->
         <div class="navbar bg-base-100 shadow-lg">
             <div class="navbar-start">
-                <a href="/" class="btn btn-ghost text-xl">
-                    🔥 <span class="text-primary font-bold">YouDare</span>
+                <a href="/" class="btn btn-ghost text-xl flex items-center gap-2">
+                    <img src="{{ asset('logo.svg') }}" alt="YouDare Logo" class="h-8 logo-svg">
                 </a>
             </div>
             <div class="navbar-end gap-2">
@@ -66,11 +82,8 @@
             <div class="hero-content text-center">
                 <div class="max-w-4xl">
                     <div class="mb-8">
-                        <span class="text-8xl">🔥</span>
+                        <img src="{{ asset('logo.svg') }}" alt="YouDare Logo" class="h-32 mx-auto logo-svg">
                     </div>
-                    <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                        Truth or Dare
-                    </h1>
                     <p class="text-2xl mb-8 opacity-80">
                         The ultimate party game that brings excitement, laughter, and unforgettable moments!
                     </p>
@@ -191,8 +204,11 @@
         <!-- Footer -->
         <footer class="footer footer-center p-10 bg-base-200 text-base-content">
             <div>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <img src="{{ asset('logo.svg') }}" alt="YouDare Logo" class="h-10 logo-svg">
+                </div>
                 <p class="font-bold text-lg">
-                    🔥 YouDare - Truth or Dare Game
+                    YouDare - Truth or Dare Game
                 </p>
                 <p>&copy; {{ date('Y') }} All rights reserved</p>
             </div>

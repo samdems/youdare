@@ -7,6 +7,13 @@
 
     <title>{{ config('app.name', 'YouDare') }} - @yield('title', 'Truth or Dare')</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon_io/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon_io/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon_io/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon_io/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('favicon_io/site.webmanifest') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -26,6 +33,15 @@
         .bg-spice-3 { background-color: #fef3c7; }
         .bg-spice-4 { background-color: #fee2e2; }
         .bg-spice-5 { background-color: #fecaca; }
+
+        /* Logo SVG Styling */
+        .logo-svg {
+            filter: brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(2384%) hue-rotate(226deg) brightness(102%) contrast(101%);
+        }
+
+        [data-theme="dark"] .logo-svg {
+            filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7500%) hue-rotate(324deg) brightness(104%) contrast(104%);
+        }
 
         /* Pro Badge Styling */
         .badge-pro {
@@ -103,8 +119,8 @@
 
                     </ul>
                 </div>
-                <a href="/" class="btn btn-ghost text-xl">
-                    🔥 <span class="text-primary font-bold">YouDare</span>
+                <a href="/" class="btn btn-ghost text-xl flex items-center gap-2">
+                    <img src="{{ asset('logo.svg') }}" alt="YouDare Logo" class="h-8 logo-svg">
                 </a>
             </div>
             <div class="navbar-center hidden lg:flex">
@@ -229,8 +245,11 @@
         <!-- Footer -->
         <footer class="footer footer-center p-10 bg-base-200 text-base-content rounded mt-12">
             <div>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <img src="{{ asset('logo.svg') }}" alt="YouDare Logo" class="h-10 logo-svg">
+                </div>
                 <p class="font-bold">
-                    🔥 YouDare - Truth or Dare Game
+                    YouDare - Truth or Dare Game
                 </p>
                 <p>&copy; {{ date('Y') }} All rights reserved</p>
             </div>
