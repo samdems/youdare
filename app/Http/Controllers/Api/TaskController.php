@@ -224,7 +224,6 @@ class TaskController extends Controller
     {
         $query = Task::query()->where("draft", false);
 
-        // Filter by type if provided
         if (
             $request->has("type") &&
             in_array($request->get("type"), ["truth", "dare"])
@@ -232,12 +231,10 @@ class TaskController extends Controller
             $query->where("type", $request->get("type"));
         }
 
-        // Filter by max spice rating
         if ($request->has("max_spice")) {
             $query->where("spice_rating", "<=", $request->get("max_spice"));
         }
 
-        // Filter by min spice rating
         if ($request->has("min_spice")) {
             $query->where("spice_rating", ">=", $request->get("min_spice"));
         }
@@ -254,21 +251,21 @@ class TaskController extends Controller
             );
         }
 
-        // Load the task with tags and add tag details
         $task->load("tags");
         $taskData = $task->append("spice_level")->toArray();
 
-        // Add tag details for tags_to_add, tags_to_remove, and cant_have_tags
         $taskData["addable_tags"] = $task
             ->getAddableTags()
             ->map(function ($tag) {
                 return ["id" => $tag->id, "name" => $tag->name];
             });
+
         $taskData["removable_tags"] = $task
             ->getRemovableTags()
             ->map(function ($tag) {
                 return ["id" => $tag->id, "name" => $tag->name];
             });
+
         $taskData["cant_have_tags_details"] = $task
             ->getCantHaveTags()
             ->map(function ($tag) {

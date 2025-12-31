@@ -127,25 +127,24 @@ class Game extends Model
         Player $player,
         $excludeUsed = true,
     ) {
-        // Use the player's own method which handles cant_have_tags filtering
         $tasks = $player->getAvailableTasks();
 
-        // Exclude tasks that have been used by this specific player
-        if ($excludeUsed) {
-            $playerId = is_object($player) ? $player->id : $player;
-            $usedTaskIds = $this->usedTasks()
-                ->wherePivot("player_id", $playerId)
-                ->pluck("task_id")
-                ->toArray();
-            $tasks = $tasks->filter(function ($task) use ($usedTaskIds) {
-                return !in_array($task->id, $usedTaskIds);
-            });
+        if (!$excludeUsed) {
+            return $tasks;
+        }
 
-            // If no unused tasks remain for this player, clear their history and return all tasks
-            if ($tasks->isEmpty()) {
-                $this->clearTaskHistoryForPlayer($player);
-                $tasks = $player->getAvailableTasks();
-            }
+        $usedTaskIds = $this->usedTasks()
+            ->wherePivot("player_id", $player->id)
+            ->pluck("task_id")
+            ->toArray();
+
+        $tasks = $tasks->filter(function ($task) use ($usedTaskIds) {
+            return !in_array($task->id, $usedTaskIds);
+        });
+
+        if ($tasks->isEmpty()) {
+            $this->clearTaskHistoryForPlayer($player);
+            $tasks = $player->getAvailableTasks();
         }
 
         return $tasks;
