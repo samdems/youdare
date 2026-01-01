@@ -37,7 +37,7 @@ class StripeController extends Controller
                 ->with("success", "You already have a Pro account!");
         }
 
-        $amount = env("STRIPE_PRO_AMOUNT", 199); // Default to $9.99
+        $amount = config("services.stripe.pro_amount", 999); // Default to £9.99
 
         return view("stripe.go-pro", compact("amount"));
     }
@@ -102,7 +102,7 @@ class StripeController extends Controller
         }
 
         try {
-            $amount = (int) env("STRIPE_PRO_AMOUNT", 199); // Amount in cents
+            $amount = (int) config("services.stripe.pro_amount", 999); // Amount in pence
 
             // Check for promo code
             $promoCode = $request->input("promo_code");
@@ -150,7 +150,10 @@ class StripeController extends Controller
                 "line_items" => [
                     [
                         "price_data" => [
-                            "currency" => "usd",
+                            "currency" => config(
+                                "services.stripe.currency",
+                                "gbp",
+                            ),
                             "product_data" => [
                                 "name" =>
                                     "YouDare Pro - Lifetime Access" .

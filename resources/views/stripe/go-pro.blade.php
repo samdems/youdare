@@ -25,7 +25,7 @@
 
                     <div class="mt-6">
                         <div class="text-5xl font-bold">
-                            ${{ number_format($amount / 100, 2) }}
+                            £{{ number_format($amount / 100, 2) }}
                         </div>
                         <p class="text-sm text-base-content/60 mt-1">One-time payment</p>
                     </div>
@@ -62,7 +62,7 @@
                         <!-- Price Display -->
                         <div class="mb-4 text-center">
                             <div id="originalPrice" class="text-2xl font-bold">
-                                ${{ number_format($amount / 100, 2) }}
+                                £{{ number_format($amount / 100, 2) }}
                             </div>
                             <div id="discountedPrice" class="text-3xl font-bold text-success hidden"></div>
                             <div id="savingsText" class="text-sm text-success hidden"></div>
@@ -162,7 +162,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    <span id="bottomCheckoutText">Upgrade to Pro - ${{ number_format($amount / 100, 2) }}</span>
+                    <span id="bottomCheckoutText">Upgrade to Pro - £{{ number_format($amount / 100, 2) }}</span>
                 </button>
             </div>
         </div>
@@ -233,9 +233,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const discount = baseAmount - newAmount;
 
         originalPrice.classList.add('line-through', 'text-base-content/50', 'text-xl');
-        discountedPrice.textContent = '$' + (newAmount / 100).toFixed(2);
+        discountedPrice.textContent = '£' + (newAmount / 100).toFixed(2);
         discountedPrice.classList.remove('hidden');
-        savingsText.textContent = `Save ${percentOff}% ($${(discount / 100).toFixed(2)})`;
+        savingsText.textContent = `Save ${percentOff}% (£${(discount / 100).toFixed(2)})`;
         savingsText.classList.remove('hidden');
     }
 
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
         originalApplyDiscount(percentOff);
         const discount = baseAmount * (percentOff / 100);
         const newAmount = baseAmount - discount;
-        bottomCheckoutText.textContent = `Upgrade to Pro - $${(newAmount / 100).toFixed(2)} (${percentOff}% off!)`;
+        bottomCheckoutText.textContent = `Upgrade to Pro - £${(newAmount / 100).toFixed(2)} (${percentOff}% off!)`;
     };
 });
 </script>

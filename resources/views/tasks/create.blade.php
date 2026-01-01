@@ -106,7 +106,7 @@
                     <label class="label">
                         <span class="label-text font-semibold">Spice Rating <span class="text-error">*</span></span>
                     </label>
-                    <p class="text-sm opacity-70 mb-3">How intense or daring is this task?</p>
+                    <p class="text-sm opacity-70 mb-3">Select the appropriate heat level for this task. Each level has specific guidelines for content.</p>
 
                     <div class="space-y-3">
                         @for($i = 1; $i <= 5; $i++)
@@ -128,11 +128,11 @@
                                                         @endif
                                                     </div>
                                                     <div class="text-sm opacity-70">
-                                                        @if($i === 1) Safe for everyone
-                                                        @elseif($i === 2) Slightly embarrassing
-                                                        @elseif($i === 3) Moderately challenging
-                                                        @elseif($i === 4) Very daring
-                                                        @elseif($i === 5) Extremely bold
+                                                        @if($i === 1) Completely wholesome and kid-friendly
+                                                        @elseif($i === 2) Clean and appropriate for teenagers
+                                                        @elseif($i === 3) Adults-only with light physical vulnerability
+                                                        @elseif($i === 4) Full nudity required
+                                                        @elseif($i === 5) Extremely explicit - clear consent mandatory
                                                         @endif
                                                     </div>
                                                 </div>
@@ -173,7 +173,7 @@
                                     <span class="label-text font-semibold">Must Have Tags</span>
                                 </label>
                                 <p class="text-sm opacity-70 mb-3">
-                                    Players must have at least one of these tags to see this task. Leave empty for all players.
+                                    Players must have <strong>ALL</strong> of these tags to see this task (AND logic). Leave empty for all players.
                                 </p>
 
                                 @if($tags->count() > 0)

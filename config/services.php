@@ -37,5 +37,7 @@ return [
     "stripe" => [
         "key" => env("STRIPE_KEY"),
         "secret" => env("STRIPE_SECRET"),
+        "pro_amount" => env("STRIPE_PRO_AMOUNT", 999), // Amount in pence (£9.99)
+        "currency" => env("STRIPE_CURRENCY", "gbp"),
     ],
 ];
