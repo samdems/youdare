@@ -1,5 +1,5 @@
 <template>
-    <div class="game-setup max-w-4xl mx-auto p-4 sm:p-6">
+    <div class="game-setup max-w-4xl mx-auto p-2 sm:p-4 md:p-6 w-full">
         <!-- 18+ Age Verification Modal -->
         <Teleport to="body">
             <dialog
@@ -8,7 +8,7 @@
                 class="modal modal-open"
             >
                 <div
-                    class="modal-box !max-w-none w-[calc(100vw-2rem)] sm:!max-w-sm"
+                    class="modal-box !max-w-none w-[calc(100vw-2rem)] sm:!max-w-sm overflow-x-hidden"
                 >
                     <h3 class="font-bold text-lg sm:text-xl mb-3">
                         Age Verification
@@ -44,8 +44,8 @@
         </Teleport>
 
         <!-- Step Indicator -->
-        <div class="flex justify-center mb-6 sm:mb-8">
-            <ul class="steps steps-horizontal">
+        <div class="flex justify-center mb-6 sm:mb-8 w-full overflow-x-auto">
+            <ul class="steps steps-horizontal min-w-0">
                 <li class="step" :class="{ 'step-primary': setupStep >= 1 }">
                     Pick Heat
                 </li>
@@ -59,8 +59,8 @@
         </div>
 
         <!-- Step 1: Pick Your Heat (Spice Level) -->
-        <div v-if="setupStep === 1" class="space-y-6 sm:space-y-8">
-            <div class="card bg-base-100 shadow-lg">
+        <div v-if="setupStep === 1" class="space-y-6 sm:space-y-8 w-full">
+            <div class="card bg-base-100 shadow-lg w-full">
                 <div class="card-body p-4 sm:p-6">
                     <h3
                         class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center"
@@ -121,8 +121,8 @@
         </div>
 
         <!-- Step 2: Set Tags in Play -->
-        <div v-else-if="setupStep === 2" class="space-y-6 sm:space-y-8">
-            <div class="card bg-base-100 shadow-lg">
+        <div v-else-if="setupStep === 2" class="space-y-6 sm:space-y-8 w-full">
+            <div class="card bg-base-100 shadow-lg w-full">
                 <div class="card-body p-4 sm:p-6">
                     <h3
                         class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center"
@@ -256,9 +256,9 @@
         </div>
 
         <!-- Step 3: Add Players -->
-        <div v-else-if="setupStep === 3" class="space-y-6 sm:space-y-8">
+        <div v-else-if="setupStep === 3" class="space-y-6 sm:space-y-8 w-full">
             <!-- Add Player Card -->
-            <div class="card bg-base-100 shadow-lg">
+            <div class="card bg-base-100 shadow-lg w-full">
                 <div class="card-body p-4 sm:p-6">
                     <h3
                         class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-center"
@@ -521,5 +521,7 @@ watch(maxSpiceRating, () => {
 <style scoped>
 .game-setup {
     min-height: 70vh;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 </style>

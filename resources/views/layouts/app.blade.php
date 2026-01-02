@@ -80,10 +80,10 @@
 
     @stack('styles')
 </head>
-<body class="antialiased">
-    <div id="app">
+<body class="antialiased overflow-x-hidden">
+    <div id="app" class="w-full overflow-x-hidden">
         <!-- Navigation -->
-        <div class="navbar bg-base-100 shadow-lg">
+        <div class="navbar bg-base-100 shadow-lg w-full">
             <div class="navbar-start">
                 <div class="dropdown">
                     <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -219,7 +219,7 @@
 
         <!-- Flash Messages -->
         @if (session('success'))
-            <div class="container mx-auto px-4 mt-4">
+            <div class="container mx-auto px-4 mt-4 max-w-full">
                 <div role="alert" class="alert alert-success">
                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -230,7 +230,7 @@
         @endif
 
         @if (session('error'))
-            <div class="container mx-auto px-4 mt-4">
+            <div class="container mx-auto px-4 mt-4 max-w-full">
                 <div role="alert" class="alert alert-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -241,8 +241,8 @@
         @endif
 
         <!-- Page Content -->
-        <main class="py-8">
-            <div class="container mx-auto px-4">
+        <main class="py-8 w-full">
+            <div class="container mx-auto px-4 max-w-full">
                 @yield('content')
             </div>
         </main>

@@ -1,14 +1,18 @@
 <template>
-    <div class="group-task-screen max-w-4xl mx-auto p-6">
+    <div class="group-task-screen max-w-4xl mx-auto p-4 sm:p-6 w-full">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="inline-block bg-success/20 rounded-full px-8 py-4 mb-4">
-                <h1 class="text-4xl font-bold text-success flex items-center gap-3">
-                    <Users :size="40" />
+        <div class="text-center mb-6 sm:mb-8">
+            <div
+                class="inline-block bg-success/20 rounded-full px-4 sm:px-8 py-3 sm:py-4 mb-4"
+            >
+                <h1
+                    class="text-2xl sm:text-4xl font-bold text-success flex items-center gap-2 sm:gap-3"
+                >
+                    <Users :size="32" class="sm:w-10 sm:h-10" />
                     GROUP CHALLENGE!
                 </h1>
             </div>
-            <p class="text-xl opacity-70">
+            <p class="text-base sm:text-xl opacity-70">
                 Round {{ round }} Complete - Everyone participates!
             </p>
         </div>
@@ -22,15 +26,17 @@
                         <Flame
                             v-for="n in task.spice_rating"
                             :key="n"
-                            :size="24"
-                            class="text-orange-500"
+                            :size="18"
+                            class="text-orange-500 sm:w-6 sm:h-6"
                         />
                     </div>
                 </div>
 
                 <!-- Task Description -->
-                <div class="text-center py-12">
-                    <p class="text-3xl font-bold leading-relaxed">
+                <div class="text-center py-6 sm:py-8 md:py-12 px-2">
+                    <p
+                        class="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed break-words"
+                    >
                         {{ processedDescription }}
                     </p>
                 </div>
@@ -38,7 +44,7 @@
                 <!-- Task Tags -->
                 <div
                     v-if="task.tags && task.tags.length > 0"
-                    class="flex flex-wrap gap-2 justify-center mb-6"
+                    class="flex flex-wrap gap-1 sm:gap-2 justify-center mb-4 sm:mb-6"
                 >
                     <span
                         v-for="tag in task.tags"
@@ -54,7 +60,7 @@
                     <div
                         v-for="player in players"
                         :key="player.id"
-                        class="flex flex-col items-center gap-2"
+                        class="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 bg-base-200 rounded-full"
                     >
                         <img
                             :src="player.avatar"
@@ -67,11 +73,13 @@
                     </div>
                 </div>
 
-                <!-- Action Button -->
-                <div class="flex justify-center">
+                <!-- Action Buttons -->
+                <div
+                    class="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center w-full"
+                >
                     <button
-                        @click="completeTask"
-                        class="btn btn-success btn-lg gap-2 min-w-[250px]"
+                        @click="$emit('complete')"
+                        class="btn btn-success btn-md sm:btn-lg gap-2 flex-1 max-w-full sm:max-w-[200px]"
                         :disabled="loading"
                     >
                         <CheckCircle :size="24" />
@@ -83,8 +91,8 @@
         </div>
 
         <!-- Loading State -->
-        <div v-else-if="loading" class="card bg-base-100 shadow-xl">
-            <div class="card-body items-center justify-center py-20">
+        <div v-else-if="loading" class="card bg-base-100 shadow-xl w-full">
+            <div class="card-body items-center justify-center py-12 sm:py-20">
                 <Loader :size="48" class="animate-spin text-success" />
                 <p class="mt-4 text-lg opacity-70">Loading group task...</p>
             </div>
@@ -95,9 +103,7 @@
             <div class="card-body items-center justify-center py-20">
                 <Frown :size="64" class="mb-4 text-base-content/50" />
                 <p class="text-2xl font-bold mb-2">No group tasks available</p>
-                <p class="text-sm opacity-70 mb-6">
-                    Starting next round...
-                </p>
+                <p class="text-sm opacity-70 mb-6">Starting next round...</p>
                 <button @click="skipToNextRound" class="btn btn-primary gap-2">
                     <SkipForward :size="20" />
                     Continue

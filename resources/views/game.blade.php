@@ -3,7 +3,7 @@
 @section('title', 'Play Game')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto w-full px-2 sm:px-4">
     <!-- Vue Component with Tag Support -->
     <game-manager
         data-is-pro="{{ Auth::check() && Auth::user()->isPro() ? '1' : '0' }}"

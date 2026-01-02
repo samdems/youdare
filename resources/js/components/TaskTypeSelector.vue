@@ -1,5 +1,5 @@
 <template>
-    <div class="task-type-selector max-w-3xl mx-auto p-6">
+    <div class="task-type-selector max-w-3xl mx-auto p-4 sm:p-6 w-full">
         <!-- Fixed Header Section -->
         <div class="header-section">
             <!-- Current Player Highlight -->
@@ -19,32 +19,34 @@
         <!-- Flexible Content Section -->
         <div class="content-section">
             <!-- Choice Buttons -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div
+                class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 w-full"
+            >
                 <!-- Truth Button -->
                 <button
                     @click="selectType('truth')"
-                    class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-info hover:bg-info-focus border-none text-info-content"
+                    class="btn btn-md sm:btn-lg h-24 sm:h-32 flex-col gap-2 hover:scale-105 transition-all bg-info hover:bg-info-focus border-none text-info-content"
                 >
-                    <MessageCircle :size="48" />
-                    <span class="text-xl font-bold">Truth</span>
+                    <MessageCircle :size="40" class="sm:w-12 sm:h-12" />
+                    <span class="text-lg sm:text-xl font-bold">Truth</span>
                 </button>
 
                 <!-- Dare Button -->
                 <button
                     @click="selectType('dare')"
-                    class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-secondary hover:bg-secondary-focus border-none text-secondary-content"
+                    class="btn btn-md sm:btn-lg h-24 sm:h-32 flex-col gap-2 hover:scale-105 transition-all bg-secondary hover:bg-secondary-focus border-none text-secondary-content"
                 >
-                    <Target :size="48" />
-                    <span class="text-xl font-bold">Dare</span>
+                    <Target :size="40" class="sm:w-12 sm:h-12" />
+                    <span class="text-lg sm:text-xl font-bold">Dare</span>
                 </button>
 
                 <!-- Random Button -->
                 <button
                     @click="selectType('both')"
-                    class="btn btn-lg h-32 flex-col gap-2 hover:scale-105 transition-all bg-accent hover:bg-accent-focus border-none text-accent-content"
+                    class="btn btn-md sm:btn-lg h-24 sm:h-32 flex-col gap-2 hover:scale-105 transition-all bg-accent hover:bg-accent-focus border-none text-accent-content"
                 >
-                    <Shuffle :size="48" />
-                    <span class="text-xl font-bold">Random</span>
+                    <Shuffle :size="40" class="sm:w-12 sm:h-12" />
+                    <span class="text-lg sm:text-xl font-bold">Random</span>
                 </button>
             </div>
 
@@ -129,6 +131,8 @@ const selectType = (type) => {
     min-height: 70vh;
     display: flex;
     flex-direction: column;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .header-section {

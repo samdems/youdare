@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-3xl mx-auto p-6">
+    <div class="max-w-3xl mx-auto p-4 sm:p-6 w-full">
         <!-- Header -->
         <div class="text-center mb-10">
             <Flag :size="80" class="mx-auto mb-4 text-primary" />
@@ -37,7 +37,10 @@
 
         <!-- Action Buttons -->
         <div class="flex gap-3 justify-center">
-            <button @click="$emit('play-again')" class="btn btn-primary btn-lg gap-2">
+            <button
+                @click="$emit('play-again')"
+                class="btn btn-primary btn-lg gap-2"
+            >
                 <RotateCcw :size="20" />
                 Play Again
             </button>
