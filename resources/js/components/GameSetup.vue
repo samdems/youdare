@@ -81,6 +81,28 @@
                         :is-pro="isPro"
                     />
 
+                    <!-- Group Tasks Option -->
+                    <div class="form-control mt-6">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <input
+                                type="checkbox"
+                                v-model="enableGroupTasks"
+                                class="checkbox checkbox-primary"
+                            />
+                            <div>
+                                <span
+                                    class="label-text font-semibold text-base"
+                                >
+                                    Enable Group Tasks
+                                </span>
+                                <p class="text-xs text-base-content/60 mt-1">
+                                    At the end of each round, everyone
+                                    participates in a group challenge together
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
                     <div class="card-actions justify-end mt-4 sm:mt-6">
                         <button
                             v-if="isPro || maxSpiceRating < 3"
@@ -342,6 +364,7 @@ const {
     availableTags,
     loadingTags,
     availableTagsFiltered,
+    enableGroupTasks,
 } = storeToRefs(gameStore);
 
 const { players, newPlayerName } = storeToRefs(playerStore);

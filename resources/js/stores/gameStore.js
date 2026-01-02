@@ -22,6 +22,7 @@ export const useGameStore = defineStore("game", () => {
     const currentRound = ref(1);
     const showingGroupTask = ref(false);
     const currentGroupTask = ref(null);
+    const enableGroupTasks = ref(true);
 
     const defaultTags = [
         { id: "blonde", name: "Blonde" },
@@ -72,6 +73,7 @@ export const useGameStore = defineStore("game", () => {
             const gameData = await games.createGame({
                 name: gameName.value || "New Game",
                 max_spice_rating: maxSpiceRating.value,
+                enable_group_tasks: enableGroupTasks.value,
             });
 
             if (gameData.status !== "success" && gameData.success !== true) {
@@ -120,6 +122,7 @@ export const useGameStore = defineStore("game", () => {
         currentGame.value = gameData;
         completedCount.value = gameData.completed_count || 0;
         skippedCount.value = gameData.skipped_count || 0;
+        enableGroupTasks.value = gameData.enable_group_tasks ?? true;
         gamePhase.value = "playing";
     };
 
@@ -234,12 +237,21 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const checkForGroupTask = async () => {
-        if (!currentGame.value) return false;
+        if (!currentGame.value || !enableGroupTasks.value) return false;
 
         try {
             const response = await games.getGame(currentGame.value.id);
             if (response.success || response.status === "success") {
                 const game = response.data;
+
+                // Update enableGroupTasks from game data
+                if (game.enable_group_tasks !== undefined) {
+                    enableGroupTasks.value = game.enable_group_tasks;
+                }
+
+                // Only proceed if group tasks are enabled
+                if (!game.enable_group_tasks) return false;
+
                 const playerCount = game.players ? game.players.length : 0;
 
                 // Check if round is complete
@@ -345,6 +357,7 @@ export const useGameStore = defineStore("game", () => {
         currentRound.value = 1;
         showingGroupTask.value = false;
         currentGroupTask.value = null;
+        enableGroupTasks.value = true;
     };
 
     return {
@@ -368,6 +381,7 @@ export const useGameStore = defineStore("game", () => {
         currentRound,
         showingGroupTask,
         currentGroupTask,
+        enableGroupTasks,
 
         // Getters
         isSetupPhase,

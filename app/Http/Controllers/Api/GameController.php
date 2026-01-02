@@ -38,6 +38,7 @@ class GameController extends Controller
         $validator = Validator::make($request->all(), [
             "name" => "nullable|string|max:255",
             "max_spice_rating" => "nullable|integer|min:1|max:5",
+            "enable_group_tasks" => "nullable|boolean",
             "tag_ids" => "nullable|array",
             "tag_ids.*" => "exists:tags,id",
             "settings" => "nullable|array",
@@ -56,6 +57,7 @@ class GameController extends Controller
         $game = Game::create([
             "name" => $request->name,
             "max_spice_rating" => $request->max_spice_rating ?? 5,
+            "enable_group_tasks" => $request->enable_group_tasks ?? true,
             "settings" => $request->settings ?? [],
         ]);
 
@@ -98,6 +100,7 @@ class GameController extends Controller
             "name" => "nullable|string|max:255",
             "status" => "nullable|in:waiting,active,completed",
             "max_spice_rating" => "nullable|integer|min:1|max:5",
+            "enable_group_tasks" => "nullable|boolean",
             "settings" => "nullable|array",
         ]);
 
@@ -112,7 +115,13 @@ class GameController extends Controller
         }
 
         $game->update(
-            $request->only(["name", "status", "max_spice_rating", "settings"]),
+            $request->only([
+                "name",
+                "status",
+                "max_spice_rating",
+                "enable_group_tasks",
+                "settings",
+            ]),
         );
 
         $game->load(["players", "tags"]);
@@ -326,6 +335,16 @@ class GameController extends Controller
      */
     public function getGroupTask(Game $game)
     {
+        if (!$game->enable_group_tasks) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Group tasks are disabled for this game",
+                ],
+                400,
+            );
+        }
+
         $task = $game->getRandomGroupTask();
 
         if (!$task) {
@@ -349,6 +368,16 @@ class GameController extends Controller
      */
     public function completeGroupTask(Game $game)
     {
+        if (!$game->enable_group_tasks) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Group tasks are disabled for this game",
+                ],
+                400,
+            );
+        }
+
         if (!$game->isRoundComplete()) {
             return response()->json(
                 [

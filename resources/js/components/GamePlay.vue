@@ -21,6 +21,7 @@
             :completed="completedCount"
             :skipped="skippedCount"
             :player-avatars="playerAvatars"
+            :enable-group-tasks="enableGroupTasks"
             @type-selected="onTypeSelected"
         />
 
@@ -227,6 +228,7 @@ const {
     currentRound,
     showingGroupTask,
     currentGroupTask,
+    enableGroupTasks,
 } = storeToRefs(gameStore);
 
 const {

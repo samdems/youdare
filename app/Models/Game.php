@@ -20,6 +20,7 @@ class Game extends Model
         "code",
         "status",
         "max_spice_rating",
+        "enable_group_tasks",
         "settings",
         "current_round",
         "current_player_index",
@@ -33,6 +34,7 @@ class Game extends Model
     protected $casts = [
         "settings" => "array",
         "max_spice_rating" => "integer",
+        "enable_group_tasks" => "boolean",
         "current_round" => "integer",
         "current_player_index" => "integer",
     ];
@@ -376,6 +378,10 @@ class Game extends Model
      */
     public function getRandomGroupTask()
     {
+        if (!$this->enable_group_tasks) {
+            return null;
+        }
+
         return Task::published()
             ->where("type", "group")
             ->where("spice_rating", "<=", $this->max_spice_rating)
