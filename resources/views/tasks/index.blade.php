@@ -31,6 +31,7 @@
                         <option value="">All Types</option>
                         <option value="truth" {{ request('type') == 'truth' ? 'selected' : '' }}>Truth</option>
                         <option value="dare" {{ request('type') == 'dare' ? 'selected' : '' }}>Dare</option>
+                        <option value="group" {{ request('type') == 'group' ? 'selected' : '' }}>Group</option>
                     </select>
                 </div>
 
@@ -110,8 +111,8 @@
                     <div class="card-body">
                         <!-- Header with Type and Spice -->
                         <div class="flex justify-between items-start mb-4">
-                            <div class="badge {{ $task->type === 'truth' ? 'badge-info' : 'badge-secondary' }} badge-lg gap-2">
-                                {{ $task->type === 'truth' ? '💬 Truth' : '🎯 Dare' }}
+                            <div class="badge {{ $task->type === 'truth' ? 'badge-info' : ($task->type === 'dare' ? 'badge-secondary' : 'badge-success') }} badge-lg gap-2">
+                                {{ $task->type === 'truth' ? '💬 Truth' : ($task->type === 'dare' ? '🎯 Dare' : '👥 Group') }}
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="badge badge-outline gap-1">

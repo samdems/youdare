@@ -26,11 +26,11 @@
     <!-- Task Card -->
     <div class="card bg-base-100 shadow-xl">
         <!-- Header -->
-        <div class="bg-gradient-to-r {{ $task->type === 'truth' ? 'from-blue-500 to-blue-600' : 'from-purple-500 to-purple-600' }} text-white">
+        <div class="bg-gradient-to-r {{ $task->type === 'truth' ? 'from-blue-500 to-blue-600' : ($task->type === 'dare' ? 'from-purple-500 to-purple-600' : 'from-green-500 to-green-600') }} text-white">
             <div class="card-body">
                 <div class="flex justify-between items-start mb-4">
                     <h1 class="card-title text-3xl">
-                        {{ $task->type === 'truth' ? '💬 Truth' : '🎯 Dare' }}
+                        {{ $task->type === 'truth' ? '💬 Truth' : ($task->type === 'dare' ? '🎯 Dare' : '👥 Group') }}
                     </h1>
                     <div class="flex flex-col items-end gap-2">
                         <div class="badge badge-lg bg-white/30 border-white/30 text-white">
@@ -151,7 +151,7 @@
             @endif
 
             <!-- Someone Filters Section -->
-            @if(isset($task->someone_gender) || (isset($task->someone_tags) && is_array($task->someone_tags) && count($task->someone_tags) > 0) || (isset($task->someone_cant_have_tags) && is_array($task->someone_cant_have_tags) && count($task->someone_cant_have_tags) > 0))
+            @if($task->type !== 'group' && (isset($task->someone_gender) || (isset($task->someone_tags) && is_array($task->someone_tags) && count($task->someone_tags) > 0) || (isset($task->someone_cant_have_tags) && is_array($task->someone_cant_have_tags) && count($task->someone_cant_have_tags) > 0)))
                 <div class="mb-6">
                     <h2 class="text-lg font-semibold mb-3">@{{someone}} Variable Filters:</h2>
                     <div class="alert alert-info">

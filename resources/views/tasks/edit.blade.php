@@ -33,7 +33,7 @@
                     <label class="label">
                         <span class="label-text font-semibold">Task Type <span class="text-error">*</span></span>
                     </label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <label class="cursor-pointer">
                             <input type="radio" name="type" value="truth" class="hidden peer" {{ old('type', $task->type) === 'truth' ? 'checked' : '' }} required>
                             <div class="card border-2 border-base-300 peer-checked:border-info peer-checked:bg-info/10 hover:border-info/50 transition-all">
@@ -59,6 +59,19 @@
                                 </div>
                             </div>
                         </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="type" value="group" class="hidden peer" {{ old('type', $task->type) === 'group' ? 'checked' : '' }} required>
+                            <div class="card border-2 border-base-300 peer-checked:border-success peer-checked:bg-success/10 hover:border-success/50 transition-all">
+                                <div class="card-body flex-row items-center gap-4">
+                                    <span class="text-4xl">👥</span>
+                                    <div>
+                                        <div class="font-semibold text-lg">Group</div>
+                                        <div class="text-sm opacity-70">A group activity</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
                     </div>
                     @error('type')
                         <label class="label">
@@ -72,7 +85,7 @@
                     <label class="label">
                         <span class="label-text font-semibold">Description <span class="text-error">*</span></span>
                     </label>
-                    <div class="bg-base-200 border border-base-300 rounded-lg p-4 mb-3">
+                    <div class="bg-base-200 border border-base-300 rounded-lg p-4 mb-3" id="variable-filters-info">
                         <div class="text-sm text-base-content">
                             <div class="font-semibold mb-2">Template Variables Available:</div>
                             <div class="space-y-1">
@@ -153,7 +166,7 @@
                 </div>
 
                 <!-- Tag Configuration Tabs -->
-                <div class="mb-6">
+                <div class="mb-6" id="tag-configuration-section">
                     <div class="text-lg font-semibold mb-4">Tag Configuration</div>
 
                     @php
@@ -716,6 +729,32 @@
         // Trigger on page load for existing value
         textarea.dispatchEvent(new Event('input'));
     }
+
+    // Toggle Tag Configuration section and Variable Filters info based on task type
+    const typeRadios = document.querySelectorAll('input[name="type"]');
+    const tagConfigSection = document.getElementById('tag-configuration-section');
+    const variableFiltersInfo = document.getElementById('variable-filters-info');
+
+    function toggleTagConfiguration() {
+        const selectedType = document.querySelector('input[name="type"]:checked');
+        if (selectedType) {
+            if (selectedType.value === 'group') {
+                if (tagConfigSection) tagConfigSection.style.display = 'none';
+                if (variableFiltersInfo) variableFiltersInfo.style.display = 'none';
+            } else {
+                if (tagConfigSection) tagConfigSection.style.display = 'block';
+                if (variableFiltersInfo) variableFiltersInfo.style.display = 'block';
+            }
+        }
+    }
+
+    // Add event listeners to all type radio buttons
+    typeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleTagConfiguration);
+    });
+
+    // Run on page load
+    toggleTagConfiguration();
 </script>
 @endpush
 @endsection

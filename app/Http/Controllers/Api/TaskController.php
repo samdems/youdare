@@ -23,7 +23,7 @@ class TaskController extends Controller
         // Filter by type if provided
         if (
             $request->has("type") &&
-            in_array($request->get("type"), ["truth", "dare"])
+            in_array($request->get("type"), ["truth", "dare", "group"])
         ) {
             $query->where("type", $request->get("type"));
         }
@@ -103,7 +103,7 @@ class TaskController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            "type" => "required|in:truth,dare",
+            "type" => "required|in:truth,dare,group",
             "spice_rating" => "required|integer|min:1|max:5",
             "description" => "required|string|min:10|max:500",
             "draft" => "boolean",
@@ -163,7 +163,7 @@ class TaskController extends Controller
     public function update(Request $request, Task $task): JsonResponse
     {
         $validated = $request->validate([
-            "type" => "sometimes|required|in:truth,dare",
+            "type" => "sometimes|required|in:truth,dare,group",
             "spice_rating" => "sometimes|required|integer|min:1|max:5",
             "description" => "sometimes|required|string|min:10|max:500",
             "draft" => "sometimes|boolean",
@@ -226,7 +226,7 @@ class TaskController extends Controller
 
         if (
             $request->has("type") &&
-            in_array($request->get("type"), ["truth", "dare"])
+            in_array($request->get("type"), ["truth", "dare", "group"])
         ) {
             $query->where("type", $request->get("type"));
         }
@@ -312,6 +312,7 @@ class TaskController extends Controller
             "by_type" => [
                 "truth" => Task::where("type", "truth")->count(),
                 "dare" => Task::where("type", "dare")->count(),
+                "group" => Task::where("type", "group")->count(),
             ],
             "by_spice_rating" => [],
             "average_spice_rating" => round(Task::avg("spice_rating"), 2),
@@ -343,7 +344,7 @@ class TaskController extends Controller
             "task_ids" => "required|array",
             "task_ids.*" => "exists:tasks,id",
             "updates" => "required|array",
-            "updates.type" => "sometimes|in:truth,dare",
+            "updates.type" => "sometimes|in:truth,dare,group",
             "updates.spice_rating" => "sometimes|integer|min:1|max:5",
             "updates.draft" => "sometimes|boolean",
         ]);

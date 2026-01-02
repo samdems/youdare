@@ -67,7 +67,7 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            "type" => "required|in:truth,dare",
+            "type" => "required|in:truth,dare,group",
             "spice_rating" => "required|integer|min:1|max:5",
             "description" => "required|string|min:10|max:500",
             "draft" => "boolean",
@@ -148,7 +148,7 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $validated = $request->validate([
-            "type" => "required|in:truth,dare",
+            "type" => "required|in:truth,dare,group",
             "spice_rating" => "required|integer|min:1|max:5",
             "description" => "required|string|min:10|max:500",
             "draft" => "boolean",

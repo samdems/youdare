@@ -100,8 +100,8 @@
                         <div class="card bg-base-200 hover:bg-base-300 transition-colors">
                             <div class="card-body p-4">
                                 <div class="flex justify-between items-start mb-2">
-                                    <div class="badge {{ $task->type === 'truth' ? 'badge-info' : 'badge-secondary' }}">
-                                        {{ $task->type === 'truth' ? '💬 Truth' : '🎯 Dare' }}
+                                    <div class="badge {{ $task->type === 'truth' ? 'badge-info' : ($task->type === 'dare' ? 'badge-secondary' : 'badge-success') }}">
+                                        {{ $task->type === 'truth' ? '💬 Truth' : ($task->type === 'dare' ? '🎯 Dare' : '👥 Group') }}
                                     </div>
                                     <div class="badge badge-outline">
                                         🌶️ {{ $task->spice_rating }}
