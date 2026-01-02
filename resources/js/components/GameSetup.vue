@@ -171,7 +171,7 @@
                                     </h5>
                                     <p
                                         v-if="group.description"
-                                        class="text-xs text-base-content/50 mt-1"
+                                        class="text-lg text-base-content/50 mt-1"
                                     >
                                         {{ group.description }}
                                     </p>
