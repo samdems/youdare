@@ -281,7 +281,12 @@ const completeTask = async () => {
         // Check if round is complete and show group task
         const shouldShowGroupTask = await gameStore.checkForGroupTask();
         if (shouldShowGroupTask) {
-            await gameStore.getGroupTask();
+            const hasGroupTask = await gameStore.getGroupTask();
+            // If no group tasks available, proceed to next player
+            if (!hasGroupTask) {
+                playerStore.setCurrentPlayer(players.value[0].id);
+                gameStore.showTypeSelector(playerStore.currentPlayer);
+            }
         } else {
             playerStore.nextPlayer();
             gameStore.showTypeSelector(playerStore.currentPlayer);
@@ -295,7 +300,12 @@ const skipTask = async () => {
     // Check if round is complete and show group task
     const shouldShowGroupTask = await gameStore.checkForGroupTask();
     if (shouldShowGroupTask) {
-        await gameStore.getGroupTask();
+        const hasGroupTask = await gameStore.getGroupTask();
+        // If no group tasks available, proceed to next player
+        if (!hasGroupTask) {
+            playerStore.setCurrentPlayer(players.value[0].id);
+            gameStore.showTypeSelector(playerStore.currentPlayer);
+        }
     } else {
         playerStore.nextPlayer();
         gameStore.showTypeSelector(playerStore.currentPlayer);

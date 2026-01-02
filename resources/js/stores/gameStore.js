@@ -293,7 +293,7 @@ export const useGameStore = defineStore("game", () => {
     };
 
     const getGroupTask = async () => {
-        if (!currentGame.value) return;
+        if (!currentGame.value) return false;
 
         loading.value = true;
         error.value = null;
@@ -305,12 +305,20 @@ export const useGameStore = defineStore("game", () => {
             if (data.status === "success" || data.success === true) {
                 currentGroupTask.value = data.data;
                 showingGroupTask.value = true;
+                return true;
             } else {
-                error.value = data.message || "No group tasks available";
+                // No group tasks available - skip to next round
+                console.log(
+                    "No group tasks available, continuing to next round",
+                );
+                await completeGroupTask();
+                return false;
             }
         } catch (err) {
             console.error("Error fetching group task:", err);
-            error.value = err.message || "Failed to load group task";
+            // On error, skip group task and continue
+            await completeGroupTask();
+            return false;
         } finally {
             loading.value = false;
         }
