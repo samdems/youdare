@@ -21,6 +21,8 @@ class Game extends Model
         "status",
         "max_spice_rating",
         "settings",
+        "current_round",
+        "current_player_index",
     ];
 
     /**
@@ -31,6 +33,8 @@ class Game extends Model
     protected $casts = [
         "settings" => "array",
         "max_spice_rating" => "integer",
+        "current_round" => "integer",
+        "current_player_index" => "integer",
     ];
 
     /**
@@ -337,5 +341,45 @@ class Game extends Model
     public static function findByCode($code)
     {
         return static::where("code", strtoupper($code))->first();
+    }
+
+    /**
+     * Check if all players have completed their turn in the current round.
+     */
+    public function isRoundComplete()
+    {
+        $playerCount = $this->players()->count();
+        return $playerCount > 0 && $this->current_player_index >= $playerCount;
+    }
+
+    /**
+     * Start a new round and reset to first player.
+     */
+    public function startNewRound()
+    {
+        $this->update([
+            "current_round" => $this->current_round + 1,
+            "current_player_index" => 0,
+        ]);
+    }
+
+    /**
+     * Advance to the next player in the round.
+     */
+    public function advanceToNextPlayer()
+    {
+        $this->increment("current_player_index");
+    }
+
+    /**
+     * Get a random group task for this game.
+     */
+    public function getRandomGroupTask()
+    {
+        return Task::published()
+            ->where("type", "group")
+            ->where("spice_rating", "<=", $this->max_spice_rating)
+            ->inRandomOrder()
+            ->first();
     }
 }

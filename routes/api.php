@@ -92,6 +92,17 @@ Route::prefix("games")->group(function () {
     // Get available tasks for game
     Route::get("{game}/tasks", [GameController::class, "availableTasks"]);
 
+    // Group task and round management
+    Route::get("{game}/group-task", [GameController::class, "getGroupTask"]);
+    Route::post("{game}/complete-group-task", [
+        GameController::class,
+        "completeGroupTask",
+    ]);
+    Route::post("{game}/advance-player", [
+        GameController::class,
+        "advancePlayer",
+    ]);
+
     // Player routes nested under games
     Route::prefix("{game}/players")->group(function () {
         Route::get("/", [PlayerController::class, "index"]);

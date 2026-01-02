@@ -19,6 +19,9 @@ export const useGameStore = defineStore("game", () => {
     const loading = ref(false);
     const showingTypeSelector = ref(false);
     const selectedTaskType = ref(null);
+    const currentRound = ref(1);
+    const showingGroupTask = ref(false);
+    const currentGroupTask = ref(null);
 
     const defaultTags = [
         { id: "blonde", name: "Blonde" },
@@ -161,6 +164,12 @@ export const useGameStore = defineStore("game", () => {
 
             if (data.status === "success" || data.success === true) {
                 completedCount.value++;
+
+                // Advance player in round tracking
+                if (currentGame.value) {
+                    await games.advancePlayer(currentGame.value.id);
+                }
+
                 return data.data.player;
             }
             return null;
@@ -173,9 +182,19 @@ export const useGameStore = defineStore("game", () => {
         }
     };
 
-    const skipTask = () => {
+    const skipTask = async () => {
         skippedCount.value++;
         currentTask.value = null;
+
+        // Advance player in round tracking
+        if (currentGame.value) {
+            try {
+                await games.advancePlayer(currentGame.value.id);
+            } catch (err) {
+                console.error("Error advancing player:", err);
+            }
+        }
+
         showingTypeSelector.value = true;
     };
 
@@ -212,6 +231,78 @@ export const useGameStore = defineStore("game", () => {
 
     const setTaskType = (type) => {
         selectedTaskType.value = type;
+    };
+
+    const checkForGroupTask = async () => {
+        if (!currentGame.value) return false;
+
+        try {
+            const response = await games.getGame(currentGame.value.id);
+            if (response.success || response.status === "success") {
+                const game = response.data;
+                const playerCount = game.players ? game.players.length : 0;
+
+                // Check if round is complete
+                if (
+                    playerCount > 0 &&
+                    game.current_player_index >= playerCount
+                ) {
+                    return true;
+                }
+            }
+        } catch (err) {
+            console.error("Error checking for group task:", err);
+        }
+
+        return false;
+    };
+
+    const getGroupTask = async () => {
+        if (!currentGame.value) return;
+
+        loading.value = true;
+        error.value = null;
+        currentGroupTask.value = null;
+
+        try {
+            const data = await games.getGroupTask(currentGame.value.id);
+
+            if (data.status === "success" || data.success === true) {
+                currentGroupTask.value = data.data;
+                showingGroupTask.value = true;
+            } else {
+                error.value = data.message || "No group tasks available";
+            }
+        } catch (err) {
+            console.error("Error fetching group task:", err);
+            error.value = err.message || "Failed to load group task";
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const completeGroupTask = async () => {
+        if (!currentGame.value) return;
+
+        loading.value = true;
+
+        try {
+            const data = await games.completeGroupTask(currentGame.value.id);
+
+            if (data.status === "success" || data.success === true) {
+                currentRound.value++;
+                currentGroupTask.value = null;
+                showingGroupTask.value = false;
+                return true;
+            }
+            return false;
+        } catch (err) {
+            console.error("Error completing group task:", err);
+            error.value = err.message || "Failed to complete group task";
+            return false;
+        } finally {
+            loading.value = false;
+        }
     };
 
     const endGame = (players) => {
@@ -251,6 +342,9 @@ export const useGameStore = defineStore("game", () => {
         loading.value = false;
         showingTypeSelector.value = false;
         selectedTaskType.value = null;
+        currentRound.value = 1;
+        showingGroupTask.value = false;
+        currentGroupTask.value = null;
     };
 
     return {
@@ -271,6 +365,9 @@ export const useGameStore = defineStore("game", () => {
         showingTypeSelector,
         selectedTaskType,
         defaultTags,
+        currentRound,
+        showingGroupTask,
+        currentGroupTask,
 
         // Getters
         isSetupPhase,
@@ -289,6 +386,9 @@ export const useGameStore = defineStore("game", () => {
         showTypeSelector,
         onTypeSelected,
         setTaskType,
+        checkForGroupTask,
+        getGroupTask,
+        completeGroupTask,
         endGame,
         playAgain,
         reset,

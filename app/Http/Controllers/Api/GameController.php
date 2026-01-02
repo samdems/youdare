@@ -320,4 +320,67 @@ class GameController extends Controller
             "count" => $tasks->count(),
         ]);
     }
+
+    /**
+     * Get a random group task for the game.
+     */
+    public function getGroupTask(Game $game)
+    {
+        $task = $game->getRandomGroupTask();
+
+        if (!$task) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "No group tasks available",
+                ],
+                404,
+            );
+        }
+
+        return response()->json([
+            "success" => true,
+            "data" => $task,
+        ]);
+    }
+
+    /**
+     * Complete a group task and start a new round.
+     */
+    public function completeGroupTask(Game $game)
+    {
+        if (!$game->isRoundComplete()) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" =>
+                        "Cannot complete group task - round not complete",
+                ],
+                400,
+            );
+        }
+
+        $game->startNewRound();
+        $game->load(["players", "tags"]);
+
+        return response()->json([
+            "success" => true,
+            "message" => "New round started",
+            "data" => $game,
+        ]);
+    }
+
+    /**
+     * Advance to the next player in the round.
+     */
+    public function advancePlayer(Game $game)
+    {
+        $game->advanceToNextPlayer();
+        $game->load(["players", "tags"]);
+
+        return response()->json([
+            "success" => true,
+            "data" => $game,
+        ]);
+    }
 }

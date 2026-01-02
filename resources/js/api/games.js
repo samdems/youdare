@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient from "./client";
 
 /**
  * Games API
@@ -10,7 +10,7 @@ import apiClient from './client';
  * @returns {Promise<Object>} Response with games data
  */
 export const getGames = async () => {
-    return await apiClient.get('/games');
+    return await apiClient.get("/games");
 };
 
 /**
@@ -30,7 +30,7 @@ export const getGame = async (gameId) => {
  * @returns {Promise<Object>} Response with created game
  */
 export const createGame = async (gameData) => {
-    return await apiClient.post('/games', gameData);
+    return await apiClient.post("/games", gameData);
 };
 
 /**
@@ -112,5 +112,35 @@ export const getNextTask = async (gameId, type = null) => {
  * @returns {Promise<Object>} Response with completion confirmation
  */
 export const completeTask = async (gameId, taskId, completionData) => {
-    return await apiClient.post(`/games/${gameId}/tasks/${taskId}/complete`, completionData);
+    return await apiClient.post(
+        `/games/${gameId}/tasks/${taskId}/complete`,
+        completionData,
+    );
+};
+
+/**
+ * Get a random group task for the game
+ * @param {number|string} gameId - The game ID
+ * @returns {Promise<Object>} Response with group task
+ */
+export const getGroupTask = async (gameId) => {
+    return await apiClient.get(`/games/${gameId}/group-task`);
+};
+
+/**
+ * Complete a group task and start a new round
+ * @param {number|string} gameId - The game ID
+ * @returns {Promise<Object>} Response with updated game data
+ */
+export const completeGroupTask = async (gameId) => {
+    return await apiClient.post(`/games/${gameId}/complete-group-task`);
+};
+
+/**
+ * Advance to the next player in the round
+ * @param {number|string} gameId - The game ID
+ * @returns {Promise<Object>} Response with updated game data
+ */
+export const advancePlayer = async (gameId) => {
+    return await apiClient.post(`/games/${gameId}/advance-player`);
 };

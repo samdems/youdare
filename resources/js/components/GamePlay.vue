@@ -1,8 +1,20 @@
 <template>
     <div class="game-play max-w-4xl mx-auto p-6">
+        <!-- Group Task Screen -->
+        <group-task-screen
+            v-if="showingGroupTask"
+            :task="currentGroupTask"
+            :players="players"
+            :round="currentRound"
+            :loading="loading"
+            :error="error"
+            @complete="onGroupTaskComplete"
+            @skip="onGroupTaskSkip"
+        />
+
         <!-- Task Type Selector Screen -->
         <task-type-selector
-            v-if="showingTypeSelector"
+            v-else-if="showingTypeSelector"
             :player="currentPlayer"
             :players="players"
             :round="completedCount + skippedCount + 1"
@@ -177,6 +189,7 @@ import { storeToRefs } from "pinia";
 import { useGameStore } from "../stores/gameStore";
 import { usePlayerStore } from "../stores/playerStore";
 import TaskTypeSelector from "./TaskTypeSelector.vue";
+import GroupTaskScreen from "./GroupTaskScreen.vue";
 import {
     MessageCircle,
     Target,
@@ -211,6 +224,9 @@ const {
     error,
     showingTypeSelector,
     selectedTaskType,
+    currentRound,
+    showingGroupTask,
+    currentGroupTask,
 } = storeToRefs(gameStore);
 
 const {
@@ -239,15 +255,29 @@ const completeTask = async () => {
     const updatedPlayer = await gameStore.completeTask(currentPlayerId.value);
     if (updatedPlayer) {
         playerStore.updatePlayer(currentPlayerId.value, updatedPlayer);
-        playerStore.nextPlayer();
-        gameStore.showTypeSelector(playerStore.currentPlayer);
+
+        // Check if round is complete and show group task
+        const shouldShowGroupTask = await gameStore.checkForGroupTask();
+        if (shouldShowGroupTask) {
+            await gameStore.getGroupTask();
+        } else {
+            playerStore.nextPlayer();
+            gameStore.showTypeSelector(playerStore.currentPlayer);
+        }
     }
 };
 
-const skipTask = () => {
-    gameStore.skipTask();
-    playerStore.nextPlayer();
-    gameStore.showTypeSelector(playerStore.currentPlayer);
+const skipTask = async () => {
+    await gameStore.skipTask();
+
+    // Check if round is complete and show group task
+    const shouldShowGroupTask = await gameStore.checkForGroupTask();
+    if (shouldShowGroupTask) {
+        await gameStore.getGroupTask();
+    } else {
+        playerStore.nextPlayer();
+        gameStore.showTypeSelector(playerStore.currentPlayer);
+    }
 };
 
 const showTypeSelector = () => {
@@ -270,6 +300,24 @@ const getPlayerAvatar = (order) => {
 const nextPlayer = () => {
     playerStore.nextPlayer();
     gameStore.showTypeSelector(playerStore.currentPlayer);
+};
+
+const onGroupTaskComplete = async () => {
+    const success = await gameStore.completeGroupTask();
+    if (success) {
+        // Reset to first player for new round
+        playerStore.setCurrentPlayer(players.value[0].id);
+        gameStore.showTypeSelector(playerStore.currentPlayer);
+    }
+};
+
+const onGroupTaskSkip = async () => {
+    const success = await gameStore.completeGroupTask();
+    if (success) {
+        // Reset to first player for new round
+        playerStore.setCurrentPlayer(players.value[0].id);
+        gameStore.showTypeSelector(playerStore.currentPlayer);
+    }
 };
 
 // Watch for game prop changes
