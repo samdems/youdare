@@ -364,7 +364,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useGameStore } from "../stores/gameStore";
 import { usePlayerStore } from "../stores/playerStore";
@@ -507,6 +507,11 @@ onMounted(() => {
     if (showAgeVerification.value && ageVerificationModal.value) {
         ageVerificationModal.value.showModal();
     }
+});
+
+// Watch for spice level changes and refetch tags
+watch(maxSpiceRating, () => {
+    fetchGroupedTags();
 });
 </script>
 
