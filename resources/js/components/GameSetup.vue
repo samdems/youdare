@@ -154,27 +154,53 @@
 
                         <div
                             v-if="availableTagsFiltered.length > 0"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3"
+                            class="bg-base-200 rounded-lg p-4 max-h-96 overflow-y-auto"
                         >
-                            <button
-                                v-for="tag in availableTagsFiltered"
-                                :key="tag.id"
-                                @click="toggleTagInPlay(tag.id)"
-                                class="btn btn-md sm:btn-lg h-auto py-3 sm:py-4 transition-all tooltip tooltip-top"
-                                :class="{
-                                    'btn-primary': selectedTagsInPlay.includes(
-                                        tag.id,
-                                    ),
-                                    'btn-outline': !selectedTagsInPlay.includes(
-                                        tag.id,
-                                    ),
-                                }"
-                                :data-tip="tag.description || tag.name"
-                            >
-                                <span class="text-sm font-bold">{{
-                                    tag.name
-                                }}</span>
-                            </button>
+                            <div class="space-y-1">
+                                <label
+                                    v-for="tag in availableTagsFiltered"
+                                    :key="tag.id"
+                                    class="flex items-start gap-3 p-3 rounded-lg hover:bg-base-100 cursor-pointer transition-colors group"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        :checked="
+                                            selectedTagsInPlay.includes(tag.id)
+                                        "
+                                        @change="toggleTagInPlay(tag.id)"
+                                        class="toggle toggle-primary mt-1"
+                                    />
+                                    <div class="flex-1 min-w-0">
+                                        <div
+                                            :class="{
+                                                'font-semibold text-primary':
+                                                    selectedTagsInPlay.includes(
+                                                        tag.id,
+                                                    ),
+                                                'text-base-content/70':
+                                                    !selectedTagsInPlay.includes(
+                                                        tag.id,
+                                                    ),
+                                            }"
+                                        >
+                                            {{ tag.name }}
+                                        </div>
+                                        <div
+                                            v-if="tag.description"
+                                            class="text-sm text-base-content/50 mt-1"
+                                        >
+                                            {{ tag.description }}
+                                        </div>
+                                    </div>
+                                    <Check
+                                        v-if="
+                                            selectedTagsInPlay.includes(tag.id)
+                                        "
+                                        :size="20"
+                                        class="text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1"
+                                    />
+                                </label>
+                            </div>
                         </div>
                         <div v-else class="text-center py-8">
                             <p class="text-base-content/60">
@@ -238,6 +264,7 @@
                             :key="player.id"
                             :player="player"
                             :available-tags="tagsInPlayFiltered"
+                            :auto-open-modal="player.id === lastAddedPlayerId"
                             @remove="removePlayer"
                             @toggle-tag="togglePlayerTag"
                         />
@@ -273,11 +300,11 @@
 
                 <button
                     @click="createGame"
-                    class="btn btn-success btn-md sm:btn-lg gap-2 w-full sm:min-w-[200px] order-1 sm:order-2"
+                    class="btn btn-success btn-md gap-2 w-full sm:w-auto sm:min-w-[180px] order-1 sm:order-2"
                     :disabled="players.length < 2 || creatingGame"
                     :class="{ loading: creatingGame }"
                 >
-                    <Play v-if="!creatingGame" :size="24" />
+                    <Play v-if="!creatingGame" :size="20" />
                     {{ creatingGame ? "Creating..." : "Start Game" }}
                 </button>
             </div>
@@ -327,6 +354,7 @@ import {
     XCircle,
     ArrowRight,
     ArrowLeft,
+    Check,
 } from "lucide-vue-next";
 
 const props = defineProps({
@@ -372,6 +400,7 @@ const { players, newPlayerName } = storeToRefs(playerStore);
 // Local state for stepped setup
 const setupStep = ref(1); // 1 = pick heat, 2 = set tags, 3 = add players
 const selectedTagsInPlay = ref([]);
+const lastAddedPlayerId = ref(null);
 
 // Computed: Filter available tags to only show selected ones
 const tagsInPlayFiltered = computed(() => {
@@ -417,10 +446,21 @@ const selectAllTags = () => {
 const { fetchTags } = gameStore;
 const { removePlayer, togglePlayerTag } = playerStore;
 
-// Wrap addPlayer to pass filtered tags
-const addPlayer = ({ name, gender }) => {
+// Wrap addPlayer to pass filtered tags and track last added player
+const addPlayer = async ({ name, gender }) => {
     newPlayerName.value = name;
-    return playerStore.addPlayer(gender, tagsInPlayFiltered.value);
+    const result = await playerStore.addPlayer(
+        gender,
+        tagsInPlayFiltered.value,
+    );
+    if (result.success && result.player) {
+        lastAddedPlayerId.value = result.player.id;
+        // Reset after a delay to allow modal to open
+        setTimeout(() => {
+            lastAddedPlayerId.value = null;
+        }, 500);
+    }
+    return result;
 };
 
 // Wrapper for createGame to emit event
