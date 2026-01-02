@@ -95,10 +95,6 @@
                                 >
                                     Enable Group Tasks
                                 </span>
-                                <p class="text-xs text-base-content/60 mt-1">
-                                    At the end of each round, everyone
-                                    participates in a group challenge together
-                                </p>
                             </div>
                         </label>
                     </div>
