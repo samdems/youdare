@@ -493,6 +493,69 @@
                             </div>
                         </div>
 
+                        <!-- Game Filters Tab -->
+                        <input type="radio" name="tag_tabs" role="tab" class="tab text-base font-semibold h-12 [&:checked]:bg-accent [&:checked]:text-accent-content" aria-label="Game Filters" />
+                        <div role="tabpanel" class="tab-content bg-base-100 rounded-lg p-6 mt-4">
+                            <p class="text-sm opacity-70 mb-6">
+                                Configure which games can use this task based on their tags. This is especially useful for group tasks to ensure they only appear in games with appropriate tags.
+                            </p>
+
+                            <!-- Must Have Tags (Game) Selection -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Game Must Have Tags</span>
+                                </label>
+                                <p class="text-sm opacity-70 mb-3">
+                                    The game must have <strong>ALL</strong> of these tags for this task to be available (AND logic). Leave empty to make available for all games. This is particularly useful for group tasks.
+                                </p>
+
+                                @if($tags->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($tags as $tag)
+                                            <label class="cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="must_have_tags[]"
+                                                    value="{{ $tag->id }}"
+                                                    class="hidden peer"
+                                                    {{ (is_array(old('must_have_tags')) && in_array($tag->id, old('must_have_tags'))) ? 'checked' : '' }}
+                                                >
+                                                <div class="card border-2 border-base-300 peer-checked:border-accent peer-checked:bg-accent/10 hover:border-accent/50 transition-all">
+                                                    <div class="card-body p-3 flex-row items-center gap-3">
+                                                        <span class="text-2xl">🎮</span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-semibold truncate">{{ $tag->name }}</div>
+                                                            @if($tag->description)
+                                                                <div class="text-xs opacity-70 truncate">{{ $tag->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="w-5 h-5 rounded border-2 border-base-300 peer-checked:border-accent peer-checked:bg-accent flex items-center justify-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No tags available.</span>
+                                    </div>
+                                @endif
+
+                                @error('must_have_tags')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Output Tags Tab -->
                         <input type="radio" name="tag_tabs" role="tab" class="tab text-base font-semibold h-12 [&:checked]:bg-success [&:checked]:text-success-content" aria-label="Output Tags" />
                         <div role="tabpanel" class="tab-content bg-base-100 rounded-lg p-6 mt-4">

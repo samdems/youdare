@@ -192,9 +192,91 @@ class TaskSeeder extends Seeder
                     ]);
             });
 
+        // Mild group tasks (spice rating 1-2) - Family Friendly, Funny, Social
+        Task::factory()
+            ->group()
+            ->withSpiceRating(1)
+            ->published()
+            ->count(5)
+            ->create()
+            ->each(function ($task) use ($tags) {
+                $task
+                    ->tags()
+                    ->attach([
+                        $tags["familyFriendly"]->id,
+                        $tags["funny"]->id,
+                        $tags["social"]->id,
+                    ]);
+            });
+        Task::factory()
+            ->group()
+            ->withSpiceRating(2)
+            ->published()
+            ->count(5)
+            ->create()
+            ->each(function ($task) use ($tags) {
+                $task
+                    ->tags()
+                    ->attach([
+                        $tags["familyFriendly"]->id,
+                        $tags["social"]->id,
+                        $tags["creative"]->id,
+                    ]);
+            });
+
+        // Medium group tasks (spice rating 3) - Party Mode, Social, Physical
+        Task::factory()
+            ->group()
+            ->withSpiceRating(3)
+            ->published()
+            ->count(5)
+            ->create()
+            ->each(function ($task) use ($tags) {
+                $task
+                    ->tags()
+                    ->attach([
+                        $tags["partyMode"]->id,
+                        $tags["social"]->id,
+                        $tags["physical"]->id,
+                    ]);
+            });
+
+        // Spicy group tasks (spice rating 4-5) - Adults Only, Extreme, Social
+        Task::factory()
+            ->group()
+            ->withSpiceRating(4)
+            ->published()
+            ->count(3)
+            ->create()
+            ->each(function ($task) use ($tags) {
+                $task
+                    ->tags()
+                    ->attach([
+                        $tags["adultsOnly"]->id,
+                        $tags["romantic"]->id,
+                        $tags["social"]->id,
+                    ]);
+            });
+        Task::factory()
+            ->group()
+            ->withSpiceRating(5)
+            ->published()
+            ->count(2)
+            ->create()
+            ->each(function ($task) use ($tags) {
+                $task
+                    ->tags()
+                    ->attach([
+                        $tags["adultsOnly"]->id,
+                        $tags["extreme"]->id,
+                        $tags["social"]->id,
+                    ]);
+            });
+
         // Create some draft tasks (no tags needed for drafts)
         Task::factory()->truth()->draft()->count(5)->create();
         Task::factory()->dare()->draft()->count(5)->create();
+        Task::factory()->group()->draft()->count(3)->create();
 
         // Create some specific predefined tasks with appropriate tags
         $predefinedTasks = [
@@ -309,6 +391,176 @@ class TaskSeeder extends Seeder
                     $tags["adultsOnly"]->id,
                     $tags["extreme"]->id,
                     $tags["social"]->id,
+                ],
+            ],
+            // Group tasks
+            [
+                "type" => "group",
+                "spice_rating" => 1,
+                "description" =>
+                    "Everyone shares their favorite childhood memory",
+                "draft" => false,
+                "tags" => [
+                    $tags["familyFriendly"]->id,
+                    $tags["social"]->id,
+                    $tags["mental"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 2,
+                "description" =>
+                    "Everyone takes turns showing the most recent photo in their camera roll",
+                "draft" => false,
+                "tags" => [
+                    $tags["familyFriendly"]->id,
+                    $tags["funny"]->id,
+                    $tags["social"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 3,
+                "description" =>
+                    "The group creates a 30-second dance routine together and performs it",
+                "draft" => false,
+                "tags" => [
+                    $tags["partyMode"]->id,
+                    $tags["physical"]->id,
+                    $tags["creative"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 4,
+                "description" =>
+                    "Everyone shares the most romantic thing they've ever done for someone",
+                "draft" => false,
+                "tags" => [
+                    $tags["adultsOnly"]->id,
+                    $tags["romantic"]->id,
+                    $tags["social"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 5,
+                "description" =>
+                    "Everyone reveals their wildest fantasy (that they're comfortable sharing)",
+                "draft" => false,
+                "tags" => [
+                    $tags["adultsOnly"]->id,
+                    $tags["extreme"]->id,
+                    $tags["mental"]->id,
+                ],
+            ],
+            // More group tasks - creative and game-based
+            [
+                "type" => "group",
+                "spice_rating" => 1,
+                "description" =>
+                    "Everyone votes on who has the best smile in the group",
+                "draft" => false,
+                "tags" => [
+                    $tags["familyFriendly"]->id,
+                    $tags["funny"]->id,
+                    $tags["social"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 2,
+                "description" =>
+                    "Play a round of 'Two Truths and a Lie' - everyone shares, group guesses",
+                "draft" => false,
+                "tags" => [
+                    $tags["familyFriendly"]->id,
+                    $tags["mental"]->id,
+                    $tags["social"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 2,
+                "description" =>
+                    "Everyone does their best impression of their favorite celebrity",
+                "draft" => false,
+                "tags" => [
+                    $tags["familyFriendly"]->id,
+                    $tags["funny"]->id,
+                    $tags["creative"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 3,
+                "description" =>
+                    "The group plays 'Never Have I Ever' - 3 rounds",
+                "draft" => false,
+                "tags" => [
+                    $tags["partyMode"]->id,
+                    $tags["social"]->id,
+                    $tags["mental"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 3,
+                "description" =>
+                    "Everyone shares their most embarrassing drunk story",
+                "draft" => false,
+                "tags" => [
+                    $tags["partyMode"]->id,
+                    $tags["funny"]->id,
+                    $tags["social"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 3,
+                "description" =>
+                    "The group creates and performs a 15-second commercial for a random object in the room",
+                "draft" => false,
+                "tags" => [
+                    $tags["partyMode"]->id,
+                    $tags["creative"]->id,
+                    $tags["funny"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 4,
+                "description" =>
+                    "Everyone shares their most awkward dating experience",
+                "draft" => false,
+                "tags" => [
+                    $tags["adultsOnly"]->id,
+                    $tags["romantic"]->id,
+                    $tags["funny"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 4,
+                "description" =>
+                    "The group votes on who would be most likely to survive a zombie apocalypse",
+                "draft" => false,
+                "tags" => [
+                    $tags["adultsOnly"]->id,
+                    $tags["social"]->id,
+                    $tags["funny"]->id,
+                ],
+            ],
+            [
+                "type" => "group",
+                "spice_rating" => 5,
+                "description" =>
+                    "Everyone plays 'Kiss, Marry, Kill' with people in the group",
+                "draft" => false,
+                "tags" => [
+                    $tags["adultsOnly"]->id,
+                    $tags["extreme"]->id,
+                    $tags["romantic"]->id,
                 ],
             ],
         ];

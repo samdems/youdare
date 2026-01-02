@@ -77,6 +77,8 @@ class TaskController extends Controller
             "tags_to_remove.*" => "exists:tags,id",
             "cant_have_tags" => "array",
             "cant_have_tags.*" => "exists:tags,id",
+            "must_have_tags" => "array",
+            "must_have_tags.*" => "exists:tags,id",
             "tags_to_add" => "array",
             "tags_to_add.*" => "exists:tags,id",
             "someone_tags" => "array",
@@ -91,6 +93,7 @@ class TaskController extends Controller
         // Ensure array fields are set to empty arrays if not present in request
         $validated["tags_to_remove"] = $request->input("tags_to_remove", []);
         $validated["cant_have_tags"] = $request->input("cant_have_tags", []);
+        $validated["must_have_tags"] = $request->input("must_have_tags", []);
         $validated["tags_to_add"] = $request->input("tags_to_add", []);
         $validated["someone_tags"] = $request->input("someone_tags", []);
         $validated["someone_cant_have_tags"] = $request->input(
@@ -158,6 +161,8 @@ class TaskController extends Controller
             "tags_to_remove.*" => "exists:tags,id",
             "cant_have_tags" => "array",
             "cant_have_tags.*" => "exists:tags,id",
+            "must_have_tags" => "array",
+            "must_have_tags.*" => "exists:tags,id",
             "tags_to_add" => "array",
             "tags_to_add.*" => "exists:tags,id",
             "someone_tags" => "array",
@@ -172,6 +177,7 @@ class TaskController extends Controller
         // Ensure array fields are set to empty arrays if not present in request
         $validated["tags_to_remove"] = $request->input("tags_to_remove", []);
         $validated["cant_have_tags"] = $request->input("cant_have_tags", []);
+        $validated["must_have_tags"] = $request->input("must_have_tags", []);
         $validated["tags_to_add"] = $request->input("tags_to_add", []);
         $validated["someone_tags"] = $request->input("someone_tags", []);
         $validated["someone_cant_have_tags"] = $request->input(

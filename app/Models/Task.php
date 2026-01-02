@@ -20,6 +20,7 @@ class Task extends Model
         "description",
         "tags_to_remove",
         "cant_have_tags",
+        "must_have_tags",
         "tags_to_add",
         "someone_tags",
         "someone_cant_have_tags",
@@ -38,6 +39,7 @@ class Task extends Model
         "spice_rating" => "integer",
         "tags_to_remove" => "array",
         "cant_have_tags" => "array",
+        "must_have_tags" => "array",
         "tags_to_add" => "array",
         "someone_tags" => "array",
         "someone_cant_have_tags" => "array",
@@ -281,6 +283,49 @@ class Task extends Model
         }
 
         return Tag::whereIn("id", $this->cant_have_tags)->get();
+    }
+
+    /**
+     * Get the tags that the game must have for this task to be available.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getMustHaveTags()
+    {
+        if (empty($this->must_have_tags) || !is_array($this->must_have_tags)) {
+            return collect([]);
+        }
+
+        return Tag::whereIn("id", $this->must_have_tags)->get();
+    }
+
+    /**
+     * Check if this task is available for a game based on must_have_tags.
+     * Returns true if the game has at least one of the required tags, or if no tags are required.
+     *
+     * @param  Game  $game
+     * @return bool
+     */
+    public function isAvailableForGame(Game $game)
+    {
+        // If no must_have_tags specified, task is available
+        if (empty($this->must_have_tags) || !is_array($this->must_have_tags)) {
+            return true;
+        }
+
+        // Get the game's tag IDs
+        $gameTagIds = $game->tags()->pluck("tags.id")->toArray();
+
+        // Convert must_have_tags to integers (they may be stored as strings)
+        $mustHaveTagIds = array_map("intval", $this->must_have_tags);
+
+        // Check if game has ALL of the required tags (AND logic)
+        $hasAllRequiredTags =
+            count(array_intersect($mustHaveTagIds, $gameTagIds)) ===
+            count($mustHaveTagIds);
+
+        // Task is available if game has ALL required tags
+        return $hasAllRequiredTags;
     }
 
     /**

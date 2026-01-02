@@ -24,13 +24,14 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
-        $type = $this->faker->randomElement(["truth", "dare"]);
+        $type = $this->faker->randomElement(["truth", "dare", "group"]);
 
         // Generate appropriate descriptions based on type
-        $descriptions =
-            $type === "truth"
-                ? $this->getTruthDescriptions()
-                : $this->getDareDescriptions();
+        $descriptions = match ($type) {
+            "truth" => $this->getTruthDescriptions(),
+            "dare" => $this->getDareDescriptions(),
+            "group" => $this->getGroupDescriptions(),
+        };
 
         return [
             "type" => $type,
@@ -95,6 +96,21 @@ class TaskFactory extends Factory
     }
 
     /**
+     * Indicate that the task is a group task.
+     */
+    public function group(): static
+    {
+        return $this->state(
+            fn(array $attributes) => [
+                "type" => "group",
+                "description" => $this->faker->randomElement(
+                    $this->getGroupDescriptions(),
+                ),
+            ],
+        );
+    }
+
+    /**
      * Set a specific spice rating.
      */
     public function withSpiceRating(int $rating): static
@@ -151,6 +167,30 @@ class TaskFactory extends Factory
             "Let someone style your hair",
             "Wear your clothes inside out for the next hour",
             "Do your best animal impression",
+        ];
+    }
+
+    /**
+     * Get sample group task descriptions.
+     */
+    private function getGroupDescriptions(): array
+    {
+        return [
+            "Everyone takes turns complimenting the person on their left",
+            "The group votes on who has the best dance moves, then they perform",
+            "Everyone shares their most embarrassing moment from the past year",
+            "Play a 2-minute game of charades together",
+            "Everyone takes a group selfie making their silliest face",
+            "The group creates a 30-second TikTok dance together",
+            "Everyone shares one thing they're grateful for today",
+            "Play one round of rock-paper-scissors tournament style",
+            "The group sings happy birthday to someone (even if it's not their birthday)",
+            "Everyone does a group yoga pose for 30 seconds",
+            "The group plays telephone - whisper a phrase around the circle",
+            "Everyone shares their favorite memory with someone in the group",
+            "The group creates a human pyramid or tower",
+            "Everyone reveals their celebrity crush",
+            "Play a quick round of truth or dare within the group",
         ];
     }
 }

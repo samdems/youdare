@@ -382,10 +382,33 @@ class Game extends Model
             return null;
         }
 
-        return Task::published()
+        // Get all group tasks that match spice rating
+        $tasks = Task::published()
             ->where("type", "group")
             ->where("spice_rating", "<=", $this->max_spice_rating)
-            ->inRandomOrder()
-            ->first();
+            ->get();
+
+        // Filter tasks by must_have_tags
+        $gameTagIds = $this->tags()->pluck("tags.id")->toArray();
+
+        $availableTasks = $tasks->filter(function ($task) use ($gameTagIds) {
+            // If task has no must_have_tags requirement, it's available
+            if (
+                empty($task->must_have_tags) ||
+                !is_array($task->must_have_tags)
+            ) {
+                return true;
+            }
+
+            // Convert to integers for comparison
+            $mustHaveTagIds = array_map("intval", $task->must_have_tags);
+
+            // Task is available if game has ALL of the required tags (AND logic)
+            return count(array_intersect($mustHaveTagIds, $gameTagIds)) ===
+                count($mustHaveTagIds);
+        });
+
+        // Return a random task from available ones
+        return $availableTasks->shuffle()->first();
     }
 }
