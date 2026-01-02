@@ -158,7 +158,7 @@
                         >
                             <!-- Display tags grouped by tag groups -->
                             <div
-                                v-for="group in groupedTags"
+                                v-for="group in groupedTagsFiltered"
                                 :key="group.id || group.slug"
                                 class="mb-6 last:mb-0"
                             >
@@ -429,6 +429,13 @@ const { players, newPlayerName } = storeToRefs(playerStore);
 const setupStep = ref(1); // 1 = pick heat, 2 = set tags, 3 = add players
 const selectedTagsInPlay = ref([]);
 const lastAddedPlayerId = ref(null);
+
+// Computed: Filter out empty tag groups
+const groupedTagsFiltered = computed(() => {
+    return groupedTags.value.filter(
+        (group) => group.tags && group.tags.length > 0,
+    );
+});
 
 // Computed: Filter available tags to only show selected ones
 const tagsInPlayFiltered = computed(() => {

@@ -71,12 +71,12 @@
                 </h3>
 
                 <div
-                    v-if="groupedAvailableTags.length > 0"
+                    v-if="groupedAvailableTagsFiltered.length > 0"
                     class="bg-base-200 rounded-lg p-4 max-h-96 overflow-y-auto"
                 >
                     <!-- Display tags grouped by tag groups -->
                     <div
-                        v-for="group in groupedAvailableTags"
+                        v-for="group in groupedAvailableTagsFiltered"
                         :key="group.id || group.slug"
                         class="mb-6 last:mb-0"
                     >
@@ -219,6 +219,13 @@ const groupedAvailableTags = computed(() => {
     }
 
     return groupedArray;
+});
+
+// Filter out empty tag groups
+const groupedAvailableTagsFiltered = computed(() => {
+    return groupedAvailableTags.value.filter(
+        (group) => group.tags && group.tags.length > 0,
+    );
 });
 
 const openModal = () => {
