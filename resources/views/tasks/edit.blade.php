@@ -36,12 +36,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <label class="cursor-pointer">
                             <input type="radio" name="type" value="truth" class="hidden peer" {{ old('type', $task->type) === 'truth' ? 'checked' : '' }} required>
-                            <div class="card border-2 border-base-300 peer-checked:border-info peer-checked:bg-info/10 hover:border-info/50 transition-all">
+                            <div class="card border-2 border-base-300 peer-checked:border-info peer-checked:bg-info/10 hover:border-info/50 transition-all h-24">
                                 <div class="card-body flex-row items-center gap-4">
                                     <span class="text-4xl">💬</span>
                                     <div>
                                         <div class="font-semibold text-lg">Truth</div>
-                                        <div class="text-sm opacity-70">A question to answer</div>
                                     </div>
                                 </div>
                             </div>
@@ -49,12 +48,11 @@
 
                         <label class="cursor-pointer">
                             <input type="radio" name="type" value="dare" class="hidden peer" {{ old('type', $task->type) === 'dare' ? 'checked' : '' }} required>
-                            <div class="card border-2 border-base-300 peer-checked:border-secondary peer-checked:bg-secondary/10 hover:border-secondary/50 transition-all">
+                            <div class="card border-2 border-base-300 peer-checked:border-secondary peer-checked:bg-secondary/10 hover:border-secondary/50 transition-all h-24">
                                 <div class="card-body flex-row items-center gap-4">
                                     <span class="text-4xl">🎯</span>
                                     <div>
                                         <div class="font-semibold text-lg">Dare</div>
-                                        <div class="text-sm opacity-70">A challenge to complete</div>
                                     </div>
                                 </div>
                             </div>
@@ -62,12 +60,11 @@
 
                         <label class="cursor-pointer">
                             <input type="radio" name="type" value="group" class="hidden peer" {{ old('type', $task->type) === 'group' ? 'checked' : '' }} required>
-                            <div class="card border-2 border-base-300 peer-checked:border-success peer-checked:bg-success/10 hover:border-success/50 transition-all">
+                            <div class="card border-2 border-base-300 peer-checked:border-success peer-checked:bg-success/10 hover:border-success/50 transition-all h-24">
                                 <div class="card-body flex-row items-center gap-4">
                                     <span class="text-4xl">👥</span>
                                     <div>
                                         <div class="font-semibold text-lg">Group</div>
-                                        <div class="text-sm opacity-70">A group activity</div>
                                     </div>
                                 </div>
                             </div>
@@ -80,21 +77,23 @@
                     @enderror
                 </div>
 
+                <!-- Template Variables Info -->
+                <div class="bg-base-200 border border-base-300 rounded-lg p-4 mb-6" id="variable-filters-info">
+                    <div class="text-sm text-base-content">
+                        <div class="font-semibold mb-2">Template Variables Available:</div>
+                        <div class="space-y-2">
+                            <div><code class="bg-base-300 px-2 py-1 rounded">@{{someone}}</code> - Random player (use filters below to specify requirements)</div>
+                            <div><code class="bg-base-300 px-2 py-1 rounded">@{{number_of_players}}</code> - Total number of players</div>
+                            <div><code class="bg-base-300 px-2 py-1 rounded">@{{number_of_players/2}}</code> - Number of players divided by 2 (rounded)</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Description -->
                 <div class="form-control mb-6">
                     <label class="label">
                         <span class="label-text font-semibold">Description <span class="text-error">*</span></span>
                     </label>
-                    <div class="bg-base-200 border border-base-300 rounded-lg p-4 mb-3" id="variable-filters-info">
-                        <div class="text-sm text-base-content">
-                            <div class="font-semibold mb-2">Template Variables Available:</div>
-                            <div class="space-y-1">
-                                <div><code class="bg-base-300 px-1 rounded">@{{someone}}</code> - Random player (use filters below to specify requirements)</div>
-                                <div><code class="bg-base-300 px-1 rounded">@{{number_of_players}}</code> - Total number of players</div>
-                                <div><code class="bg-base-300 px-1 rounded">@{{number_of_players/2}}</code> - Number of players divided by 2 (rounded)</div>
-                            </div>
-                        </div>
-                    </div>
                     <textarea
                         name="description"
                         id="description"
@@ -105,14 +104,14 @@
                         minlength="10"
                         maxlength="500"
                     >{{ old('description', $task->description) }}</textarea>
-                    <label class="label">
+                    <div class="flex flex-col gap-1 mt-2">
                         @error('description')
                             <span class="label-text-alt text-error">{{ $message }}</span>
                         @else
                             <span class="label-text-alt">Minimum 10 characters, maximum 500 characters</span>
                         @enderror
                         <span class="label-text-alt" id="charCount">0 / 500</span>
-                    </label>
+                    </div>
                 </div>
 
                 <!-- Spice Rating -->
@@ -122,42 +121,11 @@
                     </label>
                     <p class="text-sm opacity-70 mb-3">How intense or daring is this task?</p>
 
-                    <div class="space-y-3">
-                        @for($i = 1; $i <= 5; $i++)
-                            <label class="cursor-pointer">
-                                <input type="radio" name="spice_rating" value="{{ $i }}" class="hidden peer" {{ old('spice_rating', $task->spice_rating) == $i ? 'checked' : '' }} required>
-                                <div class="card border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary/50 transition-all bg-spice-{{ $i }}">
-                                    <div class="card-body py-4">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center gap-3">
-                                                <span class="text-2xl">{{ str_repeat('🌶️', $i) }}</span>
-                                                <div>
-                                                    <div class="font-semibold spice-{{ $i }}">
-                                                        Level {{ $i }} -
-                                                        @if($i === 1) Mild
-                                                        @elseif($i === 2) Medium
-                                                        @elseif($i === 3) Hot
-                                                        @elseif($i === 4) Extra Hot
-                                                        @elseif($i === 5) Extreme
-                                                        @endif
-                                                    </div>
-                                                    <div class="text-sm opacity-70">
-                                                        @if($i === 1) Safe for everyone
-                                                        @elseif($i === 2) Slightly embarrassing
-                                                        @elseif($i === 3) Moderately challenging
-                                                        @elseif($i === 4) Very daring
-                                                        @elseif($i === 5) Extremely bold
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="w-5 h-5 rounded-full border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </label>
-                        @endfor
-                    </div>
+                    <spice-level-selector-form
+                        data-initial-value="{{ old('spice_rating', $task->spice_rating) }}"
+                        data-input-name="spice_rating"
+                    ></spice-level-selector-form>
+
                     @error('spice_rating')
                         <label class="label">
                             <span class="label-text-alt text-error">{{ $message }}</span>

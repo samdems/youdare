@@ -86,14 +86,10 @@
                                 >{{ currentTask.type }}</span
                             >
                         </div>
-                        <div class="flex gap-1">
-                            <Flame
-                                v-for="n in currentTask.spice_rating"
-                                :key="n"
-                                :size="18"
-                                class="text-orange-500 sm:w-6 sm:h-6"
-                            />
-                        </div>
+                        <spice-rating
+                            :rating="currentTask.spice_rating"
+                            :size="18"
+                        />
                     </div>
 
                     <!-- Task Description -->
@@ -211,10 +207,10 @@ import { useGameStore } from "../stores/gameStore";
 import { usePlayerStore } from "../stores/playerStore";
 import TaskTypeSelector from "./TaskTypeSelector.vue";
 import GroupTaskScreen from "./GroupTaskScreen.vue";
+import SpiceRating from "./SpiceRating.vue";
 import {
     MessageCircle,
     Target,
-    Flame,
     CheckCircle,
     SkipForward,
     Loader,

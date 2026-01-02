@@ -6,21 +6,18 @@
                 <div
                     :class="[
                         'badge badge-lg gap-2 px-4 py-4',
-                        task.type === 'truth' ? 'badge-info' : 'badge-secondary',
+                        task.type === 'truth'
+                            ? 'badge-info'
+                            : 'badge-secondary',
                     ]"
                 >
                     <MessageCircle v-if="task.type === 'truth'" :size="28" />
                     <Target v-else :size="28" />
-                    <span class="text-lg font-bold uppercase">{{ task.type }}</span>
+                    <span class="text-lg font-bold uppercase">{{
+                        task.type
+                    }}</span>
                 </div>
-                <div class="flex gap-1">
-                    <Flame
-                        v-for="n in task.spice_rating"
-                        :key="n"
-                        :size="24"
-                        class="text-orange-500"
-                    />
-                </div>
+                <spice-rating :rating="task.spice_rating" :size="24" />
             </div>
 
             <!-- Task Description -->
@@ -71,10 +68,10 @@
 import {
     MessageCircle,
     Target,
-    Flame,
     CheckCircle,
     SkipForward,
 } from "lucide-vue-next";
+import SpiceRating from "./SpiceRating.vue";
 
 defineProps({
     task: {

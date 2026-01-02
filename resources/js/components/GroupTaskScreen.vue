@@ -22,14 +22,7 @@
             <div class="card-body p-8">
                 <!-- Spice Rating -->
                 <div class="flex justify-end items-center mb-6">
-                    <div class="flex gap-1">
-                        <Flame
-                            v-for="n in task.spice_rating"
-                            :key="n"
-                            :size="18"
-                            class="text-orange-500 sm:w-6 sm:h-6"
-                        />
-                    </div>
+                    <spice-rating :rating="task.spice_rating" :size="18" />
                 </div>
 
                 <!-- Task Description -->
@@ -123,13 +116,13 @@
 import { computed } from "vue";
 import {
     Users,
-    Flame,
     CheckCircle,
     Loader,
     Frown,
     SkipForward,
     XCircle,
 } from "lucide-vue-next";
+import SpiceRating from "./SpiceRating.vue";
 
 const props = defineProps({
     task: {
