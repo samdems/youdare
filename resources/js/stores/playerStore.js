@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { games } from "../api";
+import { games, playerGroups } from "../api";
 
 export const usePlayerStore = defineStore("player", () => {
     // State
@@ -8,6 +8,8 @@ export const usePlayerStore = defineStore("player", () => {
     const currentPlayerId = ref(null);
     const newPlayerName = ref("");
     const nextPlayerId = ref(1);
+    const availablePlayerGroups = ref([]);
+    const loadingPlayerGroups = ref(false);
 
     // Helper function to generate DiceBear avatar URL
     const getDicebearUrl = (seed) => {
@@ -28,6 +30,21 @@ export const usePlayerStore = defineStore("player", () => {
     const canStartGame = computed(() => players.value.length >= 2);
 
     // Actions
+    const fetchPlayerGroups = async () => {
+        loadingPlayerGroups.value = true;
+        try {
+            const data = await playerGroups.getPlayerGroups();
+            if (data.status === "success" || data.success === true) {
+                availablePlayerGroups.value = data.data;
+            }
+        } catch (err) {
+            console.error("Failed to load player groups:", err);
+            availablePlayerGroups.value = [];
+        } finally {
+            loadingPlayerGroups.value = false;
+        }
+    };
+
     const addPlayer = (gender, availableTagsFiltered = []) => {
         if (!newPlayerName.value.trim()) {
             return { success: false, error: "Please enter a player name" };
@@ -78,6 +95,7 @@ export const usePlayerStore = defineStore("player", () => {
             tags: defaultTagIds,
             score: 0,
             order: players.value.length,
+            player_group_id: null,
         };
 
         players.value.push(newPlayer);
@@ -279,8 +297,11 @@ export const usePlayerStore = defineStore("player", () => {
         sortedPlayersByScore,
         playerCount,
         canStartGame,
+        availablePlayerGroups,
+        loadingPlayerGroups,
 
         // Actions
+        fetchPlayerGroups,
         addPlayer,
         removePlayer,
         togglePlayerTag,

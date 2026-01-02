@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient from "./client";
 
 /**
  * Tags API
@@ -10,7 +10,7 @@ import apiClient from './client';
  * @returns {Promise<Object>} Response with tags data
  */
 export const getTags = async () => {
-    return await apiClient.get('/tags');
+    return await apiClient.get("/tags");
 };
 
 /**
@@ -31,7 +31,7 @@ export const getTag = async (tagId) => {
  * @returns {Promise<Object>} Response with created tag
  */
 export const createTag = async (tagData) => {
-    return await apiClient.post('/tags', tagData);
+    return await apiClient.post("/tags", tagData);
 };
 
 /**
@@ -59,7 +59,20 @@ export const deleteTag = async (tagId) => {
  * @returns {Promise<Object>} Response with filtered tags
  */
 export const getTagsBySpiceRating = async (maxSpiceRating) => {
-    return await apiClient.get('/tags', {
-        params: { max_spice_rating: maxSpiceRating }
+    return await apiClient.get("/tags", {
+        params: { max_spice_rating: maxSpiceRating },
     });
+};
+
+/**
+ * Get tags grouped by tag groups
+ * @param {number} [minSpiceLevel] - Optional minimum spice level filter
+ * @returns {Promise<Object>} Response with tags organized by groups
+ */
+export const getGroupedTags = async (minSpiceLevel = null) => {
+    const params = {};
+    if (minSpiceLevel !== null) {
+        params.min_spice_level = minSpiceLevel;
+    }
+    return await apiClient.get("/tags/grouped", { params });
 };

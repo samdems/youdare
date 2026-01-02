@@ -12,6 +12,7 @@ export const useGameStore = defineStore("game", () => {
     const creatingGame = ref(false);
     const error = ref(null);
     const availableTags = ref([]);
+    const groupedTags = ref([]);
     const loadingTags = ref(true);
     const currentTask = ref(null);
     const completedCount = ref(0);
@@ -53,6 +54,28 @@ export const useGameStore = defineStore("game", () => {
             }
         } catch (err) {
             console.error("Failed to load tags:", err);
+            availableTags.value = defaultTags;
+        } finally {
+            loadingTags.value = false;
+        }
+    };
+
+    const fetchGroupedTags = async () => {
+        loadingTags.value = true;
+        try {
+            const data = await tags.getGroupedTags(maxSpiceRating.value);
+            if (data.status === "success" || data.success === true) {
+                groupedTags.value = data.data;
+                // Also flatten for availableTags for backward compatibility
+                // Tags already have tag_group from API eager loading
+                availableTags.value = data.data.flatMap((group) => group.tags);
+            } else {
+                groupedTags.value = [];
+                availableTags.value = defaultTags;
+            }
+        } catch (err) {
+            console.error("Failed to load grouped tags:", err);
+            groupedTags.value = [];
             availableTags.value = defaultTags;
         } finally {
             loadingTags.value = false;
@@ -370,6 +393,7 @@ export const useGameStore = defineStore("game", () => {
         creatingGame,
         error,
         availableTags,
+        groupedTags,
         loadingTags,
         currentTask,
         completedCount,
@@ -392,6 +416,7 @@ export const useGameStore = defineStore("game", () => {
 
         // Actions
         fetchTags,
+        fetchGroupedTags,
         createGame,
         initializeGame,
         getNextTask,

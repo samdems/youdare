@@ -33,6 +33,7 @@ class PlayerController extends Controller
         $validator = Validator::make($request->all(), [
             "name" => "required|string|max:255",
             "gender" => "nullable|in:male,female",
+            "player_group_id" => "nullable|integer|exists:player_groups,id",
             "tag_ids" => "nullable|array",
             "tag_ids.*" => "exists:tags,id",
         ]);
@@ -59,6 +60,7 @@ class PlayerController extends Controller
         $player = $game->players()->create([
             "name" => $request->name,
             "gender" => $request->gender,
+            "player_group_id" => $request->player_group_id,
             "order" => $nextOrder,
         ]);
 
@@ -114,6 +116,7 @@ class PlayerController extends Controller
         $validator = Validator::make($request->all(), [
             "name" => "nullable|string|max:255",
             "gender" => "nullable|in:male,female",
+            "player_group_id" => "nullable|integer|exists:player_groups,id",
             "score" => "nullable|integer|min:0",
             "is_active" => "nullable|boolean",
             "order" => "nullable|integer|min:0",
@@ -130,7 +133,14 @@ class PlayerController extends Controller
         }
 
         $player->update(
-            $request->only(["name", "gender", "score", "is_active", "order"]),
+            $request->only([
+                "name",
+                "gender",
+                "player_group_id",
+                "score",
+                "is_active",
+                "order",
+            ]),
         );
 
         $player->load("tags");

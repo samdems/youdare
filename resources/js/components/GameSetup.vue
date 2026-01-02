@@ -140,7 +140,7 @@
                         on spice level {{ maxSpiceRating }})
                     </p>
 
-                    <!-- All Available Tags -->
+                    <!-- All Available Tags Grouped -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-semibold">Available Tags:</h4>
@@ -156,50 +156,77 @@
                             v-if="availableTagsFiltered.length > 0"
                             class="bg-base-200 rounded-lg p-4 max-h-96 overflow-y-auto"
                         >
-                            <div class="space-y-1">
-                                <label
-                                    v-for="tag in availableTagsFiltered"
-                                    :key="tag.id"
-                                    class="flex items-start gap-3 p-3 rounded-lg hover:bg-base-100 cursor-pointer transition-colors group"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        :checked="
-                                            selectedTagsInPlay.includes(tag.id)
-                                        "
-                                        @change="toggleTagInPlay(tag.id)"
-                                        class="toggle toggle-primary mt-1"
-                                    />
-                                    <div class="flex-1 min-w-0">
-                                        <div
-                                            :class="{
-                                                'font-semibold text-primary':
-                                                    selectedTagsInPlay.includes(
-                                                        tag.id,
-                                                    ),
-                                                'text-base-content/70':
-                                                    !selectedTagsInPlay.includes(
-                                                        tag.id,
-                                                    ),
-                                            }"
-                                        >
-                                            {{ tag.name }}
+                            <!-- Display tags grouped by tag groups -->
+                            <div
+                                v-for="group in groupedTags"
+                                :key="group.id || group.slug"
+                                class="mb-6 last:mb-0"
+                            >
+                                <!-- Group Header -->
+                                <div class="mb-3">
+                                    <h5
+                                        class="font-bold text-sm uppercase tracking-wide text-primary"
+                                    >
+                                        {{ group.name }}
+                                    </h5>
+                                    <p
+                                        v-if="group.description"
+                                        class="text-xs text-base-content/50 mt-1"
+                                    >
+                                        {{ group.description }}
+                                    </p>
+                                </div>
+
+                                <!-- Tags in this group -->
+                                <div class="space-y-1">
+                                    <label
+                                        v-for="tag in group.tags"
+                                        :key="tag.id"
+                                        class="flex items-start gap-3 p-3 rounded-lg hover:bg-base-100 cursor-pointer transition-colors group"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            :checked="
+                                                selectedTagsInPlay.includes(
+                                                    tag.id,
+                                                )
+                                            "
+                                            @change="toggleTagInPlay(tag.id)"
+                                            class="toggle toggle-primary mt-1"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <div
+                                                :class="{
+                                                    'font-semibold text-primary':
+                                                        selectedTagsInPlay.includes(
+                                                            tag.id,
+                                                        ),
+                                                    'text-base-content/70':
+                                                        !selectedTagsInPlay.includes(
+                                                            tag.id,
+                                                        ),
+                                                }"
+                                            >
+                                                {{ tag.name }}
+                                            </div>
+                                            <div
+                                                v-if="tag.description"
+                                                class="text-sm text-base-content/50 mt-1"
+                                            >
+                                                {{ tag.description }}
+                                            </div>
                                         </div>
-                                        <div
-                                            v-if="tag.description"
-                                            class="text-sm text-base-content/50 mt-1"
-                                        >
-                                            {{ tag.description }}
-                                        </div>
-                                    </div>
-                                    <Check
-                                        v-if="
-                                            selectedTagsInPlay.includes(tag.id)
-                                        "
-                                        :size="20"
-                                        class="text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1"
-                                    />
-                                </label>
+                                        <Check
+                                            v-if="
+                                                selectedTagsInPlay.includes(
+                                                    tag.id,
+                                                )
+                                            "
+                                            :size="20"
+                                            class="text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1"
+                                        />
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div v-else class="text-center py-8">
@@ -390,6 +417,7 @@ const {
     creatingGame,
     error,
     availableTags,
+    groupedTags,
     loadingTags,
     availableTagsFiltered,
     enableGroupTasks,
@@ -443,7 +471,7 @@ const selectAllTags = () => {
 };
 
 // Get actions from stores
-const { fetchTags } = gameStore;
+const { fetchTags, fetchGroupedTags } = gameStore;
 const { removePlayer, togglePlayerTag } = playerStore;
 
 // Wrap addPlayer to pass filtered tags and track last added player
@@ -474,7 +502,7 @@ const createGame = async () => {
 
 // Lifecycle
 onMounted(() => {
-    fetchTags();
+    fetchGroupedTags();
     // Show age verification on mount
     if (showAgeVerification.value && ageVerificationModal.value) {
         ageVerificationModal.value.showModal();

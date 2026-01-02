@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\TagGroupController;
+use App\Http\Controllers\Api\PlayerGroupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +52,7 @@ Route::prefix("tasks")->group(function () {
 Route::prefix("tags")->group(function () {
     // Public routes
     Route::get("/", [TagController::class, "index"]);
+    Route::get("grouped", [TagController::class, "grouped"]);
     Route::get("{tag}", [TagController::class, "show"]);
 
     // Admin-only routes
@@ -58,6 +61,39 @@ Route::prefix("tags")->group(function () {
         Route::put("{tag}", [TagController::class, "update"]);
         Route::patch("{tag}", [TagController::class, "update"]);
         Route::delete("{tag}", [TagController::class, "destroy"]);
+    });
+});
+
+// Tag Group API routes
+Route::prefix("tag-groups")->group(function () {
+    // Public routes
+    Route::get("/", [TagGroupController::class, "index"]);
+    Route::get("{tagGroup}", [TagGroupController::class, "show"]);
+
+    // Admin-only routes
+    Route::middleware("admin")->group(function () {
+        Route::post("/", [TagGroupController::class, "store"]);
+        Route::put("{tagGroup}", [TagGroupController::class, "update"]);
+        Route::patch("{tagGroup}", [TagGroupController::class, "update"]);
+        Route::delete("{tagGroup}", [TagGroupController::class, "destroy"]);
+    });
+});
+
+// Player Group API routes
+Route::prefix("player-groups")->group(function () {
+    // Public routes
+    Route::get("/", [PlayerGroupController::class, "index"]);
+    Route::get("{playerGroup}", [PlayerGroupController::class, "show"]);
+
+    // Admin-only routes
+    Route::middleware("admin")->group(function () {
+        Route::post("/", [PlayerGroupController::class, "store"]);
+        Route::put("{playerGroup}", [PlayerGroupController::class, "update"]);
+        Route::patch("{playerGroup}", [PlayerGroupController::class, "update"]);
+        Route::delete("{playerGroup}", [
+            PlayerGroupController::class,
+            "destroy",
+        ]);
     });
 });
 

@@ -101,6 +101,32 @@
                     </label>
                 </div>
 
+                <!-- Tag Group -->
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Tag Group</span>
+                    </label>
+                    <select
+                        name="tag_group_id"
+                        id="tag_group_id"
+                        class="select select-bordered @error('tag_group_id') select-error @enderror"
+                    >
+                        <option value="">No Group (Ungrouped)</option>
+                        @foreach(\App\Models\TagGroup::orderBy('sort_order')->orderBy('name')->get() as $group)
+                            <option value="{{ $group->id }}" {{ old('tag_group_id') == $group->id ? 'selected' : '' }}>
+                                {{ $group->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <label class="label">
+                        @error('tag_group_id')
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        @else
+                            <span class="label-text-alt">Organize this tag into a group for better organization in game setup</span>
+                        @enderror
+                    </label>
+                </div>
+
                 <!-- Default Tag Checkbox -->
                 <div class="form-control mb-6">
                     <label class="label cursor-pointer justify-start gap-4">

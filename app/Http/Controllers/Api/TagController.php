@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tag;
+use App\Models\TagGroup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +83,7 @@ class TagController extends Controller
             "name" => "required|string|max:255|unique:tags,name",
             "slug" => "nullable|string|max:255|unique:tags,slug",
             "description" => "nullable|string|max:1000",
+            "tag_group_id" => "nullable|integer|exists:tag_groups,id",
             "is_default" => "nullable|boolean",
             "default_for_gender" => "nullable|in:none,male,female,both",
             "min_spice_level" => "required|integer|min:1|max:5",
@@ -141,6 +143,7 @@ class TagController extends Controller
                 "sometimes|nullable|string|max:255|unique:tags,slug," .
                 $tag->id,
             "description" => "sometimes|nullable|string|max:1000",
+            "tag_group_id" => "sometimes|nullable|integer|exists:tag_groups,id",
             "is_default" => "sometimes|nullable|boolean",
             "default_for_gender" =>
                 "sometimes|nullable|in:none,male,female,both",
@@ -182,6 +185,76 @@ class TagController extends Controller
         return response()->json([
             "status" => "success",
             "message" => "Tag deleted successfully",
+        ]);
+    }
+
+    /**
+     * Get tags grouped by tag groups.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function grouped(Request $request): JsonResponse
+    {
+        // Get tag groups with their tags
+        $tagGroups = TagGroup::with([
+            "tags" => function ($query) use ($request) {
+                // Apply filters if provided
+                if ($request->has("min_spice_level")) {
+                    $query->where(
+                        "min_spice_level",
+                        "<=",
+                        $request->get("min_spice_level"),
+                    );
+                }
+                // Eager load tagGroup relationship on each tag
+                $query->with("tagGroup");
+            },
+        ])
+            ->orderBy("sort_order")
+            ->orderBy("name")
+            ->get();
+
+        // Also get ungrouped tags
+        $ungroupedTagsQuery = Tag::whereNull("tag_group_id")->with("tagGroup");
+
+        if ($request->has("min_spice_level")) {
+            $ungroupedTagsQuery->where(
+                "min_spice_level",
+                "<=",
+                $request->get("min_spice_level"),
+            );
+        }
+
+        $ungroupedTags = $ungroupedTagsQuery->orderBy("name")->get();
+
+        // Format the response
+        $groupedData = $tagGroups->map(function ($group) {
+            return [
+                "id" => $group->id,
+                "name" => $group->name,
+                "slug" => $group->slug,
+                "description" => $group->description,
+                "sort_order" => $group->sort_order,
+                "tags" => $group->tags,
+            ];
+        });
+
+        // Add ungrouped tags if any exist
+        if ($ungroupedTags->isNotEmpty()) {
+            $groupedData->push([
+                "id" => null,
+                "name" => "Other",
+                "slug" => "other",
+                "description" => "Ungrouped tags",
+                "sort_order" => 999,
+                "tags" => $ungroupedTags,
+            ]);
+        }
+
+        return response()->json([
+            "status" => "success",
+            "data" => $groupedData,
         ]);
     }
 }

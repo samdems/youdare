@@ -22,8 +22,14 @@ class DatabaseSeeder extends Seeder
             "email" => "test@example.com",
         ]);
 
+        // Seed tag groups
+        $this->call(TagGroupSeeder::class);
+
         // Seed tags
         $this->call(TagSeeder::class);
+
+        // Seed player groups
+        $this->call(PlayerGroupSeeder::class);
 
         // Seed tasks
         $this->call(TaskSeeder::class);

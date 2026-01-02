@@ -5,6 +5,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TagGroupController;
 use App\Http\Controllers\PromoCodeController;
 use Illuminate\Support\Facades\Route;
 
@@ -121,6 +122,36 @@ Route::middleware("admin")->group(function () {
     Route::delete("tags/{tag}", [TagController::class, "destroy"])->name(
         "tags.destroy",
     );
+});
+
+// Tag Group routes - require admin
+Route::middleware("admin")->group(function () {
+    Route::get("tag-groups/create", [
+        TagGroupController::class,
+        "create",
+    ])->name("tag-groups.create");
+    Route::get("tag-groups", [TagGroupController::class, "index"])->name(
+        "tag-groups.index",
+    );
+    Route::get("tag-groups/{tagGroup}", [
+        TagGroupController::class,
+        "show",
+    ])->name("tag-groups.show");
+    Route::post("tag-groups", [TagGroupController::class, "store"])->name(
+        "tag-groups.store",
+    );
+    Route::get("tag-groups/{tagGroup}/edit", [
+        TagGroupController::class,
+        "edit",
+    ])->name("tag-groups.edit");
+    Route::put("tag-groups/{tagGroup}", [
+        TagGroupController::class,
+        "update",
+    ])->name("tag-groups.update");
+    Route::delete("tag-groups/{tagGroup}", [
+        TagGroupController::class,
+        "destroy",
+    ])->name("tag-groups.destroy");
 });
 
 // Promo Code routes - require admin

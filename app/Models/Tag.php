@@ -19,6 +19,7 @@ class Tag extends Model
         "name",
         "slug",
         "description",
+        "tag_group_id",
         "is_default",
         "default_for_gender",
         "min_spice_level",
@@ -62,6 +63,14 @@ class Tag extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the group this tag belongs to.
+     */
+    public function tagGroup()
+    {
+        return $this->belongsTo(TagGroup::class);
     }
 
     /**

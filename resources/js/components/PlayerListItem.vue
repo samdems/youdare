@@ -71,47 +71,71 @@
                 </h3>
 
                 <div
-                    v-if="availableTags.length > 0"
+                    v-if="groupedAvailableTags.length > 0"
                     class="bg-base-200 rounded-lg p-4 max-h-96 overflow-y-auto"
                 >
-                    <div class="space-y-1">
-                        <label
-                            v-for="tag in availableTags"
-                            :key="tag.id"
-                            class="flex items-start gap-3 p-3 rounded-lg hover:bg-base-100 cursor-pointer transition-colors group"
-                        >
-                            <input
-                                type="checkbox"
-                                :checked="player.tags.includes(tag.id)"
-                                @change="$emit('toggle-tag', player.id, tag.id)"
-                                class="toggle toggle-primary mt-1"
-                            />
-                            <div class="flex-1 min-w-0">
-                                <div
-                                    class="font-medium"
-                                    :class="{
-                                        'text-primary': player.tags.includes(
-                                            tag.id,
-                                        ),
-                                        'text-base-content/70':
-                                            !player.tags.includes(tag.id),
-                                    }"
-                                >
-                                    {{ tag.name }}
+                    <!-- Display tags grouped by tag groups -->
+                    <div
+                        v-for="group in groupedAvailableTags"
+                        :key="group.id || group.slug"
+                        class="mb-6 last:mb-0"
+                    >
+                        <!-- Group Header -->
+                        <div class="mb-3">
+                            <h5
+                                class="font-bold text-sm uppercase tracking-wide text-primary"
+                            >
+                                {{ group.name }}
+                            </h5>
+                            <p
+                                v-if="group.description"
+                                class="text-xs text-base-content/50 mt-1"
+                            >
+                                {{ group.description }}
+                            </p>
+                        </div>
+
+                        <!-- Tags in this group -->
+                        <div class="space-y-1">
+                            <label
+                                v-for="tag in group.tags"
+                                :key="tag.id"
+                                class="flex items-start gap-3 p-3 rounded-lg hover:bg-base-100 cursor-pointer transition-colors group"
+                            >
+                                <input
+                                    type="checkbox"
+                                    :checked="player.tags.includes(tag.id)"
+                                    @change="
+                                        $emit('toggle-tag', player.id, tag.id)
+                                    "
+                                    class="toggle toggle-primary mt-1"
+                                />
+                                <div class="flex-1 min-w-0">
+                                    <div
+                                        class="font-medium"
+                                        :class="{
+                                            'text-primary':
+                                                player.tags.includes(tag.id),
+                                            'text-base-content/70':
+                                                !player.tags.includes(tag.id),
+                                        }"
+                                    >
+                                        {{ tag.name }}
+                                    </div>
+                                    <div
+                                        v-if="tag.description"
+                                        class="text-sm text-base-content/50 mt-1"
+                                    >
+                                        {{ tag.description }}
+                                    </div>
                                 </div>
-                                <div
-                                    v-if="tag.description"
-                                    class="text-sm text-base-content/50 mt-1"
-                                >
-                                    {{ tag.description }}
-                                </div>
-                            </div>
-                            <Check
-                                v-if="player.tags.includes(tag.id)"
-                                :size="20"
-                                class="text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1"
-                            />
-                        </label>
+                                <Check
+                                    v-if="player.tags.includes(tag.id)"
+                                    :size="20"
+                                    class="text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1"
+                                />
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div v-else class="text-center py-8 text-base-content/60">
@@ -133,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { User, Check, X, Tags } from "lucide-vue-next";
 
 const props = defineProps({
@@ -152,6 +176,50 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["remove", "toggle-tag"]);
+
+// Group available tags by their tag_group_id
+const groupedAvailableTags = computed(() => {
+    const groups = new Map();
+    const ungrouped = [];
+
+    props.availableTags.forEach((tag) => {
+        if (tag.tag_group && tag.tag_group.id !== null) {
+            const groupKey = tag.tag_group.id;
+            if (!groups.has(groupKey)) {
+                groups.set(groupKey, {
+                    id: tag.tag_group.id,
+                    name: tag.tag_group.name,
+                    slug: tag.tag_group.slug,
+                    description: tag.tag_group.description,
+                    sort_order: tag.tag_group.sort_order,
+                    tags: [],
+                });
+            }
+            groups.get(groupKey).tags.push(tag);
+        } else {
+            ungrouped.push(tag);
+        }
+    });
+
+    // Convert map to array and sort by sort_order
+    const groupedArray = Array.from(groups.values()).sort(
+        (a, b) => a.sort_order - b.sort_order,
+    );
+
+    // Add ungrouped tags if any exist
+    if (ungrouped.length > 0) {
+        groupedArray.push({
+            id: null,
+            name: "Other",
+            slug: "other",
+            description: "Ungrouped tags",
+            sort_order: 999,
+            tags: ungrouped,
+        });
+    }
+
+    return groupedArray;
+});
 
 const openModal = () => {
     const modal = document.querySelector(

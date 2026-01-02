@@ -19,6 +19,7 @@ class Player extends Model
         "game_id",
         "name",
         "gender",
+        "player_group_id",
         "score",
         "is_active",
         "order",
@@ -41,6 +42,14 @@ class Player extends Model
     public function game()
     {
         return $this->belongsTo(Game::class);
+    }
+
+    /**
+     * Get the group this player belongs to.
+     */
+    public function playerGroup()
+    {
+        return $this->belongsTo(PlayerGroup::class);
     }
 
     /**
